@@ -68,7 +68,6 @@ jobs:
     steps:
       - name: Sjekk ut kode
         uses: actions/checkout@v2
-
       - name: Deploy til dev-fss
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -84,7 +83,6 @@ jobs:
     steps:
       - name: Sjekk ut kode
         uses: actions/checkout@v2
-
       - name: Deploy til prod-fss
         uses: nais/deploy/actions/deploy@v1
         env:
