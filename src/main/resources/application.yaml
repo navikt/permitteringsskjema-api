@@ -3,6 +3,10 @@ server:
   servlet:
     context-path: /permitteringsskjema-api
 
+management.endpoints.web:
+  exposure.include: info, health, metrics, prometheus
+  base-path: /internal/actuator
+
 spring:
   profiles:
     active: local
