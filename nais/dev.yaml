@@ -1,0 +1,18 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: permitteringsskjema-api
+  namespace: default
+  labels:
+    team: arbeidsgiver
+spec:
+  image: {{ image }}
+  team: arbeidsgiver
+  port: 8080
+  ingresses:
+    - https://arbeidsgiver.nais.preprod.local/permitteringsskjema-api/
+  env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: dev
+  #image: docker.pkg.github.com/navikt/myrepository/myapplication:417dcaa2c839b9da72e0189e2cfdd4e90e9cc6fd
+  #       ^--- interpolated from the $IMAGE environment variable in the workflow
