@@ -74,7 +74,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
-          RESOURCE: nais/dev-fss.yaml
+          RESOURCE: nais/dev.yaml
           PRINT_PAYLOAD: true
 
   deploy-prod:
@@ -90,5 +90,5 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
-          RESOURCE: nais/prod-fss.yaml
+          RESOURCE: nais/prod.yaml
           PRINT_PAYLOAD: true
