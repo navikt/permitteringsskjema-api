@@ -1,18 +1,33 @@
 apiVersion: nais.io/v1alpha1
-kind: Application
+kind: "Application"
 metadata:
   name: permitteringsskjema-api
   namespace: default
   labels:
     team: arbeidsgiver
 spec:
-  image: {{ image }}
+  image: {{image}}
   team: arbeidsgiver
   port: 8080
+  liveness:
+    path: /permitteringsskjema-api/internal/healthcheck
+    initialDelay: 30
+    timeout: 1
+    periodSeconds: 10
+    failureThreshold: 3
+  readiness:
+    path: /permitteringsskjema-api/internal/healthcheck
+    initialDelay: 30
+    timeout: 1
+    periodSeconds: 10
+    failureThreshold: 3
   ingresses:
     - https://arbeidsgiver.nais.preprod.local/permitteringsskjema-api/
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: dev
+  prometheus:
+    enabled: true
+    path: /tiltaksgjennomforing-api/internal/actuator/prometheus
   #image: docker.pkg.github.com/navikt/myrepository/myapplication:417dcaa2c839b9da72e0189e2cfdd4e90e9cc6fd
   #       ^--- interpolated from the $IMAGE environment variable in the workflow
