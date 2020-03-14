@@ -1,0 +1,28 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /permitteringsskjema-api
+
+spring:
+  profiles:
+    active: local
+
+---
+
+spring:
+  profiles: local
+
+mock:
+  enabled: true
+  port: 8081
+
+---
+
+spring:
+  profiles: dev
+
+
+---
+
+spring:
+  profiles: prod
