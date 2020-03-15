@@ -21,5 +21,5 @@ public class Permittering extends AbstractAggregateRoot<Permittering> {
     @EqualsAndHashCode.Include
     private UUID id;
     private Instant opprettetTidspunkt;
-    private String bedriftNr;
+    private String orgNr;
 }
