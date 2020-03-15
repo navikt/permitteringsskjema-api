@@ -11,10 +11,28 @@ spring:
   profiles:
     active: local
 
+permittering:
+  database:
+    database-navn: permittering
+    database-url: ${spring.datasource.url}
+    minimum-idle: 1
+    maximum-pool-size: 8
+    max-lifetime: 300000
+
 ---
 
 spring:
   profiles: local
+  datasource:
+    platform: postgres
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: sa
+    password: sa
+    driverClassName: org.h2.Driver
+    h2:
+      console:
+        enabled: true
+        path: /h2-console
 
 mock:
   enabled: true
@@ -24,9 +42,15 @@ mock:
 
 spring:
   profiles: dev
+  datasource:
+    platform: postgres
+    driverClassName: org.postgresql.Driver
 
 
 ---
 
 spring:
   profiles: prod
+  datasource:
+    platform: postgres
+    driverClassName: org.postgresql.Driver
