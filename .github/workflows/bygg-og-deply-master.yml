@@ -53,7 +53,10 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Bygg og test med Maven
-        run: mvn package -B -Dsurefire.useFile=false
+        run: mvn package -B -Dsurefire.useFile=false --settings .github/m2/settings.xml
+        env:
+           GITHUB_USERNAME: x-access-token
+
 
       - name: Bygg, tag og push Docker-image
         run: |
