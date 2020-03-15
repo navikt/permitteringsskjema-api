@@ -1,0 +1,1 @@
+alter table permittering rename to permitteringsskjema;
