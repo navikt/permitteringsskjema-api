@@ -11,6 +11,14 @@ spring:
   profiles:
     active: local
 
+permittering:
+  database:
+    database-navn: permittering
+    database-url: ${spring.datasource.url}
+    minimum-idle: 1
+    maximum-pool-size: 8
+    max-lifetime: 300000
+
 ---
 
 spring:
