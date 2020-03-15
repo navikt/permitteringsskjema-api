@@ -9,7 +9,6 @@ spec:
   image: {{image}}
   team: arbeidsgiver
   port: 8080
-  webproxy: true
   liveness:
     path: /permitteringsskjema-api/internal/healthcheck
     initialDelay: 30
@@ -24,6 +23,8 @@ spec:
     failureThreshold: 3
   ingresses:
     - https://arbeidsgiver.nais.preprod.local/permitteringsskjema-api/
+  vault:
+    enabled: true
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: dev
