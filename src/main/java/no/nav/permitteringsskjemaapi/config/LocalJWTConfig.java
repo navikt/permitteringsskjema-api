@@ -1,12 +1,13 @@
 package no.nav.permitteringsskjemaapi.config;
 
-import no.nav.security.token.support.test.spring.TokenGeneratorConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
+
+import no.nav.foreldrepenger.boot.conditionals.ConditionalOnLocal;
+import no.nav.security.token.support.test.spring.TokenGeneratorConfiguration;
 
 @Configuration
 @Import(TokenGeneratorConfiguration.class)
-@Profile("local")
+@ConditionalOnLocal
 public class LocalJWTConfig {
 }
