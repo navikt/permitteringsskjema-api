@@ -53,7 +53,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Bygg og test med Maven
-        run: mvn package -B -Dsurefire.useFile=false --settings .github/.m2/settings.xml
+        run: mvn package -B -Dsurefire.useFile=false --settings .github/workflows/.m2/settings.xml
         env:
            GITHUB_USERNAME: x-access-token
 
