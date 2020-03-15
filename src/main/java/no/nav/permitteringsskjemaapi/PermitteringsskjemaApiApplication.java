@@ -1,14 +1,24 @@
 package no.nav.permitteringsskjemaapi;
 
-import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
-import org.springframework.boot.SpringApplication;
+import static no.nav.permitteringsskjemaapi.config.ClusterAwareSpringProfileResolver.profiles;
+
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.kafka.annotation.EnableKafka;
+
+import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 
 @SpringBootApplication
-@EnableJwtTokenValidation(ignore={"org.springframework", "springfox.documentation.swagger.web.ApiResourceController"})
+@EnableKafka
+@ConfigurationPropertiesScan("no.nav.permitteringsskjemaapi.config")
+@EnableJwtTokenValidation(ignore = { "org.springframework",
+        "springfox.documentation.swagger.web.ApiResourceController" })
 public class PermitteringsskjemaApiApplication {
     public static void main(String[] args) {
-        SpringApplication.run(PermitteringsskjemaApiApplication.class, args);
+        new SpringApplicationBuilder(PermitteringsskjemaApiApplication.class)
+                .profiles(profiles())
+                .main(PermitteringsskjemaApiApplication.class)
+                .run(args);
     }
-
 }

@@ -1,21 +1,24 @@
 package no.nav.permitteringsskjemaapi.database;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil;
-import no.nav.vault.jdbc.hikaricp.VaultError;
+import javax.sql.DataSource;
+
 import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
-import javax.sql.DataSource;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import no.nav.foreldrepenger.boot.conditionals.Cluster;
+import no.nav.foreldrepenger.boot.conditionals.ConditionalOnClusters;
+import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil;
+import no.nav.vault.jdbc.hikaricp.VaultError;
 
 @Configuration
-@Profile({"dev", "prod"})
+@ConditionalOnClusters(clusters = { Cluster.DEV_FSS, Cluster.PROD_FSS })
 public class VaultDatabaseConfiguration {
     private final DatabaseProperties config;
 
@@ -53,7 +56,8 @@ public class VaultDatabaseConfiguration {
             hikariConfig.setMaxLifetime(config.getMaxLifetime());
         }
         try {
-            return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(hikariConfig, config.getVaultSti(), dbRole(user));
+            return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(hikariConfig, config.getVaultSti(),
+                    dbRole(user));
         } catch (VaultError vaultError) {
             throw new BeanCreationException("Feil ved henting av credentials fra Vault: " + user, vaultError);
         }
