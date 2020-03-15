@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 // JPA
 @Entity
-public class Permittering extends AbstractAggregateRoot<Permittering> {
+public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskjema> {
     @Id
     @EqualsAndHashCode.Include
     private UUID id;

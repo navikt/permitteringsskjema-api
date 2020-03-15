@@ -5,11 +5,11 @@ import java.util.UUID;
 
 public class TestData {
 
-    public static Permittering enPermittering() {
-        Permittering permittering = new Permittering();
-        permittering.setId(UUID.randomUUID());
-        permittering.setOrgNr("999999999");
-        permittering.setOpprettetTidspunkt(Instant.now());
-        return permittering;
+    public static Permitteringsskjema enPermittering() {
+        Permitteringsskjema permitteringsskjema = new Permitteringsskjema();
+        permitteringsskjema.setId(UUID.randomUUID());
+        permitteringsskjema.setOrgNr("999999999");
+        permitteringsskjema.setOpprettetTidspunkt(Instant.now());
+        return permitteringsskjema;
     }
 }
