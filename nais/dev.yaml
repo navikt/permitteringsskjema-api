@@ -9,6 +9,7 @@ spec:
   image: {{image}}
   team: arbeidsgiver
   port: 8080
+  webproxy: true
   liveness:
     path: /permitteringsskjema-api/internal/healthcheck
     initialDelay: 30
