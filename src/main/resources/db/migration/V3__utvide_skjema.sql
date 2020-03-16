@@ -1,0 +1,9 @@
+alter table permitteringsskjema add column type varchar;
+alter table permitteringsskjema add column kontakt_navn varchar;
+alter table permitteringsskjema add column kontakt_tlf varchar;
+alter table permitteringsskjema add column varslet_ansatt_dato date;
+alter table permitteringsskjema add column varslet_nav_dato date;
+alter table permitteringsskjema add column start_dato date;
+alter table permitteringsskjema add column slutt_dato date;
+alter table permitteringsskjema add column ukjent_slutt_dato boolean;
+alter table permitteringsskjema add column fritekst varchar;
