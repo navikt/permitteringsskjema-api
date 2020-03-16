@@ -28,7 +28,9 @@ spec:
     paths:
     - kvPath: /serviceuser/data/dev/srvpermittering-api
       mountPath: /var/run/secrets/nais.io/srvpermittering-api
-
+  env:
+    SPRING_DATASOURCE_URL: jdbc:postgresql://b27dbvl013.preprod.local:5432/permittering
+    PERMITTERING_DATABASE_VAULT_STI: postgresql/preprod-fss
   prometheus:
     enabled: true
     path: /permitteringsskjema-api/internal/actuator/prometheus
