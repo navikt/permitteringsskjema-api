@@ -20,6 +20,18 @@ public class TestData {
         permitteringsskjema.setSluttDato(LocalDate.of(2020, 9, 18));
         permitteringsskjema.setUkjentSluttDato(false);
         permitteringsskjema.setFritekst("Fritekst");
+        Person enPerson = enPerson();
+        enPerson.setPermitteringsskjema(permitteringsskjema);
+        permitteringsskjema.getPersoner().add(enPerson);
         return permitteringsskjema;
+    }
+
+    private static Person enPerson() {
+        Person person = new Person();
+        person.setId(UUID.randomUUID());
+        person.setFnr("00000000000");
+        person.setGrad(100);
+        person.setKommentar("Kommentar");
+        return person;
     }
 }
