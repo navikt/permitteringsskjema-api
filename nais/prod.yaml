@@ -26,6 +26,11 @@ spec:
     - https://arbeidsgiver.nais.adeo.no/permitteringsskjema-api/
   vault:
     enabled: true
+  env:
+    - name:  SPRING_DATASOURCE_URL
+      value: jdbc:postgresql://A01DBVL011.adeo.no:5432/permittering
+    - name:  PERMITTERING_DATABASE_VAULT_STI
+      value: postgresql/prod-fss
   prometheus:
     enabled: true
     path: /permitteringsskjema-api/internal/actuator/prometheus
