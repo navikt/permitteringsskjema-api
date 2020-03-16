@@ -19,7 +19,7 @@ import no.nav.permitteringsskjemaapi.config.PermitteringConfig;
 import no.nav.permitteringsskjemaapi.util.ObjectMapperWrapper;
 
 @Service
-@ConditionalOnProperty(name = "permittering.enabled")
+@ConditionalOnProperty(name = "permittering.dagpenger.enabled")
 public class PermitteringMeldingKafkaProdusent implements Permittering {
 
     private static final Logger LOG = LoggerFactory.getLogger(PermitteringMeldingKafkaProdusent.class);

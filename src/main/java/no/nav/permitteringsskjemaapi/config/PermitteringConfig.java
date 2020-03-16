@@ -3,7 +3,7 @@ package no.nav.permitteringsskjemaapi.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
 
-@ConfigurationProperties(prefix = "permittering")
+@ConfigurationProperties(prefix = "permittering.dagpenger")
 public class PermitteringConfig {
     private final String topic;
     private final boolean enabled;
