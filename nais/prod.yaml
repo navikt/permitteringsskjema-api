@@ -26,9 +26,6 @@ spec:
     - https://arbeidsgiver.nais.adeo.no/permitteringsskjema-api/
   vault:
     enabled: true
-  env:
-    - name: SPRING_PROFILES_ACTIVE
-      value: prod
   prometheus:
     enabled: true
     path: /permitteringsskjema-api/internal/actuator/prometheus
