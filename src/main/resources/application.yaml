@@ -47,6 +47,9 @@ permittering:
 
 ---    
 management:
+   health:
+      db:
+        enabled: false
    endpoints:
       web:
          exposure:
