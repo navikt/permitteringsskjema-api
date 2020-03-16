@@ -1,7 +1,9 @@
 package no.nav.permitteringsskjemaapi;
 
 import lombok.AllArgsConstructor;
+import no.nav.permitteringsskjemaapi.tjenester.permittering.Permittering;
 import no.nav.security.token.support.core.api.Unprotected;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,10 +26,18 @@ public class PermitteringsskjemaController {
         return repository.findAllByOrgNr(orgNr);
     }
 
-    @PostMapping("/{orgNr}/{id}")
-    public void lagre(@PathVariable String orgNr, @PathVariable UUID id, @RequestBody Permitteringsskjema skjema) {
-        skjema.setId(id);
-        skjema.setOrgNr(orgNr);
-        repository.save(skjema);
+    @PostMapping("/{orgNr}")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Permitteringsskjema opprett(@PathVariable String orgNr) {
+        Permitteringsskjema skjema = Permitteringsskjema.nyttSkjema(orgNr);
+        return repository.save(skjema);
     }
+
+    @PutMapping("/{orgNr}/{id}")
+    public Permitteringsskjema endre(@PathVariable String orgNr, @PathVariable UUID id, @RequestBody EndreSkjema endreSkjema) {
+        Permitteringsskjema permitteringsskjema = repository.findByIdAndOrgNr(id, orgNr);
+        permitteringsskjema.endre(endreSkjema);
+        return repository.save(permitteringsskjema);
+    }
+
 }

@@ -3,6 +3,8 @@ package no.nav.permitteringsskjemaapi;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaEndret;
+import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
 import javax.persistence.*;
@@ -36,6 +38,31 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     private String fritekst;
 
     @OneToMany(mappedBy = "permitteringsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @OrderBy("id")
     private List<Person> personer = new ArrayList<>();
+
+    public static Permitteringsskjema nyttSkjema(String orgNr) {
+        Permitteringsskjema skjema = new Permitteringsskjema();
+        skjema.setId(UUID.randomUUID());
+        skjema.setOpprettetTidspunkt(Instant.now());
+        skjema.setOrgNr(orgNr);
+        skjema.registerEvent(new SkjemaOpprettet(skjema));
+        return skjema;
+    }
+
+    public void endre(EndreSkjema endreSkjema) {
+        setType(endreSkjema.getType());
+        setKontaktNavn(endreSkjema.getKontaktNavn());
+        setKontaktTlf(endreSkjema.getKontaktTlf());
+        setVarsletAnsattDato(endreSkjema.getVarsletAnsattDato());
+        setVarsletNavDato(endreSkjema.getVarsletNavDato());
+        setStartDato(endreSkjema.getStartDato());
+        setSluttDato(endreSkjema.getSluttDato());
+        setUkjentSluttDato(endreSkjema.getUkjentSluttDato());
+        setFritekst(endreSkjema.getFritekst());
+        personer.clear();
+        personer.addAll(endreSkjema.getPersoner());
+        personer.forEach(p -> p.setId(UUID.randomUUID()));
+        personer.forEach(p -> p.setPermitteringsskjema(this));
+        registerEvent(new SkjemaEndret(this));
+    }
 }
