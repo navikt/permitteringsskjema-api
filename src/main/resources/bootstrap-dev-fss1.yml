@@ -1,6 +1,6 @@
 spring:
    cloud:
-      vault:
+      vault:  
          authentication: KUBERNETES
          kubernetes:
             role: permitteringsskjema-api

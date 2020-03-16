@@ -142,10 +142,12 @@
             <artifactId>boot-conditionals</artifactId>
             <version>1.0.20200301232451-61d66ff</version>
         </dependency>
+        <!--  
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-vault-config</artifactId>
         </dependency>
+        -->
     </dependencies>
 
     <build>
