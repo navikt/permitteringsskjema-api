@@ -24,18 +24,7 @@
             <id>confluent</id>
             <url>http://packages.confluent.io/maven/</url>
         </repository>
-    </repositories>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-vault-dependencies</artifactId>
-                <version>2.2.2.RELEASE</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    </repositories>        
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
