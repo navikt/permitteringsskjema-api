@@ -19,14 +19,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("local")
 @DirtiesContext
 public class PermitteringsskjemaRepositoryTest {
+    private Permitteringsskjema lagretPermitteringsskjema;
+    private Permitteringsskjema permitteringsskjema;
+
     @Autowired
     private PermitteringsskjemaRepository repository;
 
-    private Permitteringsskjema permitteringsskjema;
-
     @Before
     public void setUp() {
-        permitteringsskjema = repository.save(TestData.enPermittering());
+        permitteringsskjema = TestData.enPermittering();
+        lagretPermitteringsskjema = repository.save(permitteringsskjema);
+    }
+
+    @Test
+    public void skal_kunne_lagre_alle_felter() {
+        assertThat(lagretPermitteringsskjema)
+                .usingRecursiveComparison() // Felt-for-felt sammenligning
+                .isEqualTo(permitteringsskjema);
     }
 
     @Test
