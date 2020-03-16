@@ -25,9 +25,10 @@ spec:
     - https://arbeidsgiver.nais.preprod.local/permitteringsskjema-api/
   vault:
     enabled: true
-  env:
-    - name: SPRING_PROFILES_ACTIVE
-      value: dev
+    paths:
+    - kvPath: /serviceuser/data/dev/srvpermittering-api
+      mountPath: /var/run/secrets/nais.io/srvpermittering-api
+
   prometheus:
     enabled: true
-    path: /tiltaksgjennomforing-api/internal/actuator/prometheus
+    path: /permitteringsskjema-api/internal/actuator/prometheus

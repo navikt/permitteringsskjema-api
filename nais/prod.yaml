@@ -31,4 +31,4 @@ spec:
       value: prod
   prometheus:
     enabled: true
-    path: /tiltaksgjennomforing-api/internal/actuator/prometheus
+    path: /permitteringsskjema-api/internal/actuator/prometheus
