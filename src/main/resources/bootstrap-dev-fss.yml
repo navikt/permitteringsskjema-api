@@ -1,0 +1,8 @@
+spring:
+   cloud:
+      vault:
+         generic:
+            enabled: true
+            backend: kv/preprod/fss
+            application-name: permitteringsskjema-api/default
+            default-context: permitteringsskjema-api/default
