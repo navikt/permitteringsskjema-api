@@ -23,7 +23,7 @@ public class PermitteringMeldingProdusentController {
     }
 
     @PostMapping(value = "/permitter")
-    public ResponseEntity<?> lagre(@RequestBody @Valid Permitteringsskjema skjema) {
+    public ResponseEntity<?> permitter(@RequestBody @Valid Permitteringsskjema skjema) {
         permittering.publiser(skjema);
         return ResponseEntity.ok("OK");
     }
