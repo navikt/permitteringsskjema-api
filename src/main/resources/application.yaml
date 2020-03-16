@@ -85,7 +85,9 @@ no.nav.security.jwt.issuer.selvbetjening:
       cookiename: localhost-idtoken
 
 ---
-
+permittering:
+  dagpenger:
+    enabled: true 
 spring:
   profiles: dev-fss
   datasource:
