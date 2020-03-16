@@ -14,7 +14,7 @@ import java.util.UUID;
 // Lombok
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-// Hibernate
+// JPA
 @Entity
 public class Person {
     @Id
