@@ -11,7 +11,7 @@ import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 
 @SpringBootApplication
 @EnableKafka
-@ConfigurationPropertiesScan("no.nav.permitteringsskjemaapi.config")
+@ConfigurationPropertiesScan("no.nav.permitteringsskjemaapi")
 @EnableJwtTokenValidation(ignore = { "org.springframework",
         "springfox.documentation.swagger.web.ApiResourceController" })
 public class PermitteringsskjemaApiApplication {
