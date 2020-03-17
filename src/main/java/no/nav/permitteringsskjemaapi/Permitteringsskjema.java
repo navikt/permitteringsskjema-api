@@ -1,29 +1,21 @@
 package no.nav.permitteringsskjemaapi;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.data.domain.AbstractAggregateRoot;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaEndret;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.data.domain.AbstractAggregateRoot;
+
+import javax.persistence.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 // Lombok
 @Data
@@ -51,11 +43,12 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     private LocalDate varsletAnsattDato;
     private LocalDate varsletNavDato;
 
-    public static Permitteringsskjema nyttSkjema(String orgNr) {
+    public static Permitteringsskjema opprettSkjema(OpprettSkjema opprettSkjema) {
         Permitteringsskjema skjema = new Permitteringsskjema();
         skjema.setId(UUID.randomUUID());
         skjema.setOpprettetTidspunkt(Instant.now());
-        skjema.setOrgNr(orgNr);
+        skjema.setOrgNr(opprettSkjema.getOrgNr());
+        skjema.setType(opprettSkjema.getType());
         skjema.registerEvent(new SkjemaOpprettet(skjema));
         return skjema;
     }
