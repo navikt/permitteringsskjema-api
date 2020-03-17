@@ -26,6 +26,9 @@ spec:
     - https://arbeidsgiver.nais.adeo.no/permitteringsskjema-api/
   vault:
     enabled: true
+    paths:
+    - kvPath: apigw/prod/eksternapp.altinn.serviceowner/permitteringsskjema-api
+     mountPath: /var/run/secrets/nais.io/permittering-api/AltinnAPIGwHeader
   env:
     - name:  SPRING_DATASOURCE_URL
       value: jdbc:postgresql://A01DBVL011.adeo.no:5432/permittering
