@@ -40,4 +40,10 @@ public class PermitteringsskjemaController {
         return repository.save(permitteringsskjema);
     }
 
+    @PostMapping("/{orgNr}/{id}/send-inn")
+    public Permitteringsskjema sendInn(@PathVariable String orgNr, @PathVariable UUID id) {
+        Permitteringsskjema permitteringsskjema = repository.findByIdAndOrgNr(id, orgNr);
+        permitteringsskjema.sendInn();
+        return repository.save(permitteringsskjema);
+    }
 }

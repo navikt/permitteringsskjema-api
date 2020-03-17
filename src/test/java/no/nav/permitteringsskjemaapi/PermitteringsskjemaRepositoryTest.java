@@ -27,7 +27,7 @@ public class PermitteringsskjemaRepositoryTest {
 
     @Before
     public void setUp() {
-        permitteringsskjema = TestData.enPermittering();
+        permitteringsskjema = TestData.enPermitteringMedAltFyltUt();
         lagretPermitteringsskjema = repository.save(permitteringsskjema);
     }
 
