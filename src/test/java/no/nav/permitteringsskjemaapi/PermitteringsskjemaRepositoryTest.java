@@ -9,7 +9,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,17 +41,5 @@ public class PermitteringsskjemaRepositoryTest {
     public void skal_kunne_hentes_med_id() {
         Optional<Permitteringsskjema> hentetPermittering = repository.findById(permitteringsskjema.getId());
         assertThat(hentetPermittering).hasValue(permitteringsskjema);
-    }
-
-    @Test
-    public void skal_kunne_hentes_med_orgnr() {
-        List<Permitteringsskjema> hentetPermittering = repository.findAllByOrgNr(permitteringsskjema.getOrgNr());
-        assertThat(hentetPermittering).contains(permitteringsskjema);
-    }
-
-    @Test
-    public void skal_ikke_kunne_hentes_med_annet_orgnr() {
-        List<Permitteringsskjema> hentetPermittering = repository.findAllByOrgNr("000000000");
-        assertThat(hentetPermittering).doesNotContain(permitteringsskjema);
     }
 }
