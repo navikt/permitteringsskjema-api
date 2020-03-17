@@ -40,7 +40,3 @@ spec:
   prometheus:
     enabled: true
     path: /permitteringsskjema-api/internal/actuator/prometheus
-
-
-  /kv/preprod/sbs/myapp/default
-  kv/preprod/fss/permitteringsskjema-api/default
