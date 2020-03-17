@@ -27,7 +27,7 @@ spec:
   vault:
     enabled: true
     paths:
-    - kvPath: apigw/prod/eksternapp.altinn.serviceowner/permitteringsskjema-api
+    - kvPath: /apikey/apigw/dev/eksternapp.altinn.serviceowner/permitteringsskjema-api
      mountPath: /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header
     - kvPath: /kv/prod/fss/permitteringsskjema-api/default
       mountPath: /var/run/secrets/nais.io/permittering-api/altinnheader
