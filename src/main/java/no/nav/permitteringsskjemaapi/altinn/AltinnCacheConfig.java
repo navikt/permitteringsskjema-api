@@ -29,5 +29,5 @@ public class AltinnCacheConfig {
                         .expireAfterWrite(15, TimeUnit.MINUTES)
                         .recordStats()
                         .build());
-    }d
+    }
 }
