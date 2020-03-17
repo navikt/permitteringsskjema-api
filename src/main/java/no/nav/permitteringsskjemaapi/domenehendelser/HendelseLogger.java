@@ -16,4 +16,9 @@ public class HendelseLogger {
     public void endret(SkjemaEndret event) {
         log.info("Skjema endret id={}", event.getPermitteringsskjema().getId().toString());
     }
+
+    @EventListener
+    public void sendtInn(SkjemaSendtInn event) {
+        log.info("Skjema sendt inn id={}", event.getPermitteringsskjema().getId().toString());
+    }
 }
