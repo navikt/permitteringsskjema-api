@@ -1,17 +1,5 @@
 package no.nav.permitteringsskjemaapi;
 
-<<<<<<<HEAD=======
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaEndret;
-import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
-import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.data.domain.AbstractAggregateRoot;
-
-import javax.persistence.*;>>>>>>>5316f bd2d973a9038cf84b1963cd3912c6607ee6
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,6 +15,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
 import lombok.Data;
@@ -34,6 +23,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaEndret;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
+import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
 
 // Lombok
 @Data
@@ -118,6 +108,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
                 .varsletAnsattDato(varsletAnsattDato)
                 .varsletNavDato(varsletNavDato)
                 .build();
+    }
 
     private void sjekkOmSkjemaErSendtInn() {
         if (sendtInn) {
