@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import no.nav.foreldrepenger.boot.conditionals.ConditionalOnNotProd;
-import no.nav.permitteringsskjemaapi.Permitteringsskjema;
+import no.nav.permitteringsskjemaapi.PermittertPerson;
 import no.nav.security.token.support.core.api.Unprotected;
 
 @RestController
@@ -23,8 +23,8 @@ public class PermitteringMeldingProdusentController {
     }
 
     @PostMapping(value = "/permitter")
-    public ResponseEntity<?> permitter(@RequestBody @Valid Permitteringsskjema skjema) {
-        permittering.publiser(skjema);
+    public ResponseEntity<?> permitter(@RequestBody @Valid PermittertPerson person) {
+        permittering.publiser(person);
         return ResponseEntity.ok("OK");
     }
 }

@@ -14,7 +14,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
-import no.nav.permitteringsskjemaapi.Permitteringsskjema;
+import no.nav.permitteringsskjemaapi.PermittertPerson;
 import no.nav.permitteringsskjemaapi.config.PermitteringConfig;
 import no.nav.permitteringsskjemaapi.util.ObjectMapperWrapper;
 
@@ -36,9 +36,9 @@ public class PermitteringMeldingKafkaProdusent implements Permittering {
     }
 
     @Override
-    public void publiser(Permitteringsskjema skjema) {
+    public void publiser(PermittertPerson person) {
         send(MessageBuilder
-                .withPayload(mapper.writeValueAsString(skjema))
+                .withPayload(mapper.writeValueAsString(person))
                 .setHeader(TOPIC, config.getTopic())
                 .setHeader(NAV_CALL_ID, callIdOrNew())
                 .build());

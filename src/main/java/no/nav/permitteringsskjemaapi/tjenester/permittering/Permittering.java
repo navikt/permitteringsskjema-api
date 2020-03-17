@@ -1,7 +1,7 @@
 package no.nav.permitteringsskjemaapi.tjenester.permittering;
 
-import no.nav.permitteringsskjemaapi.Permitteringsskjema;
+import no.nav.permitteringsskjemaapi.PermittertPerson;
 
 public interface Permittering {
-    void publiser(Permitteringsskjema skjema);
+    void publiser(PermittertPerson person);
 }

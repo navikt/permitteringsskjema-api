@@ -1,18 +1,27 @@
 package no.nav.permitteringsskjemaapi;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaEndret;
-import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
-import org.springframework.data.domain.AbstractAggregateRoot;
-
-import javax.persistence.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+import org.springframework.data.domain.AbstractAggregateRoot;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaEndret;
+import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
 
 // Lombok
 @Data
@@ -64,5 +73,29 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         personer.forEach(p -> p.setId(UUID.randomUUID()));
         personer.forEach(p -> p.setPermitteringsskjema(this));
         registerEvent(new SkjemaEndret(this));
+    }
+
+    public List<PermittertPerson> permittertePersoner() {
+        return personer.stream()
+                .map(this::tilPermittertPerson)
+                .collect(Collectors.toList());
+    }
+
+    private PermittertPerson tilPermittertPerson(Person p) {
+        return PermittertPerson.builder()
+                .person(p)
+                .fritekst(fritekst)
+                .kontaktNavn(kontaktNavn)
+                .kontaktTlf(kontaktTlf)
+                .opprettetTidspunkt(opprettetTidspunkt)
+                .orgNr(orgNr)
+                .sluttDato(sluttDato)
+                .startDato(startDato)
+                .type(type)
+                .ukjentSluttDato(ukjentSluttDato)
+                .varsletAnsattDato(varsletAnsattDato)
+                .varsletNavDato(varsletNavDato)
+                .build();
+
     }
 }
