@@ -128,7 +128,7 @@ no.nav.security.jwt.selvbetjening:
   cookiename: selvbetjening-idtoken
   proxyurl: http://webproxy.nais:8088
 
-  altinn:
-    altinnUrl: "https://api-gw.adeo.no/ekstern/altinn/api/serviceowner/"
-    altinnHeader: ${ALTINN_HEADER}
-    APIGwHeader: ${ALTINN_APIGW_HEADER}
+altinn:
+  altinnUrl: "https://api-gw.adeo.no/ekstern/altinn/api/serviceowner/"
+  altinnHeader: ${ALTINN_HEADER}
+  APIGwHeader: ${ALTINN_APIGW_HEADER}
