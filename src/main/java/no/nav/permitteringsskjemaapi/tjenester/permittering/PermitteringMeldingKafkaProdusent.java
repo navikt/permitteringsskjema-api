@@ -7,6 +7,7 @@ import static org.springframework.kafka.support.KafkaHeaders.TOPIC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.messaging.Message;
@@ -16,6 +17,7 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import no.nav.permitteringsskjemaapi.PermittertPerson;
 import no.nav.permitteringsskjemaapi.config.PermitteringConfig;
+import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
 import no.nav.permitteringsskjemaapi.util.ObjectMapperWrapper;
 
 @Service
@@ -33,6 +35,14 @@ public class PermitteringMeldingKafkaProdusent implements Permittering {
         this.kafkaOperations = kafkaOperations;
         this.config = config;
         this.mapper = mapper;
+    }
+
+    @EventListener
+    public void sendInn(SkjemaSendtInn event) {
+        LOG.info("Skjema sendt inn id={}", event.getPermitteringsskjema().getId());
+        event.getPermitteringsskjema()
+                .permittertePersoner().stream()
+                .forEach(this::publiser);
     }
 
     @Override

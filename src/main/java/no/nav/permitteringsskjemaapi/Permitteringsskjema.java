@@ -27,7 +27,7 @@ import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
 
 // Lombok
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @NoArgsConstructor
 // JPA
 @Entity
@@ -111,6 +111,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     }
 
     private void sjekkOmSkjemaErSendtInn() {
+
         if (sendtInn) {
             throw new RuntimeException("Skjema er allerede sendt inn");
         }
