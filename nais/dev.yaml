@@ -29,7 +29,9 @@ spec:
     - kvPath: /serviceuser/data/dev/srvpermittering-api
       mountPath: /var/run/secrets/nais.io/srvpermittering-api
     - kvPath: /apigw/dev/eksternapp.altinn.serviceowner/permitteringsskjema-api
-      mountPath: /var/run/secrets/nais.io/permittering-api/AltinnAPIGwHeader
+      mountPath: /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header
+    - kvPath: kv/preprod/fss/permitteringsskjema-api/altinnheader
+      mountPath: /var/run/secrets/nais.io/permittering-api/altinnheader
   env:
     - name:  SPRING_DATASOURCE_URL
       value: jdbc:postgresql://b27dbvl013.preprod.local:5432/permittering
@@ -38,3 +40,7 @@ spec:
   prometheus:
     enabled: true
     path: /permitteringsskjema-api/internal/actuator/prometheus
+
+
+  /kv/preprod/sbs/myapp/default
+  kv/preprod/fss/permitteringsskjema-api/default

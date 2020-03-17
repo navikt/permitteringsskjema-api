@@ -131,4 +131,4 @@ no.nav.security.jwt.selvbetjening:
   altinn:
     altinnUrl: "https://api-gw.adeo.no/ekstern/altinn/api/serviceowner/"
     altinnHeader: ${ALTINN_HEADER}
-    APIGwHeader: ${APIGW_HEADER}
+    APIGwHeader: ${ALTINN_APIGW_HEADER}
