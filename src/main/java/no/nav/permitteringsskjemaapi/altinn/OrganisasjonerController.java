@@ -19,7 +19,6 @@ public class OrganisasjonerController {
     private final AltinnService altinnService;
     private FnrExtractor fnrExtractor;
 
-
     @GetMapping
     public ResponseEntity<List<AltinnOrganisasjon>> hentOrganisasjoner() {
         String fnr = fnrExtractor.extract();

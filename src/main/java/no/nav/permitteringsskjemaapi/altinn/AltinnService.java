@@ -1,6 +1,7 @@
 package no.nav.permitteringsskjemaapi.altinn;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.permitteringsskjemaapi.exceptions.PermitteringsApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
@@ -75,6 +76,7 @@ public class AltinnService {
                     hasMore = currentResponseList.size() >= pageSize;
                 } catch (RestClientException exception) {
                     log.error("Feil fra Altinn med spørring: " + url + " Exception: " + exception.getMessage());
+                    throw new PermitteringsApiException("Det har skjedd en feil ved oppslag mot Altinn. Forsøk å laste siden på nytt");
                 }
             }
             return new ArrayList<T>(response);
