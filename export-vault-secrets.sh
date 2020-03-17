@@ -17,9 +17,3 @@ then
     export  ALTINN_APIGW_HEADER=$(cat /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header)
     echo "Setting ALTINN_APIGW_HEADER"
 fi
-
-if test -f /var/run/secrets/nais.io/permittering-api/altinnheader;
-then
-    export  ALTINN_HEADER=$(cat /var/run/secrets/nais.io/permittering-api/altinnheader)
-    echo "Setting ALTINN_HEADER"
-fi
