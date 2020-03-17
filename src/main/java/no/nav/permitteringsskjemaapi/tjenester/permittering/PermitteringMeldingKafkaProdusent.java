@@ -42,7 +42,6 @@ public class PermitteringMeldingKafkaProdusent implements Permittering {
                 .setHeader(TOPIC, config.getTopic())
                 .setHeader(NAV_CALL_ID, callIdOrNew())
                 .build());
-
     }
 
     private void send(Message<String> message) {
@@ -61,6 +60,12 @@ public class PermitteringMeldingKafkaProdusent implements Permittering {
                         LOG.warn("Kunne ikke sende melding {} på {}", message.getPayload(), config.getTopic(), e);
                     }
                 });
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[kafkaOperations=" + kafkaOperations + ", mapper=" + mapper + ", config="
+                + config + "]";
     }
 
 }

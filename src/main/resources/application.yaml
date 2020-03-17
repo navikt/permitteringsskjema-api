@@ -47,14 +47,10 @@ permittering:
 
 ---    
 management:
-   health:
-      db:
-        enabled: false
    endpoints:
       web:
          exposure:
             include: '*'
-            exclude: health
    endpoint:
       health:
          show-details: always  
