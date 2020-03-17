@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public class TestData {
 
-    public static Permitteringsskjema enPermittering() {
+    public static Permitteringsskjema enPermitteringMedAltFyltUt() {
         Permitteringsskjema permitteringsskjema = new Permitteringsskjema();
         permitteringsskjema.setId(UUID.randomUUID());
         permitteringsskjema.setOpprettetTidspunkt(Instant.now());

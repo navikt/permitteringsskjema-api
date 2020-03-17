@@ -1,5 +1,17 @@
 package no.nav.permitteringsskjemaapi;
 
+<<<<<<<HEAD=======
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaEndret;
+import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
+import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.data.domain.AbstractAggregateRoot;
+
+import javax.persistence.*;>>>>>>>5316f bd2d973a9038cf84b1963cd3912c6607ee6
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -30,24 +42,24 @@ import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
 // JPA
 @Entity
 public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskjema> {
+    private String fritekst;
     @Id
     @EqualsAndHashCode.Include
     private UUID id;
-    private Instant opprettetTidspunkt;
-    private String orgNr;
-    @Enumerated(EnumType.STRING)
-    private SkjemaType type;
     private String kontaktNavn;
     private String kontaktTlf;
-    private LocalDate varsletAnsattDato;
-    private LocalDate varsletNavDato;
-    private LocalDate startDato;
-    private LocalDate sluttDato;
-    private Boolean ukjentSluttDato;
-    private String fritekst;
-
+    private Instant opprettetTidspunkt;
+    private String orgNr;
     @OneToMany(mappedBy = "permitteringsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Person> personer = new ArrayList<>();
+    private boolean sendtInn;
+    private LocalDate sluttDato;
+    private LocalDate startDato;
+    @Enumerated(EnumType.STRING)
+    private SkjemaType type;
+    private boolean ukjentSluttDato;
+    private LocalDate varsletAnsattDato;
+    private LocalDate varsletNavDato;
 
     public static Permitteringsskjema nyttSkjema(String orgNr) {
         Permitteringsskjema skjema = new Permitteringsskjema();
@@ -58,7 +70,17 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         return skjema;
     }
 
+    private static boolean isAnyEmpty(Object... objects) {
+        for (Object object : objects) {
+            if (ObjectUtils.isEmpty(object)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void endre(EndreSkjema endreSkjema) {
+        sjekkOmSkjemaErSendtInn();
         setType(endreSkjema.getType());
         setKontaktNavn(endreSkjema.getKontaktNavn());
         setKontaktTlf(endreSkjema.getKontaktTlf());
@@ -97,5 +119,30 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
                 .varsletNavDato(varsletNavDato)
                 .build();
 
+    private void sjekkOmSkjemaErSendtInn() {
+        if (sendtInn) {
+            throw new RuntimeException("Skjema er allerede sendt inn");
+        }
+    }
+
+    public void sendInn() {
+        sjekkOmObligatoriskInformasjonErFyltUt();
+        setSendtInn(true);
+        registerEvent(new SkjemaSendtInn(this));
+    }
+
+    private void sjekkOmObligatoriskInformasjonErFyltUt() {
+        if (isAnyEmpty(
+                type,
+                kontaktNavn,
+                kontaktTlf,
+                varsletAnsattDato,
+                varsletNavDato,
+                startDato,
+                sluttDato,
+                ukjentSluttDato,
+                fritekst)) {
+            throw new RuntimeException("Alle felter er ikke fylt ut");
+        }
     }
 }

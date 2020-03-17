@@ -1,11 +1,13 @@
 package no.nav.permitteringsskjemaapi;
 
+import lombok.Builder;
 import lombok.Value;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Builder
 @Value
 // Value object med felter som kan endres på et skjema
 public class EndreSkjema {
