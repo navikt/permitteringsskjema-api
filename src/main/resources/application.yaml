@@ -113,7 +113,7 @@ no.nav.security.jwt.issuer.selvbetjening:
 altinn:
   altinnUrl: "https://api-gw-q1.adeo.no/ekstern/altinn/api/serviceowner/"
   altinnHeader: ${ALTINN_HEADER}
-  APIGwHeader: ${APIGW_HEADER}
+  APIGwHeader: ${ALTINN_APIGW_HEADER}
 
 ---
 spring:
