@@ -28,7 +28,7 @@ spec:
     paths:
     - kvPath: /serviceuser/data/dev/srvpermittering-api
       mountPath: /var/run/secrets/nais.io/srvpermittering-api
-    - kvPath: /apigw/dev/eksternapp.altinn.serviceowner/permitteringsskjema-api
+    - kvPath: /apigw/dev/eksternapp.altinn.serviceowner/permitteringsskjema-api_q1
       mountPath: /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header
     - kvPath: /kv/preprod/fss/permitteringsskjema-api/altinnheader
       mountPath: /var/run/secrets/nais.io/permittering-api/altinnheader
