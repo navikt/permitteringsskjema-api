@@ -1,6 +1,7 @@
 package no.nav.permitteringsskjemaapi;
 
 import lombok.AllArgsConstructor;
+import no.nav.security.token.support.core.api.Protected;
 import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,7 @@ import java.util.UUID;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/skjema")
-@Unprotected
+@Protected
 public class PermitteringsskjemaController {
     private final PermitteringsskjemaRepository repository;
 

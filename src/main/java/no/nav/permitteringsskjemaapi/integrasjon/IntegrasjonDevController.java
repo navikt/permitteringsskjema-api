@@ -2,6 +2,7 @@ package no.nav.permitteringsskjemaapi.integrasjon;
 
 import javax.validation.Valid;
 
+import no.nav.security.token.support.core.api.Protected;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +17,7 @@ import no.nav.security.token.support.core.api.Unprotected;
 
 @RestController
 @ConditionalOnNotProd
-@Unprotected
+@Protected
 public class IntegrasjonDevController {
 
     private final Permittering permittering;
