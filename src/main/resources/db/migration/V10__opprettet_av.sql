@@ -1,0 +1,1 @@
+alter table permitteringsskjema add column opprettet_av varchar(11);

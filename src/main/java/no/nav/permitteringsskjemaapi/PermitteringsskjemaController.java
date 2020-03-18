@@ -3,6 +3,8 @@ package no.nav.permitteringsskjemaapi;
 import lombok.AllArgsConstructor;
 import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon;
 import no.nav.permitteringsskjemaapi.altinn.AltinnService;
+import no.nav.permitteringsskjemaapi.controller.IkkeFunnetException;
+import no.nav.permitteringsskjemaapi.controller.IkkeTilgangException;
 import no.nav.permitteringsskjemaapi.util.FnrExtractor;
 import no.nav.security.token.support.core.api.Protected;
 import org.springframework.http.HttpStatus;
@@ -23,20 +25,23 @@ public class PermitteringsskjemaController {
     private final PermitteringsskjemaRepository repository;
 
     @GetMapping("/{id}")
-    public Optional<Permitteringsskjema> hent(@PathVariable UUID id) {
-        return repository.findById(id);
+    public Permitteringsskjema hent(@PathVariable UUID id) {
+        String fnr = fnrExtractor.extract();
+        return repository.findByIdAndOpprettetAv(id, fnr)
+                .orElseThrow(IkkeFunnetException::new);
     }
 
     @GetMapping
     public List<Permitteringsskjema> hent() {
-        return repository.findAll();
+        String fnr = fnrExtractor.extract();
+        return repository.findAllByOpprettetAv(fnr);
     }
 
     @PostMapping
     public ResponseEntity<Permitteringsskjema> opprett(@RequestBody OpprettSkjema opprettSkjema) {
         String fnr = fnrExtractor.extract();
         AltinnOrganisasjon organisasjon = hentOrganisasjon(fnr, opprettSkjema.getBedriftNr())
-                .orElseThrow(); // Kaste bedre exception etter hvert
+                .orElseThrow(IkkeTilgangException::new);
         Permitteringsskjema skjema = Permitteringsskjema.opprettSkjema(opprettSkjema, fnr);
         skjema.setBedriftNavn(organisasjon.getName());
         Permitteringsskjema lagretSkjema = repository.save(skjema);
@@ -52,14 +57,18 @@ public class PermitteringsskjemaController {
 
     @PutMapping("/{id}")
     public Permitteringsskjema endre(@PathVariable UUID id, @RequestBody EndreSkjema endreSkjema) {
-        Permitteringsskjema permitteringsskjema = repository.findById(id).orElseThrow();
+        String fnr = fnrExtractor.extract();
+        Permitteringsskjema permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr)
+                .orElseThrow(IkkeFunnetException::new);
         permitteringsskjema.endre(endreSkjema, fnrExtractor.extract());
         return repository.save(permitteringsskjema);
     }
 
     @PostMapping("/{id}/send-inn")
     public Permitteringsskjema sendInn(@PathVariable UUID id) {
-        Permitteringsskjema permitteringsskjema = repository.findById(id).orElseThrow();
+        String fnr = fnrExtractor.extract();
+        Permitteringsskjema permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr)
+                .orElseThrow(IkkeFunnetException::new);
         permitteringsskjema.sendInn(fnrExtractor.extract());
         return repository.save(permitteringsskjema);
     }
