@@ -13,6 +13,8 @@ management:
       health:
          show-details: never
 spring:
+  jackson:
+      default-property-inclusion: non-absent
   kafka:
       properties:
          security:
