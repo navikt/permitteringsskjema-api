@@ -12,8 +12,8 @@ then
     echo "Setting SYSTEMBRUKER_USERNAME"
 fi
 
-if test -f /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header;
+if test -f /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header/x-nav-apiKey;
 then
-    export  ALTINN_APIGW_HEADER=$(cat /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header)
+    export  ALTINN_APIGW_HEADER=$(cat /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header/x-nav-apiKey)
     echo "Setting ALTINN_APIGW_HEADER"
 fi
