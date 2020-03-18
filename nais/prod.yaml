@@ -27,7 +27,7 @@ spec:
   vault:
     enabled: true
     paths:
-    - kvPath: /apikey/apigw/dev/eksternapp.altinn.serviceowner/permitteringsskjema-api
+    - kvPath: /apikey/apigw/prod/eksternapp.altinn.serviceowner/permitteringsskjema-api
       mountPath: /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header
   env:
     - name:  SPRING_DATASOURCE_URL
