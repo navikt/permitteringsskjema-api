@@ -11,7 +11,7 @@ class PermitteringsskjemaTest {
     @Test
     void skal_ikke_kunne_endres_når_allerede_sendt_inn() {
         Permitteringsskjema skjema = TestData.enPermitteringMedAltFyltUt();
-        skjema.setSendtInn(Instant.now());
+        skjema.setSendtInnTidspunkt(Instant.now());
         assertThatThrownBy(() -> skjema.endre(EndreSkjema.builder().build())).isInstanceOf(RuntimeException.class);
     }
 
@@ -21,7 +21,7 @@ class PermitteringsskjemaTest {
         skjema.sendInn();
 
         // 100 ms er valgt litt vilkårlig, bare så det ikke sammenlignes eksakt på nanosekundet
-        assertThat(skjema.getSendtInn()).isCloseTo(Instant.now(), within(100, MILLIS));
+        assertThat(skjema.getSendtInnTidspunkt()).isCloseTo(Instant.now(), within(100, MILLIS));
     }
 
     @Test
