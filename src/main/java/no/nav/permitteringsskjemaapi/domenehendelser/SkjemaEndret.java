@@ -6,4 +6,5 @@ import no.nav.permitteringsskjemaapi.Permitteringsskjema;
 @Value
 public class SkjemaEndret {
     Permitteringsskjema permitteringsskjema;
+    String utførtAv;
 }

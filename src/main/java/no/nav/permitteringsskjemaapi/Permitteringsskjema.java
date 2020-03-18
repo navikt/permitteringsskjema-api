@@ -46,13 +46,13 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     private LocalDate varsletAnsattDato;
     private LocalDate varsletNavDato;
 
-    public static Permitteringsskjema opprettSkjema(OpprettSkjema opprettSkjema) {
+    public static Permitteringsskjema opprettSkjema(OpprettSkjema opprettSkjema, String utførtAv) {
         Permitteringsskjema skjema = new Permitteringsskjema();
         skjema.setId(UUID.randomUUID());
         skjema.setOpprettetTidspunkt(Instant.now());
         skjema.setBedriftNr(opprettSkjema.getBedriftNr());
         skjema.setType(opprettSkjema.getType());
-        skjema.registerEvent(new SkjemaOpprettet(skjema));
+        skjema.registerEvent(new SkjemaOpprettet(skjema, utførtAv));
         return skjema;
     }
 
@@ -61,7 +61,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         return personer.size();
     }
 
-    public void endre(EndreSkjema endreSkjema) {
+    public void endre(EndreSkjema endreSkjema, String utførtAv) {
         sjekkOmSkjemaErSendtInn();
         setType(endreSkjema.getType());
         setKontaktNavn(endreSkjema.getKontaktNavn());
@@ -77,7 +77,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         personer.addAll(endreSkjema.getPersoner());
         personer.forEach(p -> p.setId(UUID.randomUUID()));
         personer.forEach(p -> p.setPermitteringsskjema(this));
-        registerEvent(new SkjemaEndret(this));
+        registerEvent(new SkjemaEndret(this, utførtAv));
     }
 
     public List<PermittertPerson> permittertePersoner() {
@@ -109,10 +109,10 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         }
     }
 
-    public void sendInn() {
+    public void sendInn(String utførtAv) {
         sjekkOmObligatoriskInformasjonErFyltUt();
         setSendtInnTidspunkt(Instant.now());
-        registerEvent(new SkjemaSendtInn(this));
+        registerEvent(new SkjemaSendtInn(this, utførtAv));
     }
 
     private void sjekkOmObligatoriskInformasjonErFyltUt() {
