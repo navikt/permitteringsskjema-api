@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.tjenester.permittering.arbeidsgiver;
+package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;

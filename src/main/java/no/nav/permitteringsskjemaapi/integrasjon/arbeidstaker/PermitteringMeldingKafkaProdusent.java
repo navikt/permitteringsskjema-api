@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.tjenester.permittering.arbeidstaker;
+package no.nav.permitteringsskjemaapi.integrasjon.arbeidstaker;
 
 import static no.nav.permitteringsskjemaapi.config.Constants.NAV_CALL_ID;
 import static no.nav.permitteringsskjemaapi.util.MDCUtil.callIdOrNew;

@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.tjenester.permittering.arbeidsgiver;
+package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

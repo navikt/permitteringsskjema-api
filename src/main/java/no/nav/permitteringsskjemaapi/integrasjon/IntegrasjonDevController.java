@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.tjenester.permittering;
+package no.nav.permitteringsskjemaapi.integrasjon;
 
 import javax.validation.Valid;
 
@@ -9,20 +9,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import no.nav.foreldrepenger.boot.conditionals.ConditionalOnNotProd;
 import no.nav.permitteringsskjemaapi.PermittertPerson;
-import no.nav.permitteringsskjemaapi.tjenester.permittering.arbeidsgiver.Arbeidsgiver;
-import no.nav.permitteringsskjemaapi.tjenester.permittering.arbeidsgiver.ArbeidsgiverRapport;
-import no.nav.permitteringsskjemaapi.tjenester.permittering.arbeidstaker.Permittering;
+import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.Arbeidsgiver;
+import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.ArbeidsgiverRapport;
+import no.nav.permitteringsskjemaapi.integrasjon.arbeidstaker.Permittering;
 import no.nav.security.token.support.core.api.Unprotected;
 
 @RestController
 @ConditionalOnNotProd
 @Unprotected
-public class PermitteringMeldingProdusentController {
+public class IntegrasjonDevController {
 
     private final Permittering permittering;
     private final Arbeidsgiver arbeidsgiver;
 
-    public PermitteringMeldingProdusentController(Permittering permittering, Arbeidsgiver arbeidsgiver) {
+    public IntegrasjonDevController(Permittering permittering, Arbeidsgiver arbeidsgiver) {
         this.permittering = permittering;
         this.arbeidsgiver = arbeidsgiver;
     }
