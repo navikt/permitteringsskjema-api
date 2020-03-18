@@ -84,6 +84,11 @@ no.nav.security.jwt.issuer.selvbetjening:
       accepted_audience: aud-localhost
       cookiename: localhost-idtoken
 
+altinn:
+  altinnUrl: "http://localhost:${mock.port}/altinn/"
+  altinnHeader: "lokal"
+  APIGwHeader: "lokal"
+
 ---
 permittering:
   dagpenger:
@@ -105,6 +110,11 @@ no.nav.security.jwt.issuer.selvbetjening:
       cookiename: selvbetjening-idtoken
       proxyurl: http://webproxy.nais:8088
 
+altinn:
+  altinnUrl: "https://api-gw-q1.adeo.no/ekstern/altinn/api/serviceowner/"
+  altinnHeader: ${ALTINN_HEADER}
+  APIGwHeader: ${ALTINN_APIGW_HEADER}
+
 ---
 spring:
   profiles: prod-fss
@@ -117,3 +127,8 @@ no.nav.security.jwt.selvbetjening:
   accepted_audience: 45104d6a-f5bc-4e8c-b352-4bbfc9381f25
   cookiename: selvbetjening-idtoken
   proxyurl: http://webproxy.nais:8088
+
+altinn:
+  altinnUrl: "https://api-gw.adeo.no/ekstern/altinn/api/serviceowner/"
+  altinnHeader: ${ALTINN_HEADER}
+  APIGwHeader: ${ALTINN_APIGW_HEADER}
