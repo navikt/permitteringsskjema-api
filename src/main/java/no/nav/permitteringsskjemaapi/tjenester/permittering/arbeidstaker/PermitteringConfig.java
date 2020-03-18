@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.config;
+package no.nav.permitteringsskjemaapi.tjenester.permittering.arbeidstaker;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
@@ -20,11 +20,6 @@ public class PermitteringConfig {
 
     public boolean isEnabled() {
         return enabled;
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[topic=" + topic + ", enabled=" + enabled + "]";
     }
 
 }

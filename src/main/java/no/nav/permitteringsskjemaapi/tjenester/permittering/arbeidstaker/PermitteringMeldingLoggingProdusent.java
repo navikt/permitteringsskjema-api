@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.tjenester.permittering;
+package no.nav.permitteringsskjemaapi.tjenester.permittering.arbeidstaker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

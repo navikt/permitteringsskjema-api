@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.tjenester.permittering;
+package no.nav.permitteringsskjemaapi.tjenester.permittering.arbeidstaker;
 
 import no.nav.permitteringsskjemaapi.PermittertPerson;
 

@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.tjenester.permittering;
+package no.nav.permitteringsskjemaapi.tjenester.permittering.arbeidsgiver;
 
 import static no.nav.permitteringsskjemaapi.config.Constants.NAV_CALL_ID;
 import static no.nav.permitteringsskjemaapi.util.MDCUtil.callIdOrNew;
@@ -7,7 +7,6 @@ import static org.springframework.kafka.support.KafkaHeaders.TOPIC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.messaging.Message;
@@ -15,40 +14,29 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
-import no.nav.permitteringsskjemaapi.PermittertPerson;
-import no.nav.permitteringsskjemaapi.config.PermitteringConfig;
-import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
 import no.nav.permitteringsskjemaapi.util.ObjectMapperWrapper;
 
 @Service
-@ConditionalOnProperty(name = "permittering.dagpenger.enabled")
-public class PermitteringMeldingKafkaProdusent implements Permittering {
+@ConditionalOnProperty(name = "permittering.arbeidsgiver.enabled")
+public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PermitteringMeldingKafkaProdusent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ArbeidsgiverMeldingKafkaProdusent.class);
 
     private final KafkaOperations<String, String> kafkaOperations;
     private final ObjectMapperWrapper mapper;
-    private final PermitteringConfig config;
+    private final ArbeidsgiverRapportConfig config;
 
-    public PermitteringMeldingKafkaProdusent(KafkaOperations<String, String> kafkaOperations,
-            PermitteringConfig config, ObjectMapperWrapper mapper) {
+    public ArbeidsgiverMeldingKafkaProdusent(KafkaOperations<String, String> kafkaOperations,
+            ArbeidsgiverRapportConfig config, ObjectMapperWrapper mapper) {
         this.kafkaOperations = kafkaOperations;
         this.config = config;
         this.mapper = mapper;
     }
 
-    @EventListener
-    public void sendInn(SkjemaSendtInn event) {
-        LOG.info("Skjema sendt inn id={}", event.getPermitteringsskjema().getId());
-        event.getPermitteringsskjema()
-                .permittertePersoner().stream()
-                .forEach(this::publiser);
-    }
-
     @Override
-    public void publiser(PermittertPerson person) {
+    public void publiser(ArbeidsgiverRapport rapport) {
         send(MessageBuilder
-                .withPayload(mapper.writeValueAsString(person))
+                .withPayload(mapper.writeValueAsString(rapport))
                 .setHeader(TOPIC, config.getTopic())
                 .setHeader(NAV_CALL_ID, callIdOrNew())
                 .build());
