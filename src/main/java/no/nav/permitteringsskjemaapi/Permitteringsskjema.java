@@ -37,7 +37,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     private String bedriftNavn;
     @OneToMany(mappedBy = "permitteringsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Person> personer = new ArrayList<>();
-    private boolean sendtInn;
+    private Instant sendtInn;
     private LocalDate sluttDato;
     private LocalDate startDato;
     @Enumerated(EnumType.STRING)
@@ -105,14 +105,14 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     }
 
     private void sjekkOmSkjemaErSendtInn() {
-        if (sendtInn) {
+        if (sendtInn != null) {
             throw new RuntimeException("Skjema er allerede sendt inn");
         }
     }
 
     public void sendInn() {
         sjekkOmObligatoriskInformasjonErFyltUt();
-        setSendtInn(true);
+        setSendtInn(Instant.now());
         registerEvent(new SkjemaSendtInn(this));
     }
 
