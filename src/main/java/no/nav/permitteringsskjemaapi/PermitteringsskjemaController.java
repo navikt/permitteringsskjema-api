@@ -1,9 +1,12 @@
 package no.nav.permitteringsskjemaapi;
 
 import lombok.AllArgsConstructor;
+import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon;
+import no.nav.permitteringsskjemaapi.altinn.AltinnService;
+import no.nav.permitteringsskjemaapi.util.FnrExtractor;
 import no.nav.security.token.support.core.api.Protected;
-import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +18,8 @@ import java.util.UUID;
 @RequestMapping("/skjema")
 @Protected
 public class PermitteringsskjemaController {
+    private final FnrExtractor fnrExtractor;
+    private final AltinnService altinnService;
     private final PermitteringsskjemaRepository repository;
 
     @GetMapping("/{id}")
@@ -28,10 +33,20 @@ public class PermitteringsskjemaController {
     }
 
     @PostMapping
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public Permitteringsskjema opprett(@RequestBody OpprettSkjema opprettSkjema) {
+    public ResponseEntity<Permitteringsskjema> opprett(@RequestBody OpprettSkjema opprettSkjema) {
+        AltinnOrganisasjon organisasjon = hentOrganisasjon(fnrExtractor.extract(), opprettSkjema.getBedriftNr())
+                .orElseThrow(); // Kaste bedre exception etter hvert
         Permitteringsskjema skjema = Permitteringsskjema.opprettSkjema(opprettSkjema);
-        return repository.save(skjema);
+        skjema.setBedriftNavn(organisasjon.getName());
+        Permitteringsskjema lagretSkjema = repository.save(skjema);
+        return ResponseEntity.status(HttpStatus.CREATED).body(lagretSkjema);
+    }
+
+    private Optional<AltinnOrganisasjon> hentOrganisasjon(String fnr, String bedriftNr) {
+        List<AltinnOrganisasjon> organisasjonerMedTilgang = altinnService.hentOrganisasjoner(fnr);
+        return organisasjonerMedTilgang.stream()
+                .filter(o -> o.getOrganizationNumber().equals(bedriftNr))
+                .findFirst();
     }
 
     @PutMapping("/{id}")

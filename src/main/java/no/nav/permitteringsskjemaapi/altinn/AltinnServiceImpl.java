@@ -46,7 +46,6 @@ public class AltinnServiceImpl implements AltinnService {
 
     @Cacheable(ALTINN_CACHE)
     public List<AltinnOrganisasjon> hentOrganisasjoner(String fnr) {
-        System.out.println("hhent orgs " + fnr);
         String query = "&subject=" + fnr
                 + "&$filter=(Type+eq+'Bedrift'+or+Type+eq+'Business'+or+Type+eq+'Enterprise'+or+Type+eq+'Foretak')+and+Status+eq+'Active'";
         String url = altinnUrl + "reportees/?ForceEIAuthentication" + query;
