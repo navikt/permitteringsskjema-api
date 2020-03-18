@@ -1,8 +1,6 @@
 package no.nav.permitteringsskjemaapi.altinn;
 
 import lombok.AllArgsConstructor;
-import no.nav.foreldrepenger.boot.conditionals.Cluster;
-import no.nav.foreldrepenger.boot.conditionals.ConditionalOnClusters;
 import no.nav.permitteringsskjemaapi.util.FnrExtractor;
 import no.nav.security.token.support.core.api.Protected;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +13,6 @@ import java.util.List;
 @RequestMapping("/organisasjoner")
 @AllArgsConstructor
 @Protected
-@ConditionalOnClusters(clusters = {Cluster.DEV_FSS, Cluster.PROD_FSS})
 public class OrganisasjonerController {
 
     private final AltinnService altinnService;
