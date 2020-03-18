@@ -34,9 +34,10 @@ public class PermitteringsskjemaController {
 
     @PostMapping
     public ResponseEntity<Permitteringsskjema> opprett(@RequestBody OpprettSkjema opprettSkjema) {
-        AltinnOrganisasjon organisasjon = hentOrganisasjon(fnrExtractor.extract(), opprettSkjema.getBedriftNr())
+        String fnr = fnrExtractor.extract();
+        AltinnOrganisasjon organisasjon = hentOrganisasjon(fnr, opprettSkjema.getBedriftNr())
                 .orElseThrow(); // Kaste bedre exception etter hvert
-        Permitteringsskjema skjema = Permitteringsskjema.opprettSkjema(opprettSkjema);
+        Permitteringsskjema skjema = Permitteringsskjema.opprettSkjema(opprettSkjema, fnr);
         skjema.setBedriftNavn(organisasjon.getName());
         Permitteringsskjema lagretSkjema = repository.save(skjema);
         return ResponseEntity.status(HttpStatus.CREATED).body(lagretSkjema);
@@ -52,14 +53,14 @@ public class PermitteringsskjemaController {
     @PutMapping("/{id}")
     public Permitteringsskjema endre(@PathVariable UUID id, @RequestBody EndreSkjema endreSkjema) {
         Permitteringsskjema permitteringsskjema = repository.findById(id).orElseThrow();
-        permitteringsskjema.endre(endreSkjema);
+        permitteringsskjema.endre(endreSkjema, fnrExtractor.extract());
         return repository.save(permitteringsskjema);
     }
 
     @PostMapping("/{id}/send-inn")
     public Permitteringsskjema sendInn(@PathVariable UUID id) {
         Permitteringsskjema permitteringsskjema = repository.findById(id).orElseThrow();
-        permitteringsskjema.sendInn();
+        permitteringsskjema.sendInn(fnrExtractor.extract());
         return repository.save(permitteringsskjema);
     }
 }
