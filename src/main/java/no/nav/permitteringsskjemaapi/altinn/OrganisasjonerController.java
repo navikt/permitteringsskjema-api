@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/organisasjoner")
 @AllArgsConstructor
-@Unprotected
+@Protected
 public class OrganisasjonerController {
 
     private final AltinnService altinnService;
