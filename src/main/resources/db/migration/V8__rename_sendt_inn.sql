@@ -1,0 +1,1 @@
+alter table permitteringsskjema rename column sendt_inn to sendt_inn_tidspunkt;

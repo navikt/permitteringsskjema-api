@@ -25,19 +25,19 @@ import java.util.stream.Collectors;
 // JPA
 @Entity
 public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskjema> {
+    private String bedriftNavn;
+    private String bedriftNr;
     private String fritekst;
     @Id
     @EqualsAndHashCode.Include
     private UUID id;
+    private String kontaktEpost;
     private String kontaktNavn;
     private String kontaktTlf;
-    private String kontaktEpost;
     private Instant opprettetTidspunkt;
-    private String bedriftNr;
-    private String bedriftNavn;
     @OneToMany(mappedBy = "permitteringsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Person> personer = new ArrayList<>();
-    private Instant sendtInn;
+    private Instant sendtInnTidspunkt;
     private LocalDate sluttDato;
     private LocalDate startDato;
     @Enumerated(EnumType.STRING)
@@ -46,20 +46,19 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     private LocalDate varsletAnsattDato;
     private LocalDate varsletNavDato;
 
-    @JsonProperty
-    public Integer antallBerørt() {
-        return personer.size();
-    }
-
     public static Permitteringsskjema opprettSkjema(OpprettSkjema opprettSkjema) {
         Permitteringsskjema skjema = new Permitteringsskjema();
         skjema.setId(UUID.randomUUID());
         skjema.setOpprettetTidspunkt(Instant.now());
         skjema.setBedriftNr(opprettSkjema.getBedriftNr());
-        skjema.setBedriftNavn("(Hentes fra Altinn)");
         skjema.setType(opprettSkjema.getType());
         skjema.registerEvent(new SkjemaOpprettet(skjema));
         return skjema;
+    }
+
+    @JsonProperty
+    public Integer antallBerørt() {
+        return personer.size();
     }
 
     public void endre(EndreSkjema endreSkjema) {
@@ -105,14 +104,14 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     }
 
     private void sjekkOmSkjemaErSendtInn() {
-        if (sendtInn != null) {
+        if (sendtInnTidspunkt != null) {
             throw new RuntimeException("Skjema er allerede sendt inn");
         }
     }
 
     public void sendInn() {
         sjekkOmObligatoriskInformasjonErFyltUt();
-        setSendtInn(Instant.now());
+        setSendtInnTidspunkt(Instant.now());
         registerEvent(new SkjemaSendtInn(this));
     }
 
