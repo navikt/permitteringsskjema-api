@@ -96,6 +96,8 @@ altinn:
 permittering:
   dagpenger:
     enabled: true 
+  arbeidsgiver:
+    enabled: true  
 spring:
   profiles: dev-fss
   datasource:
