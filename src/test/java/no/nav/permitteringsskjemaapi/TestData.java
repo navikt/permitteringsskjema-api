@@ -10,10 +10,11 @@ public class TestData {
         Permitteringsskjema permitteringsskjema = new Permitteringsskjema();
         permitteringsskjema.setId(UUID.randomUUID());
         permitteringsskjema.setOpprettetTidspunkt(Instant.now());
-        permitteringsskjema.setOrgNr("999999999");
+        permitteringsskjema.setBedriftNr("999999999");
         permitteringsskjema.setType(SkjemaType.PERMITTERING_UTEN_LØNN);
         permitteringsskjema.setKontaktNavn("Tore Toresen");
         permitteringsskjema.setKontaktTlf("66778899");
+        permitteringsskjema.setKontaktEpost("per@bedrift.no");
         permitteringsskjema.setVarsletAnsattDato(LocalDate.of(2020, 3, 16));
         permitteringsskjema.setVarsletNavDato(LocalDate.of(2020, 9, 21));
         permitteringsskjema.setStartDato(LocalDate.of(2020, 3, 17));
