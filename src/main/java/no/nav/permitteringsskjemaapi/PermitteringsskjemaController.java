@@ -2,8 +2,8 @@ package no.nav.permitteringsskjemaapi;
 
 import lombok.AllArgsConstructor;
 import no.nav.security.token.support.core.api.Protected;
-import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,10 +28,10 @@ public class PermitteringsskjemaController {
     }
 
     @PostMapping
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public Permitteringsskjema opprett(@RequestBody OpprettSkjema opprettSkjema) {
+    public ResponseEntity<Permitteringsskjema> opprett(@RequestBody OpprettSkjema opprettSkjema) {
         Permitteringsskjema skjema = Permitteringsskjema.opprettSkjema(opprettSkjema);
-        return repository.save(skjema);
+        Permitteringsskjema lagretSkjema = repository.save(skjema);
+        return ResponseEntity.status(HttpStatus.CREATED).body(lagretSkjema);
     }
 
     @PutMapping("/{id}")
