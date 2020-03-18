@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -34,6 +35,8 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     private String kontaktEpost;
     private String kontaktNavn;
     private String kontaktTlf;
+    @JsonIgnore
+    private String opprettetAv;
     private Instant opprettetTidspunkt;
     @OneToMany(mappedBy = "permitteringsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Person> personer = new ArrayList<>();
@@ -50,6 +53,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         Permitteringsskjema skjema = new Permitteringsskjema();
         skjema.setId(UUID.randomUUID());
         skjema.setOpprettetTidspunkt(Instant.now());
+        skjema.setOpprettetAv(utførtAv);
         skjema.setBedriftNr(opprettSkjema.getBedriftNr());
         skjema.setType(opprettSkjema.getType());
         skjema.registerEvent(new SkjemaOpprettet(skjema, utførtAv));
