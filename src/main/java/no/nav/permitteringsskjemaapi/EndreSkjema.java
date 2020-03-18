@@ -14,6 +14,7 @@ public class EndreSkjema {
     SkjemaType type;
     String kontaktNavn;
     String kontaktTlf;
+    String kontaktEpost;
     LocalDate varsletAnsattDato;
     LocalDate varsletNavDato;
     LocalDate startDato;

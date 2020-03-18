@@ -4,6 +4,6 @@ import lombok.Value;
 
 @Value
 public class OpprettSkjema {
-    String orgNr;
+    String bedriftNr;
     SkjemaType type;
 }
