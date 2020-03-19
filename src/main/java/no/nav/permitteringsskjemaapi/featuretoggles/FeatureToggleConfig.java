@@ -33,7 +33,9 @@ public class FeatureToggleConfig {
                 .build();
 
         return new DefaultUnleash(
-                config
+                config,
+                byEnvironmentStrategy,
+                isNotProdStrategy
         );
     }
 
