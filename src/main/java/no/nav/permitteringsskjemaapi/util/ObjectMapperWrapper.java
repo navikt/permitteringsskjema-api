@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import no.nav.permitteringsskjemaapi.errors.UnexpectedInputException;
+import no.nav.permitteringsskjemaapi.exceptions.UnexpectedInputException;
 
 @Component
 public class ObjectMapperWrapper {

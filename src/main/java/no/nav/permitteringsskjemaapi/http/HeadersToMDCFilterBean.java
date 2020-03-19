@@ -33,7 +33,7 @@ public class HeadersToMDCFilterBean extends GenericFilterBean {
 
     @Inject
     public HeadersToMDCFilterBean(CallIdGenerator generator,
-            @Value("${spring.application.name:fpinfo-historikk}") String applicationName) {
+            @Value("${spring.application.name:permitteringsskjema-api}") String applicationName) {
         this.generator = generator;
         this.applicationName = applicationName;
     }

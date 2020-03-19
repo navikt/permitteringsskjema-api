@@ -1,5 +1,5 @@
 
-package no.nav.permitteringsskjemaapi.errors;
+package no.nav.permitteringsskjemaapi.exceptions;
 
 import static java.lang.String.format;
 
