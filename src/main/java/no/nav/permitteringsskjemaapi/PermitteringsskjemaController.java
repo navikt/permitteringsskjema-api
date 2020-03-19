@@ -6,19 +6,13 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.AllArgsConstructor;
 import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon;
 import no.nav.permitteringsskjemaapi.altinn.AltinnService;
-import no.nav.permitteringsskjemaapi.controller.IkkeFunnetException;
-import no.nav.permitteringsskjemaapi.controller.IkkeTilgangException;
+import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException;
+import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException;
 import no.nav.permitteringsskjemaapi.util.TokenUtil;
 import no.nav.security.token.support.core.api.Protected;
 
@@ -77,6 +71,15 @@ public class PermitteringsskjemaController {
         Permitteringsskjema permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr)
                 .orElseThrow(IkkeFunnetException::new);
         permitteringsskjema.sendInn(fnrExtractor.autentisertBruker());
+        return repository.save(permitteringsskjema);
+    }
+
+    @PostMapping("/{id}/avbryt")
+    public Permitteringsskjema avbryt(@PathVariable UUID id) {
+        String fnr = fnrExtractor.autentisertBruker();
+        Permitteringsskjema permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr)
+                .orElseThrow(IkkeFunnetException::new);
+        permitteringsskjema.avbryt(fnrExtractor.autentisertBruker());
         return repository.save(permitteringsskjema);
     }
 }

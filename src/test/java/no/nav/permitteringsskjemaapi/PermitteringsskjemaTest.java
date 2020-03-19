@@ -1,5 +1,7 @@
 package no.nav.permitteringsskjemaapi;
 
+import no.nav.permitteringsskjemaapi.exceptions.AlleFelterIkkeFyltUtException;
+import no.nav.permitteringsskjemaapi.exceptions.SkjemaErAvbruttException;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -28,6 +30,20 @@ class PermitteringsskjemaTest {
     void skal_ikke_kunne_sendes_inn_når_det_mangler_noe() {
         Permitteringsskjema skjema = TestData.enPermitteringMedAltFyltUt();
         skjema.setKontaktNavn("");
-        assertThatThrownBy(() -> skjema.sendInn("")).isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> skjema.sendInn("")).isInstanceOf(AlleFelterIkkeFyltUtException.class);
+    }
+
+    @Test
+    void skal_kunne_avbrytes() {
+        Permitteringsskjema skjema = TestData.enPermitteringMedAltFyltUt();
+        skjema.avbryt("");
+        assertThat(skjema.isAvbrutt());
+    }
+
+    @Test
+    void skal_ikke_kunne_endres_etter_at_det_er_avbrutt() {
+        Permitteringsskjema skjema = TestData.enPermitteringMedAltFyltUt();
+        skjema.avbryt("");
+        assertThatThrownBy(() -> skjema.endre(EndreSkjema.builder().build(), "")).isInstanceOf(SkjemaErAvbruttException.class);
     }
 }

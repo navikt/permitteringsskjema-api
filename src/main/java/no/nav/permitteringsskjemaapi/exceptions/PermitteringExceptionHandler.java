@@ -2,8 +2,6 @@ package no.nav.permitteringsskjemaapi.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.permitteringsskjemaapi.controller.IkkeFunnetException;
-import no.nav.permitteringsskjemaapi.controller.IkkeTilgangException;
 import no.nav.permitteringsskjemaapi.util.TokenUtil;
 import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException;
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException;
@@ -87,6 +85,16 @@ public class PermitteringExceptionHandler extends ResponseEntityExceptionHandler
     @ExceptionHandler(value = { IkkeFunnetException.class })
     protected ResponseEntity<Object> ikkeFunnet(Exception e, WebRequest req) {
         return logAndHandle(NOT_FOUND, e, req);
+    }
+
+    @ExceptionHandler(value = { AlleFelterIkkeFyltUtException.class })
+    protected ResponseEntity<Object> alleFelterIkkeFyltUt(Exception e, WebRequest req) {
+        return logAndHandle(BAD_REQUEST, e, req);
+    }
+
+    @ExceptionHandler(value = { SkjemaErAvbruttException.class })
+    protected ResponseEntity<Object> avbrutt(Exception e, WebRequest req) {
+        return logAndHandle(BAD_REQUEST, e, req);
     }
 
     private ResponseEntity<Object> logAndHandle(HttpStatus status, Exception e, WebRequest req, Object... messages) {
