@@ -1,20 +1,12 @@
 package no.nav.permitteringsskjemaapi.exceptions;
 
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
-
-import java.util.List;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import no.nav.permitteringsskjemaapi.controller.IkkeFunnetException;
+import no.nav.permitteringsskjemaapi.controller.IkkeTilgangException;
+import no.nav.permitteringsskjemaapi.util.TokenUtil;
+import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException;
+import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,17 +20,18 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import no.nav.permitteringsskjemaapi.controller.IkkeFunnetException;
-import no.nav.permitteringsskjemaapi.controller.IkkeTilgangException;
-import no.nav.permitteringsskjemaapi.util.TokenUtil;
-import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException;
-import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
+@AllArgsConstructor
+@Slf4j
 public class PermitteringExceptionHandler extends ResponseEntityExceptionHandler {
-    @Inject
-    private TokenUtil tokenUtil;
-    private static final Logger LOG = LoggerFactory.getLogger(PermitteringExceptionHandler.class);
+    private final TokenUtil tokenUtil;
 
     @ResponseBody
     @ExceptionHandler(HttpStatusCodeException.class)
@@ -51,13 +44,13 @@ public class PermitteringExceptionHandler extends ResponseEntityExceptionHandler
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
-            HttpHeaders headers, HttpStatus status, WebRequest req) {
+                                                                  HttpHeaders headers, HttpStatus status, WebRequest req) {
         return logAndHandle(UNPROCESSABLE_ENTITY, e, req, headers, validationErrors(e));
     }
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException e,
-            HttpHeaders headers, HttpStatus status, WebRequest req) {
+                                                                  HttpHeaders headers, HttpStatus status, WebRequest req) {
         return logAndHandle(UNPROCESSABLE_ENTITY, e, req, headers);
     }
 
@@ -101,14 +94,14 @@ public class PermitteringExceptionHandler extends ResponseEntityExceptionHandler
     }
 
     private ResponseEntity<Object> logAndHandle(HttpStatus status, Exception e, WebRequest req, HttpHeaders headers,
-            Object... messages) {
+                                                Object... messages) {
         return logAndHandle(status, e, req, headers, asList(messages));
     }
 
     private ResponseEntity<Object> logAndHandle(HttpStatus status, Exception e, WebRequest req, HttpHeaders headers,
-            List<Object> messages) {
+                                                List<Object> messages) {
         ApiError apiError = apiErrorFra(status, e, messages);
-        LOG.warn("({}) {} {} ({})", subject(), status, apiError.getMessages(), status.value(), e);
+        log.warn("({}) {} {} ({})", subject(), status, apiError.getMessages(), status.value(), e);
         return handleExceptionInternal(e, apiError, headers, status, req);
     }
 
