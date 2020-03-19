@@ -122,6 +122,8 @@ altinn:
   altinnHeader: ${ALTINN_HEADER}
   APIGwHeader: ${ALTINN_APIGW_HEADER}
 
+unleash:
+  unleash-uri: https://unleash.nais.adeo.no/api/
 ---
 spring:
   profiles: prod-fss
@@ -139,3 +141,6 @@ altinn:
   altinnUrl: "https://api-gw.adeo.no/ekstern/altinn/api/serviceowner/"
   altinnHeader: ${ALTINN_HEADER}
   APIGwHeader: ${ALTINN_APIGW_HEADER}
+
+unleash:
+    unleash-uri: https://unleash.nais.adeo.no/api/
