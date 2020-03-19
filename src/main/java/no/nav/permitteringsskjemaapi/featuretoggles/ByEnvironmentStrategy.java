@@ -20,8 +20,8 @@ public class ByEnvironmentStrategy implements Strategy {
     public static final List<String> MILJOER = Arrays.asList("dev-fss", "prod-fss");
 
     public ByEnvironmentStrategy(Environment environment) {
-        this.environment = Stream.of(environment.getActiveProfiles()).filter(a -> MILJOER.contains(a)).findFirst().orElse("dev");
-        System.out.println("ByEnvironmentStrategy"+environment);
+        this.environment = Stream.of(environment.getActiveProfiles()).filter(a -> MILJOER.contains(a)).findFirst().orElse("dev-fss");
+
     }
 
     @Override
