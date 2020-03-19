@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
@@ -27,6 +28,8 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import no.nav.permitteringsskjemaapi.controller.IkkeFunnetException;
+import no.nav.permitteringsskjemaapi.controller.IkkeTilgangException;
 import no.nav.permitteringsskjemaapi.util.TokenUtil;
 import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException;
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException;
@@ -63,6 +66,11 @@ public class PermitteringExceptionHandler extends ResponseEntityExceptionHandler
         return logAndHandle(UNPROCESSABLE_ENTITY, e, req);
     }
 
+    @ExceptionHandler({ PermitteringsApiException.class })
+    public ResponseEntity<Object> apiException(PermitteringsApiException e, WebRequest req) {
+        return logAndHandle(UNPROCESSABLE_ENTITY, e, req);
+    }
+
     @ExceptionHandler({ JwtTokenUnauthorizedException.class })
     public ResponseEntity<Object> handleUnauthorizedException(JwtTokenUnauthorizedException e, WebRequest req) {
         return logAndHandle(UNAUTHORIZED, e, req);
@@ -76,6 +84,16 @@ public class PermitteringExceptionHandler extends ResponseEntityExceptionHandler
     @ExceptionHandler(value = { Exception.class })
     protected ResponseEntity<Object> handleUncaught(Exception e, WebRequest req) {
         return logAndHandle(INTERNAL_SERVER_ERROR, e, req);
+    }
+
+    @ExceptionHandler(value = { IkkeTilgangException.class })
+    protected ResponseEntity<Object> ikkeTilgang(Exception e, WebRequest req) {
+        return logAndHandle(UNAUTHORIZED, e, req);
+    }
+
+    @ExceptionHandler(value = { IkkeFunnetException.class })
+    protected ResponseEntity<Object> ikkeFunnet(Exception e, WebRequest req) {
+        return logAndHandle(NOT_FOUND, e, req);
     }
 
     private ResponseEntity<Object> logAndHandle(HttpStatus status, Exception e, WebRequest req, Object... messages) {
