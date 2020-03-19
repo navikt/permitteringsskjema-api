@@ -1,10 +1,10 @@
 package no.nav.permitteringsskjemaapi;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import no.nav.permitteringsskjemaapi.exceptions.IkkeAltFyltUtException;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaEndret;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
@@ -48,6 +48,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     private boolean ukjentSluttDato;
     private LocalDate varsletAnsattDato;
     private LocalDate varsletNavDato;
+    private Integer antallBerørt;
 
     public static Permitteringsskjema opprettSkjema(OpprettSkjema opprettSkjema, String utførtAv) {
         Permitteringsskjema skjema = new Permitteringsskjema();
@@ -58,11 +59,6 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         skjema.setType(opprettSkjema.getType());
         skjema.registerEvent(new SkjemaOpprettet(skjema, utførtAv));
         return skjema;
-    }
-
-    @JsonProperty
-    public Integer antallBerørt() {
-        return personer.size();
     }
 
     public void endre(EndreSkjema endreSkjema, String utførtAv) {
@@ -77,6 +73,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         setSluttDato(endreSkjema.getSluttDato());
         setUkjentSluttDato(endreSkjema.getUkjentSluttDato());
         setFritekst(endreSkjema.getFritekst());
+        setAntallBerørt(endreSkjema.getAntallBerørt());
         personer.clear();
         personer.addAll(endreSkjema.getPersoner());
         personer.forEach(p -> p.setId(UUID.randomUUID()));
@@ -130,7 +127,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
                 sluttDato,
                 ukjentSluttDato,
                 fritekst)) {
-            throw new RuntimeException("Alle felter er ikke fylt ut");
+            throw new IkkeAltFyltUtException();
         }
     }
 }
