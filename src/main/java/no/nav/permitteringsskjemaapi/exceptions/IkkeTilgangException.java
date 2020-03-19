@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.controller;
+package no.nav.permitteringsskjemaapi.exceptions;
 
 public class IkkeTilgangException extends RuntimeException {
 }
