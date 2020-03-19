@@ -124,6 +124,7 @@ altinn:
 
 unleash:
   unleash-uri: https://unleash.nais.adeo.no/api/
+
 ---
 spring:
   profiles: prod-fss
@@ -137,10 +138,11 @@ no.nav.security.jwt.issuer.selvbetjening:
   cookiename: selvbetjening-idtoken
   proxyurl: http://webproxy.nais:8088
 
+unleash:
+  unleash-uri: https://unleash.nais.adeo.no/api/
+
 altinn:
   altinnUrl: "https://api-gw.adeo.no/ekstern/altinn/api/serviceowner/"
   altinnHeader: ${ALTINN_HEADER}
   APIGwHeader: ${ALTINN_APIGW_HEADER}
 
-unleash:
-    unleash-uri: https://unleash.nais.adeo.no/api/
