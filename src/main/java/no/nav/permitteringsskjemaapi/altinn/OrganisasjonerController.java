@@ -1,13 +1,14 @@
 package no.nav.permitteringsskjemaapi.altinn;
 
-import lombok.AllArgsConstructor;
-import no.nav.permitteringsskjemaapi.util.FnrExtractor;
-import no.nav.security.token.support.core.api.Protected;
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import lombok.AllArgsConstructor;
+import no.nav.permitteringsskjemaapi.util.TokenUtil;
+import no.nav.security.token.support.core.api.Protected;
 
 @RestController
 @RequestMapping("/organisasjoner")
@@ -16,11 +17,11 @@ import java.util.List;
 public class OrganisasjonerController {
 
     private final AltinnService altinnService;
-    private final FnrExtractor fnrExtractor;
+    private final TokenUtil tokenUtil;
 
     @GetMapping
     public List<AltinnOrganisasjon> hentOrganisasjoner() {
-        String fnr = fnrExtractor.extract();
+        String fnr = tokenUtil.autentisertBruker();
         return altinnService.hentOrganisasjoner(fnr);
     }
 }
