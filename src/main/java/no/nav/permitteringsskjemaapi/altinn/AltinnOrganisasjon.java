@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.altinn;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Value;
 
 @Value
