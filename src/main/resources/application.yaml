@@ -124,7 +124,7 @@ altinn:
 
 ---
 spring:
-  profiles: default
+  profiles: prod-fss
   datasource:
     platform: postgres
     driverClassName: org.postgresql.Driver
