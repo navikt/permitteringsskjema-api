@@ -2,15 +2,14 @@ package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
 
 import static no.nav.permitteringsskjemaapi.config.Constants.NAV_CALL_ID;
 import static no.nav.permitteringsskjemaapi.util.MDCUtil.callIdOrNew;
-import static org.springframework.kafka.support.KafkaHeaders.TOPIC;
 
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
@@ -35,27 +34,26 @@ public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
 
     @Override
     public void publiser(ArbeidsgiverRapport rapport) {
-        send(MessageBuilder
-                .withPayload(mapper.writeValueAsString(rapport))
-                .setHeader(TOPIC, config.getTopic())
-                .setHeader(NAV_CALL_ID, callIdOrNew())
-                .build());
+        var record = new ProducerRecord<>(config.getTopic(), rapport.getBedriftsnummer(),
+                mapper.writeValueAsString(rapport));
+        record.headers().add(new RecordHeader(NAV_CALL_ID, callIdOrNew().getBytes()));
+        send(record);
     }
 
-    private void send(Message<String> message) {
-        LOG.info("Sender melding {} på {}", message.getPayload(), config.getTopic());
-        kafkaOperations.send(message)
+    private void send(ProducerRecord<String, String> record) {
+        LOG.info("Sender melding {} på {}", record.value(), config.getTopic());
+        kafkaOperations.send(record)
                 .addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
 
                     @Override
                     public void onSuccess(SendResult<String, String> result) {
-                        LOG.info("Sendte melding {} med offset {} på {}", message.getPayload(),
+                        LOG.info("Sendte melding {} med offset {} på {}", record.value(),
                                 result.getRecordMetadata().offset(), config.getTopic());
                     }
 
                     @Override
                     public void onFailure(Throwable e) {
-                        LOG.warn("Kunne ikke sende melding {} på {}", message.getPayload(), config.getTopic(), e);
+                        LOG.warn("Kunne ikke sende melding {} på {}", record.value(), config.getTopic(), e);
                     }
                 });
     }
