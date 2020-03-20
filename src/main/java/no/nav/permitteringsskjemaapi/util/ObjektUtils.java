@@ -1,16 +1,17 @@
 package no.nav.permitteringsskjemaapi.util;
 
-import lombok.experimental.UtilityClass;
+import java.util.Arrays;
+
 import org.apache.commons.lang3.ObjectUtils;
+
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ObjektUtils {
     public static boolean isAnyEmpty(Object... objects) {
-        for (Object object : objects) {
-            if (ObjectUtils.isEmpty(object)) {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.stream(objects)
+                .filter(ObjectUtils::isEmpty)
+                .findFirst()
+                .isPresent();
     }
 }

@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import no.nav.permitteringsskjemaapi.exceptions.IkkeAltFyltUtException;
+import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaAvbrutt;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaEndret;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
+import no.nav.permitteringsskjemaapi.exceptions.AlleFelterIkkeFyltUtException;
+import no.nav.permitteringsskjemaapi.exceptions.SkjemaErAvbruttException;
 import no.nav.permitteringsskjemaapi.util.ObjektUtils;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
@@ -26,6 +28,8 @@ import java.util.stream.Collectors;
 // JPA
 @Entity
 public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskjema> {
+    private Integer antallBerørt;
+    private boolean avbrutt;
     private String bedriftNavn;
     private String bedriftNr;
     private String fritekst;
@@ -48,7 +52,6 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     private boolean ukjentSluttDato;
     private LocalDate varsletAnsattDato;
     private LocalDate varsletNavDato;
-    private Integer antallBerørt;
 
     public static Permitteringsskjema opprettSkjema(OpprettSkjema opprettSkjema, String utførtAv) {
         Permitteringsskjema skjema = new Permitteringsskjema();
@@ -62,6 +65,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     }
 
     public void endre(EndreSkjema endreSkjema, String utførtAv) {
+        sjekkOmSkjemaErAvbrutt();
         sjekkOmSkjemaErSendtInn();
         setType(endreSkjema.getType());
         setKontaktNavn(endreSkjema.getKontaktNavn());
@@ -111,6 +115,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     }
 
     public void sendInn(String utførtAv) {
+        sjekkOmSkjemaErAvbrutt();
         sjekkOmObligatoriskInformasjonErFyltUt();
         setSendtInnTidspunkt(Instant.now());
         registerEvent(new SkjemaSendtInn(this, utførtAv));
@@ -127,7 +132,19 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
                 sluttDato,
                 ukjentSluttDato,
                 fritekst)) {
-            throw new IkkeAltFyltUtException();
+            throw new AlleFelterIkkeFyltUtException();
         }
+    }
+
+    private void sjekkOmSkjemaErAvbrutt() {
+        if (avbrutt) {
+            throw new SkjemaErAvbruttException();
+        }
+    }
+
+    public void avbryt(String utførtAv) {
+        sjekkOmSkjemaErAvbrutt();
+        setAvbrutt(true);
+        registerEvent(new SkjemaAvbrutt(this, utførtAv));
     }
 }

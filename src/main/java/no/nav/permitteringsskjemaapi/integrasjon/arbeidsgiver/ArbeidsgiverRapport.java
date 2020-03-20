@@ -10,6 +10,7 @@ import org.springframework.lang.Nullable;
 
 import lombok.Builder;
 import lombok.Value;
+import no.nav.permitteringsskjemaapi.SkjemaType;
 
 @Value
 @Builder
@@ -22,7 +23,7 @@ public class ArbeidsgiverRapport {
     @NotNull
     private LocalDateTime sendtInnTidspunkt;
     @NotNull
-    private ArbeidsgiverSkjemaType type;
+    private SkjemaType type;
     @NotNull
     private String kontaktNavn;
     @NotNull
