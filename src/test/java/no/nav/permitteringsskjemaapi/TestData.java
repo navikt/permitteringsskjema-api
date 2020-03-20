@@ -27,6 +27,12 @@ public class TestData {
         return permitteringsskjema;
     }
 
+    public static Permitteringsskjema enPermitteringMedIkkeAltFyltUt() {
+        var skjema = enPermitteringMedAltFyltUt();
+        skjema.setType(null);
+        return skjema;
+    }
+
     private static Person enPerson() {
         Person person = new Person();
         person.setId(UUID.randomUUID());
@@ -35,4 +41,5 @@ public class TestData {
         person.setKommentar("Kommentar");
         return person;
     }
+
 }

@@ -152,6 +152,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         var resultat = VALIDATOR.validate(this);
         if (resultat.isEmpty()) {
             LOG.info("Validert OK");
+            return;
         }
         LOG.warn("Validering feilet {}", resultat);
         throw new AlleFelterIkkeFyltUtException();
