@@ -41,7 +41,7 @@ public class FeatureToggleConfig {
     @Bean
     public Unleash unleashMock() {
         FakeUnleash fakeUnleash = new FakeUnleash();
-        fakeUnleash.enable("permittering.visskjema");
+        fakeUnleash.enableAll();
         return fakeUnleash;
     }
 }
