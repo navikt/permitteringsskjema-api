@@ -34,7 +34,7 @@ public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
 
     @Override
     public void publiser(ArbeidsgiverRapport rapport) {
-        var record = new ProducerRecord<>(config.getTopic(), rapport.getBedriftsnummer(),
+        var record = new ProducerRecord<>(config.getTopic(), rapport.getId().toString(),
                 mapper.writeValueAsString(rapport));
         record.headers().add(new RecordHeader(NAV_CALL_ID, callIdOrNew().getBytes()));
         send(record);
