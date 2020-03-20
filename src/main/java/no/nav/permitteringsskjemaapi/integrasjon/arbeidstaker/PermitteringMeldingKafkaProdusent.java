@@ -4,6 +4,9 @@ import static no.nav.permitteringsskjemaapi.config.Constants.NAV_CALL_ID;
 import static no.nav.permitteringsskjemaapi.util.MDCUtil.callIdOrNew;
 import static org.springframework.kafka.support.KafkaHeaders.TOPIC;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -15,8 +18,12 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import no.nav.permitteringsskjemaapi.Permitteringsskjema;
 import no.nav.permitteringsskjemaapi.PermittertPerson;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
+import no.nav.permitteringsskjemaapi.integrasjon.Permittering;
+import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.ArbeidsgiverRapport;
+import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.ArbeidsgiverRapportConfig;
 import no.nav.permitteringsskjemaapi.util.ObjectMapperWrapper;
 
 @Service
@@ -28,20 +35,58 @@ public class PermitteringMeldingKafkaProdusent implements Permittering {
     private final KafkaOperations<String, String> kafkaOperations;
     private final ObjectMapperWrapper mapper;
     private final PermitteringConfig config;
+    private final ArbeidsgiverRapportConfig arbeidsgiverConfig;
 
     public PermitteringMeldingKafkaProdusent(KafkaOperations<String, String> kafkaOperations,
-            PermitteringConfig config, ObjectMapperWrapper mapper) {
+            PermitteringConfig config, ArbeidsgiverRapportConfig arbeidsgiverConfig, ObjectMapperWrapper mapper) {
         this.kafkaOperations = kafkaOperations;
         this.config = config;
+        this.arbeidsgiverConfig = arbeidsgiverConfig;
         this.mapper = mapper;
     }
 
     @EventListener
     public void sendInn(SkjemaSendtInn event) {
-        LOG.info("Skjema sendt inn id={}", event.getPermitteringsskjema().getId());
-        event.getPermitteringsskjema()
-                .permittertePersoner().stream()
+        var skjema = event.getPermitteringsskjema();
+        var permitterte = skjema.permittertePersoner();
+        sendIndividuelle(skjema.getId(), permitterte);
+        sendRapport(permitterte.size(), skjema);
+
+    }
+
+    private void sendRapport(int size, Permitteringsskjema skjema) {
+        var rapport = ArbeidsgiverRapport.builder()
+                .antallBerorte(size)
+                .bedriftsnummer(skjema.getBedriftNr())
+                .fritekst(skjema.getFritekst())
+                .id(skjema.getId())
+                .kontaktEpost(skjema.getKontaktEpost())
+                .kontaktNavn(skjema.getKontaktNavn())
+                .kontaktTlf(skjema.getKontaktTlf())
+                .sendtInnTidspunkt(skjema.getSendtInnTidspunkt())
+                .sluttDato(skjema.getSluttDato())
+                .startDato(skjema.getStartDato())
+                .varsletAnsattDato(skjema.getVarsletAnsattDato())
+                .varsletNavDato(skjema.getVarsletNavDato())
+                .type(skjema.getType()).build();
+        publiser(rapport);
+
+    }
+
+    @Override
+    public void publiser(ArbeidsgiverRapport rapport) {
+        send(MessageBuilder
+                .withPayload(mapper.writeValueAsString(rapport))
+                .setHeader(TOPIC, config.getTopic())
+                .setHeader(NAV_CALL_ID, callIdOrNew())
+                .build());
+    }
+
+    private void sendIndividuelle(UUID id, List<PermittertPerson> permitterte) {
+        LOG.info("Skjema sendt inn id={}", id);
+        permitterte.stream()
                 .forEach(this::publiser);
+
     }
 
     @Override

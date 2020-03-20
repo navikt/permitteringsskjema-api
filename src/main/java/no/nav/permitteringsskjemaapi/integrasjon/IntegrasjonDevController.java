@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.boot.conditionals.ConditionalOnNotProd;
 import no.nav.permitteringsskjemaapi.PermittertPerson;
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.Arbeidsgiver;
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.ArbeidsgiverRapport;
-import no.nav.permitteringsskjemaapi.integrasjon.arbeidstaker.Permittering;
 import no.nav.security.token.support.core.api.Unprotected;
 
 @RestController

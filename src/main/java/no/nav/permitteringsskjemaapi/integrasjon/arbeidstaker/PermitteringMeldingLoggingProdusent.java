@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import no.nav.permitteringsskjemaapi.PermittertPerson;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
+import no.nav.permitteringsskjemaapi.integrasjon.Permittering;
+import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.ArbeidsgiverRapport;
 
 @Service
 @ConditionalOnMissingBean(PermitteringMeldingKafkaProdusent.class)
@@ -26,6 +28,12 @@ public class PermitteringMeldingLoggingProdusent implements Permittering {
     @Override
     public void publiser(PermittertPerson person) {
         LOG.info("Sender {}", person);
+
+    }
+
+    @Override
+    public void publiser(ArbeidsgiverRapport rapport) {
+        LOG.info("Sender {}", rapport);
 
     }
 }

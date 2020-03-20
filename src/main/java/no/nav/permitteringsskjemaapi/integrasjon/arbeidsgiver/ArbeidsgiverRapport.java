@@ -1,7 +1,7 @@
 package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
@@ -21,7 +21,7 @@ public class ArbeidsgiverRapport {
     @NotNull
     private String bedriftsnummer;
     @NotNull
-    private LocalDateTime sendtInnTidspunkt;
+    private Instant sendtInnTidspunkt;
     @NotNull
     private SkjemaType type;
     @NotNull
