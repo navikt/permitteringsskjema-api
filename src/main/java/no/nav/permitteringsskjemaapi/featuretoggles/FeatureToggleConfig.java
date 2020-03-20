@@ -18,18 +18,16 @@ import org.springframework.context.annotation.Profile;
 public class FeatureToggleConfig {
 
     private static final String APP_NAME = "permitteringsskjema-api";
-
+    private final static String UNLEASH_API_URL = "https://unleash.nais.adeo.no/api/";
     @Bean
     @ConditionalOnClusters(clusters = {Cluster.DEV_FSS, Cluster.PROD_FSS})
-    public Unleash initializeUnleash( @Value(
-            "${unleash.unleash-uri}") String unleashUrl,
-                                      ByEnvironmentStrategy byEnvironmentStrategy,
+    public Unleash initializeUnleash( ByEnvironmentStrategy byEnvironmentStrategy,
                                       IsNotProdStrategy isNotProdStrategy)
             {
         UnleashConfig config = UnleashConfig.builder()
                 .appName(APP_NAME)
                 .instanceId(APP_NAME + "-" + byEnvironmentStrategy.getEnvironment())
-                .unleashAPI(unleashUrl)
+                .unleashAPI(UNLEASH_API_URL)
                 .build();
 
         return new DefaultUnleash(
