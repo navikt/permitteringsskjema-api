@@ -1,7 +1,31 @@
 package no.nav.permitteringsskjemaapi;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.AbstractAggregateRoot;
+import org.springframework.lang.Nullable;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -11,16 +35,6 @@ import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
 import no.nav.permitteringsskjemaapi.exceptions.AlleFelterIkkeFyltUtException;
 import no.nav.permitteringsskjemaapi.exceptions.SkjemaErAvbruttException;
-import no.nav.permitteringsskjemaapi.util.ObjektUtils;
-import org.springframework.data.domain.AbstractAggregateRoot;
-
-import javax.persistence.*;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 // Lombok
 @Data
@@ -29,6 +43,8 @@ import java.util.stream.Collectors;
 // JPA
 @Entity
 public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskjema> {
+    private static final Logger LOG = LoggerFactory.getLogger(Permitteringsskjema.class);
+    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
     private boolean avbrutt;
     private String bedriftNavn;
     private String bedriftNr;
@@ -37,7 +53,9 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     @EqualsAndHashCode.Include
     private UUID id;
     private String kontaktEpost;
+    @NotNull
     private String kontaktNavn;
+    @NotNull
     private String kontaktTlf;
     @JsonIgnore
     private String opprettetAv;
@@ -45,12 +63,17 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     @OneToMany(mappedBy = "permitteringsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Person> personer = new ArrayList<>();
     private Instant sendtInnTidspunkt;
+    @Nullable
     private LocalDate sluttDato;
+    @NotNull
     private LocalDate startDato;
     @Enumerated(EnumType.STRING)
+    @NotNull
     private SkjemaType type;
     private boolean ukjentSluttDato;
+    @NotNull
     private LocalDate varsletAnsattDato;
+    @NotNull
     private LocalDate varsletNavDato;
 
     public static Permitteringsskjema opprettSkjema(OpprettSkjema opprettSkjema, String utførtAv) {
@@ -80,7 +103,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         setVarsletNavDato(endreSkjema.getVarsletNavDato());
         setStartDato(endreSkjema.getStartDato());
         setSluttDato(endreSkjema.getSluttDato());
-        setUkjentSluttDato(endreSkjema.getUkjentSluttDato());
+        setUkjentSluttDato(endreSkjema.getSluttDato() == null);
         setFritekst(endreSkjema.getFritekst());
         personer.clear();
         personer.addAll(endreSkjema.getPersoner());
@@ -126,18 +149,12 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     }
 
     private void sjekkOmObligatoriskInformasjonErFyltUt() {
-        if (ObjektUtils.isAnyEmpty(
-                type,
-                kontaktNavn,
-                kontaktTlf,
-                varsletAnsattDato,
-                varsletNavDato,
-                startDato,
-                sluttDato,
-                ukjentSluttDato,
-                fritekst)) {
-            throw new AlleFelterIkkeFyltUtException();
+        var resultat = VALIDATOR.validate(this);
+        if (resultat.isEmpty()) {
+            LOG.info("Validert OK");
         }
+        LOG.warn("Validering feilet {}", resultat);
+        throw new AlleFelterIkkeFyltUtException();
     }
 
     private void sjekkOmSkjemaErAvbrutt() {
