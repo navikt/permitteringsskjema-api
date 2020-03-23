@@ -139,12 +139,15 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
 
     private void sjekkOmObligatoriskInformasjonErFyltUt() {
         List<String> feil = new ArrayList<>();
-        validateNotNull("kontaktNavn", kontaktNavn, feil);
-        validateNotNull("kontaktTlf", kontaktTlf, feil);
-        validateNotNull("startDato", startDato, feil);
-        validateNotNull("type", type, feil);
-        validateNotNull("varsletAnsattDato", varsletAnsattDato, feil);
-        validateNotNull("varsletNavDato", varsletNavDato, feil);
+        validateNotNull("Skjematype", type, feil);
+        validateNotNull("Navn på kontaktperson", kontaktNavn, feil);
+        validateNotNull("Telefonnummer til kontaktperson", kontaktTlf, feil);
+        validateNotNull("E-post til kontaktperson", kontaktEpost, feil);
+        validateNotNull("Startdato", startDato, feil);
+        if (!ukjentSluttDato) {
+            validateNotNull("Sluttdato", sluttDato, feil);
+        }
+        validateNotNull("Hvorfor det skal permitteres og hvilke yrkeskategorier som er berørt", fritekst, feil);
 
         if (feil.isEmpty()) {
             return;
