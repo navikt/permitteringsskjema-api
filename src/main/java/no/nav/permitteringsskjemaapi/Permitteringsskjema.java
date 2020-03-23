@@ -14,14 +14,11 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.AbstractAggregateRoot;
-import org.springframework.lang.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -44,7 +41,6 @@ import no.nav.permitteringsskjemaapi.exceptions.SkjemaErAvbruttException;
 @Entity
 public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskjema> {
     private static final Logger LOG = LoggerFactory.getLogger(Permitteringsskjema.class);
-    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
     private boolean avbrutt;
     private String bedriftNavn;
     private String bedriftNr;
@@ -53,9 +49,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     @EqualsAndHashCode.Include
     private UUID id;
     private String kontaktEpost;
-    @NotNull
     private String kontaktNavn;
-    @NotNull
     private String kontaktTlf;
     @JsonIgnore
     private String opprettetAv;
@@ -63,17 +57,12 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     @OneToMany(mappedBy = "permitteringsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Person> personer = new ArrayList<>();
     private Instant sendtInnTidspunkt;
-    @Nullable
     private LocalDate sluttDato;
-    @NotNull
     private LocalDate startDato;
     @Enumerated(EnumType.STRING)
-    @NotNull
     private SkjemaType type;
     private boolean ukjentSluttDato;
-    @NotNull
     private LocalDate varsletAnsattDato;
-    @NotNull
     private LocalDate varsletNavDato;
 
     public static Permitteringsskjema opprettSkjema(OpprettSkjema opprettSkjema, String utførtAv) {
@@ -149,13 +138,25 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     }
 
     private void sjekkOmObligatoriskInformasjonErFyltUt() {
-        var resultat = VALIDATOR.validate(this);
-        if (resultat.isEmpty()) {
-            LOG.info("Validert OK");
+        List<String> feil = new ArrayList<>();
+        validateNotNull("kontaktNavn", kontaktNavn, feil);
+        validateNotNull("kontaktTlf", kontaktTlf, feil);
+        validateNotNull("startDato", startDato, feil);
+        validateNotNull("type", type, feil);
+        validateNotNull("varsletAnsattDato", varsletAnsattDato, feil);
+        validateNotNull("varsletNavDato", varsletNavDato, feil);
+
+        if (feil.isEmpty()) {
             return;
         }
-        LOG.warn("Validering feilet {}", resultat);
-        throw new AlleFelterIkkeFyltUtException();
+        throw new AlleFelterIkkeFyltUtException(feil);
+    }
+
+    private void validateNotNull(String desc, Object object, List<String> feil) {
+        if (ObjectUtils.isEmpty(object)) {
+            LOG.warn("Validering feilet, er null {}", desc);
+            feil.add(desc);
+        }
     }
 
     private void sjekkOmSkjemaErAvbrutt() {
