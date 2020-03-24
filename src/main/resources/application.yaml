@@ -38,7 +38,7 @@ spring:
 
 permittering:
   dagpenger:
-    enabled: true 
+    enabled: false 
     topic: aapen-permittering-dagpenger 
   arbeidsgiver:
     enabled: true 
