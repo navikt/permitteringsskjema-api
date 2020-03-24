@@ -11,13 +11,13 @@ spec:
   port: 8080
   webproxy: true
   liveness:
-    path: /permitteringsskjema-api/internal/healthcheck
+    path: /permitteringsskjema-api/internal/actuator/info
     initialDelay: 30
     timeout: 1
     periodSeconds: 10
     failureThreshold: 3
   readiness:
-    path: /permitteringsskjema-api/internal/healthcheck
+    path: /permitteringsskjema-api/internal/actuator/info
     initialDelay: 30
     timeout: 1
     periodSeconds: 10
