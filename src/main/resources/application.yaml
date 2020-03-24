@@ -38,10 +38,10 @@ spring:
 
 permittering:
   dagpenger:
-    enabled: false 
+    enabled: true 
     topic: aapen-permittering-dagpenger 
   arbeidsgiver:
-    enabled: false 
+    enabled: true 
     topic: aapen-permittering-arbeidsgiver   
   database:
     database-navn: permittering
@@ -94,12 +94,7 @@ altinn:
   altinnHeader: "lokal"
   APIGwHeader: "lokal"
 
----
-permittering:
-  dagpenger:
-    enabled: true 
-  arbeidsgiver:
-    enabled: true  
+--- 
 spring:
   profiles: dev-fss
   datasource:

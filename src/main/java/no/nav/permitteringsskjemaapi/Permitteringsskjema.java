@@ -10,7 +10,9 @@ import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
 import no.nav.permitteringsskjemaapi.exceptions.AlleFelterIkkeFyltUtException;
 import no.nav.permitteringsskjemaapi.exceptions.SkjemaErAvbruttException;
-import no.nav.permitteringsskjemaapi.util.ObjektUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
 import javax.persistence.*;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 @Entity
 public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskjema> {
     private Integer antallBerørt;
+    private static final Logger LOG = LoggerFactory.getLogger(Permitteringsskjema.class);
     private boolean avbrutt;
     private String bedriftNavn;
     private String bedriftNr;
@@ -75,7 +78,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         setVarsletNavDato(endreSkjema.getVarsletNavDato());
         setStartDato(endreSkjema.getStartDato());
         setSluttDato(endreSkjema.getSluttDato());
-        setUkjentSluttDato(endreSkjema.getUkjentSluttDato());
+        setUkjentSluttDato(endreSkjema.getSluttDato() == null);
         setFritekst(endreSkjema.getFritekst());
         setAntallBerørt(endreSkjema.getAntallBerørt());
         personer.clear();
@@ -122,17 +125,28 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     }
 
     private void sjekkOmObligatoriskInformasjonErFyltUt() {
-        if (ObjektUtils.isAnyEmpty(
-                type,
-                kontaktNavn,
-                kontaktTlf,
-                varsletAnsattDato,
-                varsletNavDato,
-                startDato,
-                sluttDato,
-                ukjentSluttDato,
-                fritekst)) {
-            throw new AlleFelterIkkeFyltUtException();
+        List<String> feil = new ArrayList<>();
+        validateNotNull("Skjematype", type, feil);
+        validateNotNull("Navn på kontaktperson", kontaktNavn, feil);
+        validateNotNull("Telefonnummer til kontaktperson", kontaktTlf, feil);
+        validateNotNull("E-post til kontaktperson", kontaktEpost, feil);
+        validateNotNull("Startdato", startDato, feil);
+        if (!ukjentSluttDato) {
+            validateNotNull("Sluttdato", sluttDato, feil);
+        }
+        validateNotNull("Hvorfor det skal permitteres og hvilke yrkeskategorier som er berørt", fritekst, feil);
+        validateNotNull("Antall berørt", antallBerørt, feil);
+
+        if (feil.isEmpty()) {
+            return;
+        }
+        throw new AlleFelterIkkeFyltUtException(feil);
+    }
+
+    private void validateNotNull(String desc, Object object, List<String> feil) {
+        if (ObjectUtils.isEmpty(object)) {
+            LOG.warn("Validering feilet, er null {}", desc);
+            feil.add(desc);
         }
     }
 

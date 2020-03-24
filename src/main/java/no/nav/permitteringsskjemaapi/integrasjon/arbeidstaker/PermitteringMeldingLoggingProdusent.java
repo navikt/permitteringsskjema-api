@@ -28,4 +28,5 @@ public class PermitteringMeldingLoggingProdusent implements Permittering {
         LOG.info("Sender {}", person);
 
     }
+
 }

@@ -3,8 +3,8 @@ package no.nav.permitteringsskjemaapi.config;
 import static java.lang.System.getenv;
 import static no.nav.foreldrepenger.boot.conditionals.EnvUtil.DEFAULT;
 import static no.nav.foreldrepenger.boot.conditionals.EnvUtil.DEV_FSS;
-import static no.nav.foreldrepenger.boot.conditionals.EnvUtil.DEV_GCP;
 import static no.nav.foreldrepenger.boot.conditionals.EnvUtil.LOCAL;
+import static no.nav.foreldrepenger.boot.conditionals.EnvUtil.PROD_FSS;
 
 import java.util.Optional;
 
@@ -33,11 +33,13 @@ public final class ClusterAwareSpringProfileResolver {
             System.setProperty(NAIS_CLUSTER_NAME, LOCAL);
             return LOCAL;
         }
+        LOG.info("Aktivt cluster er {}", cluster);
         if (cluster.equals(DEV_FSS)) {
             return DEV_FSS;
         }
-        if (cluster.equals(DEV_GCP)) {
-            return DEV_GCP;
+
+        if (cluster.equals(PROD_FSS)) {
+            return PROD_FSS;
         }
         return DEFAULT;
     }
