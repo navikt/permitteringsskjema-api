@@ -21,6 +21,7 @@ public class TestData {
         permitteringsskjema.setSluttDato(LocalDate.of(2020, 9, 18));
         permitteringsskjema.setUkjentSluttDato(false);
         permitteringsskjema.setFritekst("Fritekst");
+        permitteringsskjema.setAntallBerørt(1);
         Person enPerson = enPerson();
         enPerson.setPermitteringsskjema(permitteringsskjema);
         permitteringsskjema.getPersoner().add(enPerson);

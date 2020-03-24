@@ -37,8 +37,7 @@ public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
 
     @EventListener
     public void sendInn(SkjemaSendtInn event) {
-        var skjema = event.getPermitteringsskjema();
-        sendRapport(skjema.getPersoner().size(), skjema);
+        sendRapport(event.getPermitteringsskjema());
     }
 
     @Override
@@ -49,9 +48,9 @@ public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
         send(record);
     }
 
-    private void sendRapport(int size, Permitteringsskjema skjema) {
+    private void sendRapport(Permitteringsskjema skjema) {
         var rapport = ArbeidsgiverRapport.builder()
-                .antallBerorte(size)
+                .antallBerorte(skjema.getAntallBerørt())
                 .bedriftsnummer(skjema.getBedriftNr())
                 .fritekst(skjema.getFritekst())
                 .id(skjema.getId())

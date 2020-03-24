@@ -1,28 +1,6 @@
 package no.nav.permitteringsskjemaapi;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-
-import org.apache.commons.lang3.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.AbstractAggregateRoot;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -32,6 +10,18 @@ import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
 import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
 import no.nav.permitteringsskjemaapi.exceptions.AlleFelterIkkeFyltUtException;
 import no.nav.permitteringsskjemaapi.exceptions.SkjemaErAvbruttException;
+import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.AbstractAggregateRoot;
+
+import javax.persistence.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 // Lombok
 @Data
@@ -40,6 +30,7 @@ import no.nav.permitteringsskjemaapi.exceptions.SkjemaErAvbruttException;
 // JPA
 @Entity
 public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskjema> {
+    private Integer antallBerørt;
     private static final Logger LOG = LoggerFactory.getLogger(Permitteringsskjema.class);
     private boolean avbrutt;
     private String bedriftNavn;
@@ -76,11 +67,6 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         return skjema;
     }
 
-    @JsonProperty
-    public Integer antallBerørt() {
-        return personer.size();
-    }
-
     public void endre(EndreSkjema endreSkjema, String utførtAv) {
         sjekkOmSkjemaErAvbrutt();
         sjekkOmSkjemaErSendtInn();
@@ -94,6 +80,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         setSluttDato(endreSkjema.getSluttDato());
         setUkjentSluttDato(endreSkjema.getSluttDato() == null);
         setFritekst(endreSkjema.getFritekst());
+        setAntallBerørt(endreSkjema.getAntallBerørt());
         personer.clear();
         personer.addAll(endreSkjema.getPersoner());
         personer.forEach(p -> p.setId(UUID.randomUUID()));
@@ -148,6 +135,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
             validateNotNull("Sluttdato", sluttDato, feil);
         }
         validateNotNull("Hvorfor det skal permitteres og hvilke yrkeskategorier som er berørt", fritekst, feil);
+        validateNotNull("Antall berørt", antallBerørt, feil);
 
         if (feil.isEmpty()) {
             return;

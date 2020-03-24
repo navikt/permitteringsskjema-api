@@ -1,0 +1,1 @@
+alter table permitteringsskjema add column antall_berørt integer;

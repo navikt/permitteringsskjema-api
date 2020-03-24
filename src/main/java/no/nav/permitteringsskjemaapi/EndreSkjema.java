@@ -21,5 +21,6 @@ public class EndreSkjema {
     LocalDate sluttDato;
     Boolean ukjentSluttDato;
     String fritekst;
+    Integer antallBerørt;
     List<Person> personer = new ArrayList<>();
 }
