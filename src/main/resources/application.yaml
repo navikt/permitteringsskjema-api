@@ -51,6 +51,9 @@ permittering:
     max-lifetime: 300000
 
 ---    
+permittering:
+  arbeidsgiver:
+    enabled: false
 management:
    endpoints:
       web:
@@ -59,7 +62,7 @@ management:
    endpoint:
       health:
          show-details: always  
-spring:
+spring:  
   profiles: local
   kafka:
       properties:
