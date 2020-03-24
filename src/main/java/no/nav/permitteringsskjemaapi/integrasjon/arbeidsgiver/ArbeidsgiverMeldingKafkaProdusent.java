@@ -8,11 +8,14 @@ import org.apache.kafka.common.header.internals.RecordHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import no.nav.permitteringsskjemaapi.Permitteringsskjema;
+import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
 import no.nav.permitteringsskjemaapi.util.ObjectMapperWrapper;
 
 @Service
@@ -32,12 +35,37 @@ public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
         this.mapper = mapper;
     }
 
+    @EventListener
+    public void sendInn(SkjemaSendtInn event) {
+        var skjema = event.getPermitteringsskjema();
+        sendRapport(skjema.getPersoner().size(), skjema);
+    }
+
     @Override
     public void publiser(ArbeidsgiverRapport rapport) {
         var record = new ProducerRecord<>(config.getTopic(), rapport.getId().toString(),
                 mapper.writeValueAsString(rapport));
         record.headers().add(new RecordHeader(NAV_CALL_ID, callIdOrNew().getBytes()));
         send(record);
+    }
+
+    private void sendRapport(int size, Permitteringsskjema skjema) {
+        var rapport = ArbeidsgiverRapport.builder()
+                .antallBerorte(size)
+                .bedriftsnummer(skjema.getBedriftNr())
+                .fritekst(skjema.getFritekst())
+                .id(skjema.getId())
+                .kontaktEpost(skjema.getKontaktEpost())
+                .kontaktNavn(skjema.getKontaktNavn())
+                .kontaktTlf(skjema.getKontaktTlf())
+                .sendtInnTidspunkt(skjema.getSendtInnTidspunkt())
+                .sluttDato(skjema.getSluttDato())
+                .startDato(skjema.getStartDato())
+                .varsletAnsattDato(skjema.getVarsletAnsattDato())
+                .varsletNavDato(skjema.getVarsletNavDato())
+                .type(skjema.getType()).build();
+        publiser(rapport);
+
     }
 
     private void send(ProducerRecord<String, String> record) {
