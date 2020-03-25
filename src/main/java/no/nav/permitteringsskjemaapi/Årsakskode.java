@@ -1,26 +1,20 @@
 package no.nav.permitteringsskjemaapi;
 
 public enum Årsakskode {
-    AIKKE("Arbeidsgiver kan ikke påvirke"),
-    AKAN("Arbeidsgiver kan påvirke"),
-    AMANG("Mangel på arbeid"),
+    MANGEL_PÅ_ARBEID("Mangel på arbeid eller oppdrag"),
+    RÅSTOFFMANGEL("Råstoffmangel"),
+    ARBEIDSKONFLIKT_ELLER_STREIK("Arbeidskonflikt eller streik"),
     BRANN("Brann"),
-    FISYK("Fiske- og skjellsykdommer"),
-    FORCE("Force Majeure"),
-    LOCK("Lock-out"),
-    OPPUS("Ombygging/oppussing av lokaler"),
-    PAND("Pandemi"),
-    POFFM("Pålegg fra offentlig myndighet"),
-    PRVEM("Pris/Vekt/Markedsmessig"),
-    PTRUK("Permittering trukket"),
-    RASTM("Råstoffmangel"),
-    STREI("Streik"),
-    UNAVK("Under avklaring"),
-    VEDOK("Venter på dokumentasjon");
+    PÅLEGG_FRA_OFFENTLIG_MYNDIGHET("Pålegg fra offentlig myndighet"),
+    ANDRE_ÅRSAKER("Andre årsaker");
 
     private final String navn;
 
     Årsakskode(String navn) {
         this.navn = navn;
+    }
+
+    public String getNavn() {
+        return navn;
     }
 }
