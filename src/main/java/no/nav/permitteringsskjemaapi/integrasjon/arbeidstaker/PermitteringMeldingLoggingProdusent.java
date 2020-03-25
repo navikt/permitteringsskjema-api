@@ -25,7 +25,7 @@ public class PermitteringMeldingLoggingProdusent implements Permittering {
 
     @Override
     public void publiser(PermittertPerson person) {
-        LOG.info("Sender {}", person);
+        LOG.debug("Sender {}", person);
 
     }
 

@@ -13,11 +13,11 @@
             </layout>
         </appender>
     </springProfile>
-    <logger name="jsonLogger" additivity="false" level="WARN">
+    <logger name="jsonLogger" additivity="false" level="INFO">
         <appender-ref ref="stdout"/>
     </logger>
     <logger name="no.nav.vault.jdbc.hikaricp.VaultUtil" level="WARN"/>
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="stdout"/>
     </root>
 </configuration>

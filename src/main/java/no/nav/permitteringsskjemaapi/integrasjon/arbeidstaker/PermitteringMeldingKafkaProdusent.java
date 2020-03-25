@@ -61,13 +61,13 @@ public class PermitteringMeldingKafkaProdusent implements Permittering {
     }
 
     private void send(ProducerRecord<String, String> record) {
-        LOG.info("Sender melding {} på {}", record.value(), config.getTopic());
+        LOG.debug("Sender melding {} på {}", record.value(), config.getTopic());
         kafkaOperations.send(record)
                 .addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
 
                     @Override
                     public void onSuccess(SendResult<String, String> result) {
-                        LOG.info("Sendte melding {} med offset {} på {}", record.value(),
+                        LOG.debug("Sendte melding {} med offset {} på {}", record.value(),
                                 result.getRecordMetadata().offset(), config.getTopic());
                     }
 
