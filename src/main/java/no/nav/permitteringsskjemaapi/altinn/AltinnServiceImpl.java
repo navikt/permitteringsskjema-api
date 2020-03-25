@@ -61,7 +61,6 @@ public class AltinnServiceImpl implements AltinnService {
                 + "&serviceCode=" + serviceKode
                 + "&serviceEdition=" + serviceEdition;
         String url = altinnUrl + "reportees/?ForceEIAuthentication" + query;
-        log.info("Henter rettigheter fra Altinn");
         return getFromAltinn(new ParameterizedTypeReference<List<AltinnOrganisasjon>>() {
         }, url, ALTINN_ORG_PAGE_SIZE);
     }
