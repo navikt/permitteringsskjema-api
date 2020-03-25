@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
+import no.nav.permitteringsskjemaapi.Årsakskode;
 import org.springframework.lang.Nullable;
 
 import lombok.Builder;
@@ -42,4 +43,6 @@ public class ArbeidsgiverRapport {
     private String fritekst;
     @NotNull
     Integer antallBerorte;
+    @Nullable
+    Årsakskode årsakskode;
 }
