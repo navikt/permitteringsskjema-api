@@ -49,7 +49,6 @@ public class AltinnServiceImpl implements AltinnService {
         String query = "&subject=" + fnr
                 + "&$filter=(Type+eq+'Bedrift'+or+Type+eq+'Business'+or+Type+eq+'Enterprise'+or+Type+eq+'Foretak')+and+Status+eq+'Active'";
         String url = altinnUrl + "reportees/?ForceEIAuthentication" + query;
-        log.info("Henter organisasjoner fra Altinn");
         return getFromAltinn(new ParameterizedTypeReference<List<AltinnOrganisasjon>>() {
         }, url, ALTINN_ORG_PAGE_SIZE);
     }
