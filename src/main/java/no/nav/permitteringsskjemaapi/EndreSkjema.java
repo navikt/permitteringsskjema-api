@@ -23,4 +23,6 @@ public class EndreSkjema {
     String fritekst;
     Integer antallBerørt;
     List<Person> personer = new ArrayList<>();
+    Årsakskode årsakskode;
+    String årsakstekst;
 }

@@ -1,45 +1,48 @@
 package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.UUID;
-
-import javax.validation.constraints.NotNull;
-
-import org.springframework.lang.Nullable;
-
 import lombok.Builder;
 import lombok.Value;
 import no.nav.permitteringsskjemaapi.SkjemaType;
+import no.nav.permitteringsskjemaapi.Årsakskode;
+import org.springframework.lang.Nullable;
+
+import javax.validation.constraints.NotNull;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Value
 @Builder
 public class ArbeidsgiverRapport {
 
     @NotNull
-    private UUID id;
+    UUID id;
     @NotNull
-    private String bedriftsnummer;
+    String bedriftsnummer;
     @NotNull
-    private Instant sendtInnTidspunkt;
+    Instant sendtInnTidspunkt;
     @NotNull
-    private SkjemaType type;
+    SkjemaType type;
     @NotNull
-    private String kontaktNavn;
+    String kontaktNavn;
     @NotNull
-    private String kontaktTlf;
+    String kontaktTlf;
     @NotNull
-    private String kontaktEpost;
+    String kontaktEpost;
     @NotNull
-    private LocalDate varsletAnsattDato;
+    LocalDate varsletAnsattDato;
     @NotNull
-    private LocalDate varsletNavDato;
+    LocalDate varsletNavDato;
     @NotNull
-    private LocalDate startDato;
+    LocalDate startDato;
     @Nullable
-    private LocalDate sluttDato;
+    LocalDate sluttDato;
     @Nullable
-    private String fritekst;
+    String fritekst;
     @NotNull
     Integer antallBerorte;
+    @Nullable
+    Årsakskode årsakskode;
+    @Nullable
+    String årsakstekst;
 }
