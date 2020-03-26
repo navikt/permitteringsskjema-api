@@ -45,7 +45,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     @JsonIgnore
     private String opprettetAv;
     private Instant opprettetTidspunkt;
-    @OneToMany(mappedBy = "permitteringsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "permitteringsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Person> personer = new ArrayList<>();
     private Instant sendtInnTidspunkt;
     private LocalDate sluttDato;
@@ -55,6 +55,8 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     private boolean ukjentSluttDato;
     private LocalDate varsletAnsattDato;
     private LocalDate varsletNavDato;
+    @OneToMany(mappedBy = "permitteringsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Yrkeskategori> yrkeskategorier = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     private Årsakskode årsakskode;
     private String årsakstekst;
@@ -86,6 +88,10 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         setAntallBerørt(endreSkjema.getAntallBerørt());
         setÅrsakskode(endreSkjema.getÅrsakskode());
         setÅrsakstekst(endreSkjema.getÅrsakstekst());
+        yrkeskategorier.clear();
+        yrkeskategorier.addAll(endreSkjema.getYrkeskategorier());
+        yrkeskategorier.forEach(y -> y.setId(UUID.randomUUID()));
+        yrkeskategorier.forEach(y -> y.setPermitteringsskjema(this));
         personer.clear();
         personer.addAll(endreSkjema.getPersoner());
         personer.forEach(p -> p.setId(UUID.randomUUID()));
