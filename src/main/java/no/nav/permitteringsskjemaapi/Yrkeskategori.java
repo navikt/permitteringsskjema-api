@@ -30,4 +30,5 @@ public class Yrkeskategori {
     private Integer konseptId;
     private String styrk08;
     private String label;
+    private Integer antall;
 }

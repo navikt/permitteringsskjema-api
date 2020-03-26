@@ -4,5 +4,6 @@ create table yrkeskategori
     permitteringsskjema_id uuid,
     konsept_id             integer,
     styrk08                varchar,
-    label                  varchar
+    label                  varchar,
+    antall                 integer
 )
