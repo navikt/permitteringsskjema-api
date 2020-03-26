@@ -64,6 +64,7 @@ public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
                 .varsletNavDato(skjema.getVarsletNavDato())
                 .type(skjema.getType())
                 .årsakskode(skjema.getÅrsakskode())
+                .årsakstekst(skjema.getÅrsakstekst())
                 .build();
         publiser(rapport);
 
