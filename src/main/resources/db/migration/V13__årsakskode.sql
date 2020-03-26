@@ -1,1 +1,0 @@
-alter table permitteringsskjema add column årsakskode varchar(5);

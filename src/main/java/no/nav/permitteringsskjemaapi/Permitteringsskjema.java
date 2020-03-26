@@ -57,6 +57,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     private LocalDate varsletNavDato;
     @Enumerated(EnumType.STRING)
     private Årsakskode årsakskode;
+    private String årsakstekst;
 
     public static Permitteringsskjema opprettSkjema(OpprettSkjema opprettSkjema, String utførtAv) {
         Permitteringsskjema skjema = new Permitteringsskjema();
@@ -84,6 +85,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         setFritekst(endreSkjema.getFritekst());
         setAntallBerørt(endreSkjema.getAntallBerørt());
         setÅrsakskode(endreSkjema.getÅrsakskode());
+        setÅrsakstekst(endreSkjema.getÅrsakstekst());
         personer.clear();
         personer.addAll(endreSkjema.getPersoner());
         personer.forEach(p -> p.setId(UUID.randomUUID()));
@@ -142,6 +144,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
 
         // Kommenteres inn når dette kommer inn fra frontend
         // validateNotNull("Årsakskode", årsakskode, feil);
+        // if (årsakskode == Årsakskode.ANDRE_ÅRSAKER) validateNotNull("Årsakstekstf", årsakstekst, feil);
 
         if (feil.isEmpty()) {
             return;
