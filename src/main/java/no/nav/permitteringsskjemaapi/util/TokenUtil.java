@@ -43,6 +43,10 @@ public class TokenUtil {
                 .orElseThrow(unauthenticated("Fant ikke subject"));
     }
 
+    public String getTokenForInnloggetBruker() {
+        return ctxHolder.getTokenValidationContext().getJwtToken(ISSUER).getTokenAsString();
+    }
+
     public Fødselsnummer autentisertFNR() {
         return Fødselsnummer.valueOf(autentisertBruker());
     }
@@ -66,4 +70,5 @@ public class TokenUtil {
     public String toString() {
         return getClass().getSimpleName() + " [ctxHolder=" + ctxHolder + "]";
     }
+
 }
