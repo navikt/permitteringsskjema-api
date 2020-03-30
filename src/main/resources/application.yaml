@@ -12,7 +12,7 @@ management:
       web:
          exposure:
             include: info, health, metrics, prometheus
-         base-path: /internal/actuator              
+         base-path: /internal/actuator
    endpoint:
       health:
          show-details: never
@@ -38,15 +38,15 @@ spring:
          bootstrap-servers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443
          key-serializer: org.apache.kafka.common.serialization.StringSerializer
          value-serializer: org.apache.kafka.common.serialization.StringSerializer
-   
+
 
 permittering:
   dagpenger:
-    enabled: false 
-    topic: aapen-permittering-dagpenger 
+    enabled: false
+    topic: aapen-permittering-dagpenger
   arbeidsgiver:
-    enabled: true 
-    topic: aapen-permittering-arbeidsgiver   
+    enabled: true
+    topic: aapen-permittering-arbeidsgiver
   database:
     database-navn: permittering
     database-url: ${spring.datasource.url}
@@ -54,7 +54,7 @@ permittering:
     maximum-pool-size: 8
     max-lifetime: 300000
 
----    
+---
 permittering:
   arbeidsgiver:
     enabled: false
@@ -65,17 +65,17 @@ management:
             include: '*'
    endpoint:
       health:
-         show-details: always  
-spring:  
+         show-details: always
+spring:
   profiles: local
   kafka:
       properties:
          security:
-            protocol: PLAINTEXT 
+            protocol: PLAINTEXT
       consumer:
          bootstrap-servers: localhost:9092
       producer:
-         bootstrap-servers: localhost:9092  
+         bootstrap-servers: localhost:9092
   datasource:
     platform: postgres
     url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
@@ -100,8 +100,9 @@ altinn:
   altinnUrl: "http://localhost:${mock.port}/altinn/"
   altinnHeader: "lokal"
   APIGwHeader: "lokal"
+  altinnProxyUrl: "http://localhost:${mock.port}/altinn/"
 
---- 
+---
 management:
    endpoints:
       web:
@@ -119,7 +120,7 @@ spring:
       consumer:
          bootstrap-servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00046.preprod.local:8443
       producer:
-         bootstrap-servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00046.preprod.local:8443   
+         bootstrap-servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00046.preprod.local:8443
 
 no.nav.security.jwt.issuer.selvbetjening:
       discoveryurl: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
@@ -131,6 +132,7 @@ altinn:
   altinnUrl: "https://api-gw-q1.adeo.no/ekstern/altinn/api/serviceowner/"
   altinnHeader: ${ALTINN_HEADER}
   APIGwHeader: ${ALTINN_APIGW_HEADER}
+  altinnProxyUrl: https://arbeidsgiver.nais.preprod.local/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
 
 ---
 spring:
@@ -149,4 +151,4 @@ altinn:
   altinnUrl: "https://api-gw.adeo.no/ekstern/altinn/api/serviceowner/"
   altinnHeader: ${ALTINN_HEADER}
   APIGwHeader: ${ALTINN_APIGW_HEADER}
-
+  altinnProxyUrl: https://arbeidsgiver.nais.adeo.no/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
