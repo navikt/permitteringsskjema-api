@@ -17,29 +17,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @ActiveProfiles("local")
 @DirtiesContext
-public class RefusjonRepositoryTest {
-    private Refusjon lagretRefusjon;
-    private Refusjon refusjon;
+public class RefusjonsskjemaRepositoryTest {
+    private Refusjonsskjema lagretRefusjonsskjema;
+    private Refusjonsskjema refusjonsskjema;
 
     @Autowired
-    private RefusjonRepository repository;
+    private RefusjonsskjemaRepository repository;
 
     @Before
     public void setUp() {
-        refusjon = RefusjonTestData.enRefusjonMedAltFyltUt();
-        lagretRefusjon = repository.save(refusjon);
+        refusjonsskjema = RefusjonTestData.enRefusjonMedAltFyltUt();
+        lagretRefusjonsskjema = repository.save(refusjonsskjema);
     }
 
     @Test
     public void skal_kunne_lagre_alle_felter() {
-        assertThat(lagretRefusjon)
+        assertThat(lagretRefusjonsskjema)
                 .usingRecursiveComparison() // Felt-for-felt sammenligning
-                .isEqualTo(refusjon);
+                .isEqualTo(refusjonsskjema);
     }
 
     @Test
     public void skal_kunne_hentes_med_id() {
-        Optional<Refusjon> hentetRefusjon = repository.findById(refusjon.getId());
-        assertThat(hentetRefusjon).hasValue(refusjon);
+        Optional<Refusjonsskjema> hentetRefusjon = repository.findById(refusjonsskjema.getId());
+        assertThat(hentetRefusjon).hasValue(refusjonsskjema);
     }
 }

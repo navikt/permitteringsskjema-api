@@ -19,32 +19,32 @@ import java.util.UUID;
 @AllArgsConstructor
 @RequestMapping("/refusjon")
 @Protected
-public class RefusjonController {
+public class RefusjonsskjemaController {
     private final TokenUtil fnrExtractor;
     private final AltinnService altinnService;
-    private final RefusjonRepository repository;
+    private final RefusjonsskjemaRepository repository;
 
     @GetMapping("/{id}")
-    public Refusjon hent(@PathVariable UUID id) {
+    public Refusjonsskjema hent(@PathVariable UUID id) {
         String fnr = fnrExtractor.autentisertBruker();
         return repository.findByIdAndOpprettetAv(id, fnr)
                 .orElseThrow(IkkeFunnetException::new);
     }
 
     @GetMapping
-    public List<Refusjon> hent() {
+    public List<Refusjonsskjema> hent() {
         String fnr = fnrExtractor.autentisertBruker();
         return repository.findAllByOpprettetAv(fnr);
     }
 
     @PostMapping
-    public ResponseEntity<Refusjon> opprett(@RequestBody OpprettRefusjon opprettSkjema) {
+    public ResponseEntity<Refusjonsskjema> opprett(@RequestBody OpprettRefusjon opprettSkjema) {
         String fnr = fnrExtractor.autentisertBruker();
         AltinnOrganisasjon organisasjon = hentOrganisasjon(fnr, opprettSkjema.getBedriftNr())
                 .orElseThrow(IkkeTilgangException::new);
-        Refusjon refusjon = Refusjon.opprett(opprettSkjema, fnr);
-        refusjon.setBedriftNavn(organisasjon.getName());
-        Refusjon lagretSkjema = repository.save(refusjon);
+        Refusjonsskjema refusjonsskjema = Refusjonsskjema.opprett(opprettSkjema, fnr);
+        refusjonsskjema.setBedriftNavn(organisasjon.getName());
+        Refusjonsskjema lagretSkjema = repository.save(refusjonsskjema);
         return ResponseEntity.status(HttpStatus.CREATED).body(lagretSkjema);
     }
 
@@ -56,29 +56,29 @@ public class RefusjonController {
     }
 
     @PutMapping("/{id}")
-    public Refusjon endre(@PathVariable UUID id, @RequestBody EndreRefusjon endre) {
+    public Refusjonsskjema endre(@PathVariable UUID id, @RequestBody EndreRefusjon endre) {
         String fnr = fnrExtractor.autentisertBruker();
-        Refusjon refusjon = repository.findByIdAndOpprettetAv(id, fnr)
+        Refusjonsskjema refusjonsskjema = repository.findByIdAndOpprettetAv(id, fnr)
                 .orElseThrow(IkkeFunnetException::new);
-        refusjon.endre(endre, fnrExtractor.autentisertBruker());
-        return repository.save(refusjon);
+        refusjonsskjema.endre(endre, fnrExtractor.autentisertBruker());
+        return repository.save(refusjonsskjema);
     }
 
     @PostMapping("/{id}/send-inn")
-    public Refusjon sendInn(@PathVariable UUID id) {
+    public Refusjonsskjema sendInn(@PathVariable UUID id) {
         String fnr = fnrExtractor.autentisertBruker();
-        Refusjon refusjon = repository.findByIdAndOpprettetAv(id, fnr)
+        Refusjonsskjema refusjonsskjema = repository.findByIdAndOpprettetAv(id, fnr)
                 .orElseThrow(IkkeFunnetException::new);
-        refusjon.sendInn(fnrExtractor.autentisertBruker());
-        return repository.save(refusjon);
+        refusjonsskjema.sendInn(fnrExtractor.autentisertBruker());
+        return repository.save(refusjonsskjema);
     }
 
     @PostMapping("/{id}/avbryt")
-    public Refusjon avbryt(@PathVariable UUID id) {
+    public Refusjonsskjema avbryt(@PathVariable UUID id) {
         String fnr = fnrExtractor.autentisertBruker();
-        Refusjon refusjon = repository.findByIdAndOpprettetAv(id, fnr)
+        Refusjonsskjema refusjonsskjema = repository.findByIdAndOpprettetAv(id, fnr)
                 .orElseThrow(IkkeFunnetException::new);
-        refusjon.avbryt(fnrExtractor.autentisertBruker());
-        return repository.save(refusjon);
+        refusjonsskjema.avbryt(fnrExtractor.autentisertBruker());
+        return repository.save(refusjonsskjema);
     }
 }
