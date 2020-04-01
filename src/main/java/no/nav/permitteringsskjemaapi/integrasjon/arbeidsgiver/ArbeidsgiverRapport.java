@@ -3,12 +3,14 @@ package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
 import lombok.Builder;
 import lombok.Value;
 import no.nav.permitteringsskjemaapi.SkjemaType;
+import no.nav.permitteringsskjemaapi.Yrkeskategori;
 import no.nav.permitteringsskjemaapi.Årsakskode;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Value
@@ -41,8 +43,10 @@ public class ArbeidsgiverRapport {
     String fritekst;
     @NotNull
     Integer antallBerorte;
-    @Nullable
+    @NotNull
     Årsakskode årsakskode;
     @Nullable
     String årsakstekst;
+    @NotNull
+    List<Yrkeskategori> yrkeskategorier;
 }
