@@ -1,5 +1,7 @@
 package no.nav.permitteringsskjemaapi;
 
+import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema;
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +28,7 @@ public class PermitteringsskjemaRepositoryTest {
 
     @Before
     public void setUp() {
-        permitteringsskjema = TestData.enPermitteringMedAltFyltUt();
+        permitteringsskjema = PermitteringTestData.enPermitteringMedAltFyltUt();
         lagretPermitteringsskjema = repository.save(permitteringsskjema);
     }
 

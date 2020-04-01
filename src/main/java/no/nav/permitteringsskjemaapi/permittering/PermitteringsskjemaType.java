@@ -1,13 +1,13 @@
-package no.nav.permitteringsskjemaapi;
+package no.nav.permitteringsskjemaapi.permittering;
 
-public enum SkjemaType {
+public enum PermitteringsskjemaType {
     MASSEOPPSIGELSE("Masseoppsigelse"),
     PERMITTERING_UTEN_LØNN("Permittering uten lønn"),
     INNSKRENKNING_I_ARBEIDSTID("Innskrenkning i arbeidstid");
 
     private final String navn;
 
-    SkjemaType(String navn) {
+    PermitteringsskjemaType(String navn) {
         this.navn = navn;
     }
 

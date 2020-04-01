@@ -1,15 +1,15 @@
-package no.nav.permitteringsskjemaapi;
+package no.nav.permitteringsskjemaapi.permittering;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaAvbrutt;
-import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaEndret;
-import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaOpprettet;
-import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
 import no.nav.permitteringsskjemaapi.exceptions.AlleFelterIkkeFyltUtException;
 import no.nav.permitteringsskjemaapi.exceptions.SkjemaErAvbruttException;
+import no.nav.permitteringsskjemaapi.permittering.domenehendelser.PermitteringsskjemaAvbrutt;
+import no.nav.permitteringsskjemaapi.permittering.domenehendelser.PermitteringsskjemaEndret;
+import no.nav.permitteringsskjemaapi.permittering.domenehendelser.PermitteringsskjemaOpprettet;
+import no.nav.permitteringsskjemaapi.permittering.domenehendelser.PermitteringsskjemaSendtInn;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 // JPA
 @Entity
 public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskjema> {
-    private Integer antallBerørt;
     private static final Logger LOG = LoggerFactory.getLogger(Permitteringsskjema.class);
+    private Integer antallBerørt;
     private boolean avbrutt;
     private String bedriftNavn;
     private String bedriftNr;
@@ -51,7 +51,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     private LocalDate sluttDato;
     private LocalDate startDato;
     @Enumerated(EnumType.STRING)
-    private SkjemaType type;
+    private PermitteringsskjemaType type;
     private boolean ukjentSluttDato;
     private LocalDate varsletAnsattDato;
     private LocalDate varsletNavDato;
@@ -61,18 +61,18 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     private Årsakskode årsakskode;
     private String årsakstekst;
 
-    public static Permitteringsskjema opprettSkjema(OpprettSkjema opprettSkjema, String utførtAv) {
+    public static Permitteringsskjema opprettSkjema(OpprettPermitteringsskjema opprettSkjema, String utførtAv) {
         Permitteringsskjema skjema = new Permitteringsskjema();
         skjema.setId(UUID.randomUUID());
         skjema.setOpprettetTidspunkt(Instant.now());
         skjema.setOpprettetAv(utførtAv);
         skjema.setBedriftNr(opprettSkjema.getBedriftNr());
         skjema.setType(opprettSkjema.getType());
-        skjema.registerEvent(new SkjemaOpprettet(skjema, utførtAv));
+        skjema.registerEvent(new PermitteringsskjemaOpprettet(skjema, utførtAv));
         return skjema;
     }
 
-    public void endre(EndreSkjema endreSkjema, String utførtAv) {
+    public void endre(EndrePermitteringsskjema endreSkjema, String utførtAv) {
         sjekkOmSkjemaErAvbrutt();
         sjekkOmSkjemaErSendtInn();
         setType(endreSkjema.getType());
@@ -96,7 +96,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         personer.addAll(endreSkjema.getPersoner());
         personer.forEach(p -> p.setId(UUID.randomUUID()));
         personer.forEach(p -> p.setPermitteringsskjema(this));
-        registerEvent(new SkjemaEndret(this, utførtAv));
+        registerEvent(new PermitteringsskjemaEndret(this, utførtAv));
     }
 
     public List<PermittertPerson> permittertePersoner() {
@@ -132,7 +132,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         sjekkOmSkjemaErAvbrutt();
         sjekkOmObligatoriskInformasjonErFyltUt();
         setSendtInnTidspunkt(Instant.now());
-        registerEvent(new SkjemaSendtInn(this, utførtAv));
+        registerEvent(new PermitteringsskjemaSendtInn(this, utførtAv));
     }
 
     private void sjekkOmObligatoriskInformasjonErFyltUt() {
@@ -176,6 +176,6 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     public void avbryt(String utførtAv) {
         sjekkOmSkjemaErAvbrutt();
         setAvbrutt(true);
-        registerEvent(new SkjemaAvbrutt(this, utførtAv));
+        registerEvent(new PermitteringsskjemaAvbrutt(this, utførtAv));
     }
 }

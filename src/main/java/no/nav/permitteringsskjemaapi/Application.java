@@ -14,11 +14,11 @@ import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 @ConfigurationPropertiesScan("no.nav.permitteringsskjemaapi")
 @EnableJwtTokenValidation(ignore = { "org.springframework",
         "springfox.documentation.swagger.web.ApiResourceController" })
-public class PermitteringsskjemaApiApplication {
+public class Application {
     public static void main(String[] args) {
-        new SpringApplicationBuilder(PermitteringsskjemaApiApplication.class)
+        new SpringApplicationBuilder(Application.class)
                 .profiles(profiles())
-                .main(PermitteringsskjemaApiApplication.class)
+                .main(Application.class)
                 .run(args);
     }
 }

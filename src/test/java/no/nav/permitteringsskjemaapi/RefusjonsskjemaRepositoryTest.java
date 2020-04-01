@@ -1,5 +1,7 @@
 package no.nav.permitteringsskjemaapi;
 
+import no.nav.permitteringsskjemaapi.refusjon.Refusjonsskjema;
+import no.nav.permitteringsskjemaapi.refusjon.RefusjonsskjemaRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

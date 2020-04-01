@@ -1,7 +1,8 @@
-package no.nav.permitteringsskjemaapi;
+package no.nav.permitteringsskjemaapi.refusjon;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.Entity;
@@ -14,9 +15,11 @@ import java.util.UUID;
 
 @Data
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Arbeidsforhold {
     @Id
     @JsonIgnore
+    @EqualsAndHashCode.Include
     private UUID id;
 
     @ManyToOne

@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi;
+package no.nav.permitteringsskjemaapi.refusjon;
 
 import lombok.AllArgsConstructor;
 import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon;
@@ -38,7 +38,7 @@ public class RefusjonsskjemaController {
     }
 
     @PostMapping
-    public ResponseEntity<Refusjonsskjema> opprett(@RequestBody OpprettRefusjon opprettSkjema) {
+    public ResponseEntity<Refusjonsskjema> opprett(@RequestBody OpprettRefusjonsskjema opprettSkjema) {
         String fnr = fnrExtractor.autentisertBruker();
         AltinnOrganisasjon organisasjon = hentOrganisasjon(fnr, opprettSkjema.getBedriftNr())
                 .orElseThrow(IkkeTilgangException::new);
@@ -56,7 +56,7 @@ public class RefusjonsskjemaController {
     }
 
     @PutMapping("/{id}")
-    public Refusjonsskjema endre(@PathVariable UUID id, @RequestBody EndreRefusjon endre) {
+    public Refusjonsskjema endre(@PathVariable UUID id, @RequestBody EndreRefusjonsskjema endre) {
         String fnr = fnrExtractor.autentisertBruker();
         Refusjonsskjema refusjonsskjema = repository.findByIdAndOpprettetAv(id, fnr)
                 .orElseThrow(IkkeFunnetException::new);
