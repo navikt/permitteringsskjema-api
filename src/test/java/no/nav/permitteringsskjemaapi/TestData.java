@@ -7,7 +7,7 @@ import java.util.UUID;
 public class TestData {
 
     public static Permitteringsskjema enPermitteringMedAltFyltUt() {
-        Permitteringsskjema permitteringsskjema = new Permitteringsskjema();
+        var permitteringsskjema = new Permitteringsskjema();
         permitteringsskjema.setId(UUID.randomUUID());
         permitteringsskjema.setOpprettetTidspunkt(Instant.now());
         permitteringsskjema.setBedriftNr("999999999");
@@ -23,9 +23,11 @@ public class TestData {
         permitteringsskjema.setFritekst("Fritekst");
         permitteringsskjema.setAntallBerørt(1);
         permitteringsskjema.setÅrsakskode(Årsakskode.MANGEL_PÅ_ARBEID);
-        Person enPerson = enPerson();
-        enPerson.setPermitteringsskjema(permitteringsskjema);
-        permitteringsskjema.getPersoner().add(enPerson);
+
+        Yrkeskategori enYrkeskategori = enYrkeskategori();
+        enYrkeskategori.setPermitteringsskjema(permitteringsskjema);
+        permitteringsskjema.getYrkeskategorier().add(enYrkeskategori);
+
         return permitteringsskjema;
     }
 
@@ -35,13 +37,13 @@ public class TestData {
         return skjema;
     }
 
-    private static Person enPerson() {
-        Person person = new Person();
-        person.setId(UUID.randomUUID());
-        person.setFnr("00000000000");
-        person.setGrad(100);
-        person.setKommentar("Kommentar");
-        return person;
+    private static Yrkeskategori enYrkeskategori() {
+        var yrkeskategori = new Yrkeskategori();
+        yrkeskategori.setId(UUID.randomUUID());
+        yrkeskategori.setKonseptId(1000);
+        yrkeskategori.setStyrk08("0001");
+        yrkeskategori.setLabel("Label");
+        return yrkeskategori;
     }
 
 }
