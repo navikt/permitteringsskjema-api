@@ -22,7 +22,7 @@ public class TestData {
         permitteringsskjema.setUkjentSluttDato(false);
         permitteringsskjema.setFritekst("Fritekst");
         permitteringsskjema.setAntallBerørt(1);
-        permitteringsskjema.setÅrsakskode(Årsakskode.MANGEL_PÅ_ARBEID);
+        //permitteringsskjema.setÅrsakskode(Årsakskode.MANGEL_PÅ_ARBEID);
         Person enPerson = enPerson();
         enPerson.setPermitteringsskjema(permitteringsskjema);
         permitteringsskjema.getPersoner().add(enPerson);
