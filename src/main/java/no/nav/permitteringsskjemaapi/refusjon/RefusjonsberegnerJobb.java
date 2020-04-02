@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,7 +26,7 @@ public class RefusjonsberegnerJobb {
     @SneakyThrows
     @Scheduled(fixedDelay = 10000, initialDelay = 10000)
     public void innhentOgBeregnUbehandlede() {
-        var ubehandlede = repository.findAllByInnhentetTidspunktIsNull();
+        List<Refusjonsberegning> ubehandlede = repository.findAllByInnhentetTidspunktIsNull();
         if (!ubehandlede.isEmpty()) {
             ExecutorService executor = Executors.newFixedThreadPool(4);
             log.info("Starter refusjonsberegning, antall={}", ubehandlede.size());

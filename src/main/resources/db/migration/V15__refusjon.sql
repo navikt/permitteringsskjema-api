@@ -37,3 +37,10 @@ create table refusjonsberegning
     inntekt_korrigert   numeric,
     refusjonsbeløp      numeric
 );
+
+create table refusjonsberegning_beregningsdetaljer
+(
+    refusjonsberegning_id uuid,
+    beregningsdetaljer    varchar,
+    primary key (refusjonsberegning_id, beregningsdetaljer)
+);

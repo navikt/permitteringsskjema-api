@@ -6,12 +6,13 @@ import no.nav.permitteringsskjemaapi.refusjon.domenehendelser.InntektInnhentet;
 import no.nav.permitteringsskjemaapi.refusjon.domenehendelser.RefusjonsberegningOpprettet;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -33,6 +34,10 @@ public class Refusjonsberegning extends AbstractAggregateRoot {
     private BigDecimal inntektInnhentet;
     private BigDecimal inntektKorrigert;
     private BigDecimal refusjonsbeløp;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private Set<Beregningsdetalj> beregningsdetaljer = EnumSet.noneOf(Beregningsdetalj.class);
 
     public static Refusjonsberegning opprett(Arbeidsforhold arbeidsforhold) {
         var refusjonberegning = new Refusjonsberegning();
@@ -57,6 +62,14 @@ public class Refusjonsberegning extends AbstractAggregateRoot {
 
     private void beregnRefusjon() {
         // Fyll ut med skikkelig logikk her...
-        setRefusjonsbeløp(inntektInnhentet.divide(BigDecimal.valueOf(2)).setScale(2, RoundingMode.CEILING));
+        BigDecimal beregnet = inntektInnhentet.divide(BigDecimal.valueOf(2)).setScale(2, RoundingMode.CEILING);
+
+        // Er over 6G på liksom
+        if (beregnet.intValue() > 8000) {
+            beregningsdetaljer.add(Beregningsdetalj.SEKS_G);
+            beregnet = new BigDecimal("8000.00");
+        }
+
+        setRefusjonsbeløp(beregnet);
     }
 }
