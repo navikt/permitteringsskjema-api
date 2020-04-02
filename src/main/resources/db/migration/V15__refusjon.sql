@@ -26,6 +26,7 @@ create table refusjonsberegning
 (
     id                  uuid primary key,
     refusjonsskjema_id  uuid,
+    opprettet_av        varchar(11),
     bedrift_nr          varchar(9),
     fnr                 varchar(11),
     gradering           integer,

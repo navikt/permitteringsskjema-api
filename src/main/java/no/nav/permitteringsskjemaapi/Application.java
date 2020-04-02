@@ -8,9 +8,11 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.kafka.annotation.EnableKafka;
 
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableKafka
+@EnableScheduling
 @ConfigurationPropertiesScan("no.nav.permitteringsskjemaapi")
 @EnableJwtTokenValidation(ignore = { "org.springframework",
         "springfox.documentation.swagger.web.ApiResourceController" })
