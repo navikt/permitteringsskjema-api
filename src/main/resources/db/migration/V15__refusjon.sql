@@ -14,13 +14,25 @@ create table refusjonsskjema
 
 create table arbeidsforhold
 (
-    id                          uuid primary key,
-    refusjonsskjema_id          uuid,
-    fnr                         varchar(11),
-    gradering                   integer,
-    inntekt_innhentet_tidspunkt timestamp,
-    inntekt_fra_arbeidsgiver    integer,
-    inntekt_fra_register        integer,
-    periode_start               date,
-    periode_slutt               date
+    id                 uuid primary key,
+    refusjonsskjema_id uuid,
+    fnr                varchar(11),
+    gradering          integer,
+    periode_start      date,
+    periode_slutt      date
+);
+
+create table refusjonsberegning
+(
+    id                  uuid primary key,
+    refusjonsskjema_id  uuid,
+    bedrift_nr          varchar(9),
+    fnr                 varchar(11),
+    gradering           integer,
+    periode_start       date,
+    periode_slutt       date,
+    innhentet_tidspunkt timestamp,
+    inntekt_innhentet   numeric,
+    inntekt_korrigert   numeric,
+    refusjonsbeløp      numeric
 );

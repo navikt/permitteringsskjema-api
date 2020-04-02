@@ -33,9 +33,9 @@ public class RefusjonTestData {
         arbeidsforhold.setId(UUID.randomUUID());
         arbeidsforhold.setFnr("00000000000");
         arbeidsforhold.setGradering(50);
-        arbeidsforhold.setInntektFraArbeidsgiver(10000);
-        arbeidsforhold.setInntektFraRegister(10000);
-        arbeidsforhold.setInntektInnhentetTidspunkt(Instant.now());
+//        arbeidsforhold.setInntektFraArbeidsgiver(10000);
+//        arbeidsforhold.setInntektFraRegister(10000);
+//        arbeidsforhold.setInntektInnhentetTidspunkt(Instant.now());
         arbeidsforhold.setPeriodeStart(LocalDate.now().minusWeeks(2));
         arbeidsforhold.setPeriodeSlutt(LocalDate.now().minusWeeks(1));
         return arbeidsforhold;
