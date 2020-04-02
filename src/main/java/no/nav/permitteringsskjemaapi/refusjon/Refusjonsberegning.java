@@ -62,7 +62,9 @@ public class Refusjonsberegning extends AbstractAggregateRoot {
 
     private void beregnRefusjon() {
         // Fyll ut med skikkelig logikk her...
-        BigDecimal beregnet = inntektInnhentet.divide(BigDecimal.valueOf(2)).setScale(2, RoundingMode.CEILING);
+        BigDecimal graderingIDesimal = BigDecimal.valueOf(gradering).divide(BigDecimal.valueOf(100));
+        BigDecimal beregnet = inntektInnhentet.multiply(graderingIDesimal)
+                .setScale(2, RoundingMode.CEILING);
 
         // Er over 6G på liksom
         if (beregnet.intValue() > 8000) {
