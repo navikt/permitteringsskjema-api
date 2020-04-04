@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.refusjon;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import no.nav.permitteringsskjemaapi.refusjon.domenehendelser.RefusjonsskjemaAvbrutt;
@@ -31,6 +32,7 @@ public class Refusjonsskjema extends AbstractAggregateRoot {
     private boolean avbrutt;
 
     @OneToMany(mappedBy = "refusjonsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+//    @JsonIgnore
     private List<Arbeidsforhold> arbeidsforhold = new ArrayList<>();
 
     public static Refusjonsskjema opprett(OpprettRefusjonsskjema opprettSkjema, String fnr) {

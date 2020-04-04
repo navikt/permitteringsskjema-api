@@ -7,6 +7,7 @@ import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException;
 import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException;
 import no.nav.permitteringsskjemaapi.util.TokenUtil;
 import no.nav.security.token.support.core.api.Protected;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,13 @@ public class RefusjonsskjemaController {
         String fnr = fnrExtractor.autentisertBruker();
         return repository.findByIdAndOpprettetAv(id, fnr)
                 .orElseThrow(IkkeFunnetException::new);
+    }
+
+    @GetMapping("/{id}/arbeidsforhold")
+    public List<Arbeidsforhold> hentArbeidsforhold(@PathVariable UUID id) {
+        String fnr = fnrExtractor.autentisertBruker();
+        return repository.findByIdAndOpprettetAv(id, fnr)
+                .orElseThrow(IkkeFunnetException::new).getArbeidsforhold();
     }
 
     @GetMapping

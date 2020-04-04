@@ -9,4 +9,5 @@ public interface RefusjonsberegningRepository extends JpaRepository<Refusjonsber
     List<Refusjonsberegning> findAllByRefusjonsskjemaId(UUID refusjonsskjemaId);
     List<Refusjonsberegning> findAllByRefusjonsskjemaIdAndOpprettetAv(UUID refusjonsskjemaId, String opprettetAv);
     List<Refusjonsberegning> findAllByInnhentetTidspunktIsNull();
+    List<Refusjonsberegning> findAllByInnhentetTidspunktIsNullOrderByFnr();
 }

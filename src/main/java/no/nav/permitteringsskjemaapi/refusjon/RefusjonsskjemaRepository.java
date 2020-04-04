@@ -8,5 +8,7 @@ import java.util.UUID;
 
 public interface RefusjonsskjemaRepository extends JpaRepository<Refusjonsskjema, UUID> {
     Optional<Refusjonsskjema> findByIdAndOpprettetAv(UUID id, String opprettetAv);
+
     List<Refusjonsskjema> findAllByOpprettetAv(String opprettetAv);
+
 }
