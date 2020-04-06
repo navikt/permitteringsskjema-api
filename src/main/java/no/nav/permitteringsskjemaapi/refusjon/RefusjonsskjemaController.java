@@ -5,6 +5,7 @@ import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon;
 import no.nav.permitteringsskjemaapi.altinn.AltinnService;
 import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException;
 import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException;
+import no.nav.permitteringsskjemaapi.featuretoggles.FeatureToggleService;
 import no.nav.permitteringsskjemaapi.util.TokenUtil;
 import no.nav.security.token.support.core.api.Protected;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ public class RefusjonsskjemaController {
     private final TokenUtil fnrExtractor;
     private final AltinnService altinnService;
     private final RefusjonsskjemaRepository repository;
+    private final FeatureToggleService featureToggleService;
 
     @GetMapping("/{id}")
     public Refusjonsskjema hent(@PathVariable UUID id) {
@@ -39,6 +41,9 @@ public class RefusjonsskjemaController {
 
     @PostMapping
     public ResponseEntity<Refusjonsskjema> opprett(@RequestBody OpprettRefusjonsskjema opprettSkjema) {
+        if (!featureToggleService.isEnabled("arbeidsgiver.permitteringsskjema-api.refusjon")) {
+            throw new RuntimeException("Ikke lansert");
+        }
         String fnr = fnrExtractor.autentisertBruker();
         AltinnOrganisasjon organisasjon = hentOrganisasjon(fnr, opprettSkjema.getBedriftNr())
                 .orElseThrow(IkkeTilgangException::new);
