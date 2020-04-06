@@ -20,7 +20,7 @@ import static no.nav.permitteringsskjemaapi.util.StreamUtil.not;
 @Slf4j
 @ConditionalOnLocal
 public class RefusjonsberegnerJobb implements DisposableBean {
-    private final RefusjonsberegningRepository repository;
+    private final ArbeidsforholdRepository repository;
     private final InntektskomponentClient inntektskomponentClient;
     private final ThreadPoolExecutor executor = new ThreadPoolExecutor(4, 4,
             0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
@@ -28,11 +28,11 @@ public class RefusjonsberegnerJobb implements DisposableBean {
     @SneakyThrows
     @Scheduled(fixedDelay = 1000, initialDelay = 10000)
     public void innhentOgBeregnUbehandlede() {
-        List<Refusjonsberegning> ubehandlede = repository.findAllByInnhentetTidspunktIsNullOrderByFnr();
+        List<Arbeidsforhold> ubehandlede = repository.findAllByInnhentetTidspunktIsNullOrderByFnr();
         int antallUbehandlede = ubehandlede.size();
         if (antallUbehandlede > 0 && executor.getActiveCount() == 0) {
             log.info("Starter refusjonsberegning, antall={}", ubehandlede.size());
-            var futures = executor.invokeAll(ubehandlede.stream().map(this::innhentOgBeregn).collect(Collectors.toList()), 30, TimeUnit.SECONDS);
+            var futures = executor.invokeAll(ubehandlede.stream().map(this::innhentOgBeregn).collect(Collectors.toList()), 15, TimeUnit.SECONDS);
             long antallFullførte = futures.stream().filter(not(Future::isCancelled)).count();
             if (antallFullførte == antallUbehandlede) {
                 log.info("Refusjonsberegning fullført, antall={}", antallFullførte);
@@ -42,11 +42,17 @@ public class RefusjonsberegnerJobb implements DisposableBean {
         }
     }
 
-    private Callable<Refusjonsberegning> innhentOgBeregn(Refusjonsberegning refusjonsberegning) {
+    private Callable<Arbeidsforhold> innhentOgBeregn(Arbeidsforhold arbeidsforhold) {
         return () -> {
             BigDecimal innhentetBeløp = inntektskomponentClient.hentInntekt();
-            refusjonsberegning.endreInnhentetBeløp(innhentetBeløp);
-            return repository.save(refusjonsberegning);
+            arbeidsforhold.endreInnhentetBeløp(innhentetBeløp);
+
+            // Sjekken behøves fordi raden kan være slettet i tiden fra jobben startet til nå
+            if (repository.existsById(arbeidsforhold.getId())) {
+                return repository.save(arbeidsforhold);
+            }
+
+            return null;
         };
     }
 

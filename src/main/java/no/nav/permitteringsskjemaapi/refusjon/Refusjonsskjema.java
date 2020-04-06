@@ -1,6 +1,5 @@
 package no.nav.permitteringsskjemaapi.refusjon;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import no.nav.permitteringsskjemaapi.refusjon.domenehendelser.RefusjonsskjemaAvbrutt;
@@ -8,10 +7,9 @@ import no.nav.permitteringsskjemaapi.refusjon.domenehendelser.RefusjonsskjemaEnd
 import no.nav.permitteringsskjemaapi.refusjon.domenehendelser.RefusjonsskjemaSendtInn;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -31,10 +29,6 @@ public class Refusjonsskjema extends AbstractAggregateRoot {
     private String kontaktTlf;
     private boolean avbrutt;
 
-    @OneToMany(mappedBy = "refusjonsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-//    @JsonIgnore
-    private List<Arbeidsforhold> arbeidsforhold = new ArrayList<>();
-
     public static Refusjonsskjema opprett(OpprettRefusjonsskjema opprettSkjema, String fnr) {
         Refusjonsskjema refusjonsskjema = new Refusjonsskjema();
         refusjonsskjema.setId(UUID.randomUUID());
@@ -48,10 +42,6 @@ public class Refusjonsskjema extends AbstractAggregateRoot {
         setKontaktEpost(endreRefusjon.getKontaktEpost());
         setKontaktTlf(endreRefusjon.getKontaktTlf());
         setKontaktNavn(endreRefusjon.getKontaktNavn());
-        arbeidsforhold.clear();
-        arbeidsforhold.addAll(endreRefusjon.getArbeidsforhold());
-        arbeidsforhold.forEach(y -> y.setId(UUID.randomUUID()));
-        arbeidsforhold.forEach(y -> y.setRefusjonsskjema(this));
         registerEvent(new RefusjonsskjemaEndret(this, fnr));
     }
 
