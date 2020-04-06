@@ -1,23 +1,20 @@
 package no.nav.permitteringsskjemaapi.integrasjon.arbeidstaker;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import no.nav.permitteringsskjemaapi.permittering.PermittertPerson;
+import no.nav.permitteringsskjemaapi.permittering.domenehendelser.PermitteringsskjemaSendtInn;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import no.nav.permitteringsskjemaapi.PermittertPerson;
-import no.nav.permitteringsskjemaapi.domenehendelser.SkjemaSendtInn;
-
 @Service
 @ConditionalOnMissingBean(PermitteringMeldingKafkaProdusent.class)
+@Slf4j
 public class PermitteringMeldingLoggingProdusent implements Permittering {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PermitteringMeldingLoggingProdusent.class);
-
     @EventListener
-    public void sendInn(SkjemaSendtInn event) {
-        LOG.info("Skjema sendt inn id={}", event.getPermitteringsskjema().getId());
+    public void sendInn(PermitteringsskjemaSendtInn event) {
+        log.info("Skjema sendt inn id={}", event.getPermitteringsskjema().getId());
         event.getPermitteringsskjema()
                 .permittertePersoner().stream()
                 .forEach(this::publiser);
@@ -25,8 +22,7 @@ public class PermitteringMeldingLoggingProdusent implements Permittering {
 
     @Override
     public void publiser(PermittertPerson person) {
-        LOG.debug("Sender {}", person);
-
+        log.debug("Sender {}", person);
     }
 
 }

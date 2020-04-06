@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi;
+package no.nav.permitteringsskjemaapi.permittering;
 
 public enum Årsakskode {
     MANGEL_PÅ_ARBEID("Mangel på arbeid eller oppdrag"),

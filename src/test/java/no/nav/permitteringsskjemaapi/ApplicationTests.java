@@ -7,7 +7,7 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest
 @TestPropertySource(properties = { "spring.cloud.vault.enabled=false" })
 
-class PermitteringsskjemaApiApplicationTests {
+class ApplicationTests {
 
     @Test
     void contextLoads() {

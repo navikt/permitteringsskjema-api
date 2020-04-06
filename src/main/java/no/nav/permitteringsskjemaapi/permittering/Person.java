@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi;
+package no.nav.permitteringsskjemaapi.permittering;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;

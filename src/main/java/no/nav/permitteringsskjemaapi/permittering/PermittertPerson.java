@@ -1,19 +1,17 @@
-package no.nav.permitteringsskjemaapi;
-
-import java.time.Instant;
-import java.time.LocalDate;
-
-import org.springframework.data.domain.AbstractAggregateRoot;
+package no.nav.permitteringsskjemaapi.permittering;
 
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
+import java.time.LocalDate;
+
 @Data
 @Builder
-public class PermittertPerson extends AbstractAggregateRoot<PermittertPerson> {
+public class PermittertPerson {
     private Instant opprettetTidspunkt;
     private String orgNr;
-    private SkjemaType type;
+    private PermitteringsskjemaType type;
     private String kontaktNavn;
     private String kontaktTlf;
     private LocalDate varsletAnsattDato;

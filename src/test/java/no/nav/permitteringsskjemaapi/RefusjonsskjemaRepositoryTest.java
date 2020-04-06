@@ -1,7 +1,7 @@
 package no.nav.permitteringsskjemaapi;
 
-import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema;
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository;
+import no.nav.permitteringsskjemaapi.refusjon.Refusjonsskjema;
+import no.nav.permitteringsskjemaapi.refusjon.RefusjonsskjemaRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,29 +19,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @ActiveProfiles("local")
 @DirtiesContext
-public class PermitteringsskjemaRepositoryTest {
-    private Permitteringsskjema lagretPermitteringsskjema;
-    private Permitteringsskjema permitteringsskjema;
+public class RefusjonsskjemaRepositoryTest {
+    private Refusjonsskjema lagretRefusjonsskjema;
+    private Refusjonsskjema refusjonsskjema;
 
     @Autowired
-    private PermitteringsskjemaRepository repository;
+    private RefusjonsskjemaRepository repository;
 
     @Before
     public void setUp() {
-        permitteringsskjema = PermitteringTestData.enPermitteringMedAltFyltUt();
-        lagretPermitteringsskjema = repository.save(permitteringsskjema);
+        refusjonsskjema = RefusjonTestData.enRefusjonMedAltFyltUt();
+        lagretRefusjonsskjema = repository.save(refusjonsskjema);
     }
 
     @Test
     public void skal_kunne_lagre_alle_felter() {
-        assertThat(lagretPermitteringsskjema)
+        assertThat(lagretRefusjonsskjema)
                 .usingRecursiveComparison() // Felt-for-felt sammenligning
-                .isEqualTo(permitteringsskjema);
+                .isEqualTo(refusjonsskjema);
     }
 
     @Test
     public void skal_kunne_hentes_med_id() {
-        Optional<Permitteringsskjema> hentetPermittering = repository.findById(permitteringsskjema.getId());
-        assertThat(hentetPermittering).hasValue(permitteringsskjema);
+        Optional<Refusjonsskjema> hentetRefusjon = repository.findById(refusjonsskjema.getId());
+        assertThat(hentetRefusjon).hasValue(refusjonsskjema);
     }
 }

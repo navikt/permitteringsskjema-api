@@ -1,7 +1,7 @@
 package no.nav.permitteringsskjemaapi.kodeverk;
 
-import no.nav.permitteringsskjemaapi.SkjemaType;
-import no.nav.permitteringsskjemaapi.Årsakskode;
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType;
+import no.nav.permitteringsskjemaapi.permittering.Årsakskode;
 import no.nav.security.token.support.core.api.Unprotected;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,9 +32,9 @@ public class KodeverkController {
     }
 
     @GetMapping("/skjematyper")
-    public Map<SkjemaType, String> skjematyper() {
-        var map = new EnumMap<SkjemaType, String>(SkjemaType.class);
-        for (var skjemaType : SkjemaType.values()) {
+    public Map<PermitteringsskjemaType, String> skjematyper() {
+        var map = new EnumMap<PermitteringsskjemaType, String>(PermitteringsskjemaType.class);
+        for (var skjemaType : PermitteringsskjemaType.values()) {
             map.put(skjemaType, skjemaType.getNavn());
         }
         return map;
