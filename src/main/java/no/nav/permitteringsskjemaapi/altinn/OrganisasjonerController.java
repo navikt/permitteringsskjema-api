@@ -18,10 +18,17 @@ public class OrganisasjonerController {
 
     private final AltinnService altinnService;
     private final TokenUtil tokenUtil;
+    private final AltinnConfig altinnConfig;
 
     @GetMapping
     public List<AltinnOrganisasjon> hentOrganisasjoner() {
         String fnr = tokenUtil.autentisertBruker();
         return altinnService.hentOrganisasjoner(fnr);
+    }
+
+    @GetMapping("/refusjon")
+    public List<AltinnOrganisasjon> hentOrganisasjonerBasertPaRettigheter() {
+        String fnr = tokenUtil.autentisertBruker();
+        return altinnService.hentOrganisasjonerBasertPaRettigheter(fnr, altinnConfig.getInntektsmeldingSc(), altinnConfig.getInntektsmeldingSec());
     }
 }

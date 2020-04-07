@@ -57,7 +57,7 @@ permittering:
 ---
 permittering:
   arbeidsgiver:
-    enabled: false
+    enabled: true
 management:
    endpoints:
       web:
@@ -101,6 +101,8 @@ altinn:
   altinnHeader: "lokal"
   APIGwHeader: "lokal"
   altinnProxyUrl: "http://localhost:${mock.port}/altinn/"
+  inntektsmelding-sc: 4936
+  inntektsmelding-sec: 1
 
 ---
 management:
