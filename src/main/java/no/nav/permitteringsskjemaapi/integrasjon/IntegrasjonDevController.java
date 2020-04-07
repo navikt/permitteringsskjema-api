@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import no.nav.foreldrepenger.boot.conditionals.ConditionalOnNotProd;
-import no.nav.permitteringsskjemaapi.PermittertPerson;
+import no.nav.permitteringsskjemaapi.permittering.PermittertPerson;
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.Arbeidsgiver;
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.ArbeidsgiverRapport;
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidstaker.Permittering;

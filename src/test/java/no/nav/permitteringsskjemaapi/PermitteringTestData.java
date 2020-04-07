@@ -1,17 +1,22 @@
 package no.nav.permitteringsskjemaapi;
 
+import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema;
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType;
+import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori;
+import no.nav.permitteringsskjemaapi.permittering.Årsakskode;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
-public class TestData {
+public class PermitteringTestData {
 
     public static Permitteringsskjema enPermitteringMedAltFyltUt() {
         var permitteringsskjema = new Permitteringsskjema();
         permitteringsskjema.setId(UUID.randomUUID());
         permitteringsskjema.setOpprettetTidspunkt(Instant.now());
         permitteringsskjema.setBedriftNr("999999999");
-        permitteringsskjema.setType(SkjemaType.PERMITTERING_UTEN_LØNN);
+        permitteringsskjema.setType(PermitteringsskjemaType.PERMITTERING_UTEN_LØNN);
         permitteringsskjema.setKontaktNavn("Tore Toresen");
         permitteringsskjema.setKontaktTlf("66778899");
         permitteringsskjema.setKontaktEpost("per@bedrift.no");

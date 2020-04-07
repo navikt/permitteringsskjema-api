@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi;
+package no.nav.permitteringsskjemaapi.permittering;
 
 import lombok.Builder;
 import lombok.Value;
@@ -10,8 +10,8 @@ import java.util.List;
 @Builder
 @Value
 // Value object med felter som kan endres på et skjema
-public class EndreSkjema {
-    SkjemaType type;
+public class EndrePermitteringsskjema {
+    PermitteringsskjemaType type;
     String kontaktNavn;
     String kontaktTlf;
     String kontaktEpost;

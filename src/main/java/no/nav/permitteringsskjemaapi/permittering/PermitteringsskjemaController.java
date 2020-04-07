@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi;
+package no.nav.permitteringsskjemaapi.permittering;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +39,7 @@ public class PermitteringsskjemaController {
     }
 
     @PostMapping
-    public ResponseEntity<Permitteringsskjema> opprett(@RequestBody OpprettSkjema opprettSkjema) {
+    public ResponseEntity<Permitteringsskjema> opprett(@RequestBody OpprettPermitteringsskjema opprettSkjema) {
         String fnr = fnrExtractor.autentisertBruker();
         AltinnOrganisasjon organisasjon = hentOrganisasjon(fnr, opprettSkjema.getBedriftNr())
                 .orElseThrow(IkkeTilgangException::new);
@@ -57,7 +57,7 @@ public class PermitteringsskjemaController {
     }
 
     @PutMapping("/{id}")
-    public Permitteringsskjema endre(@PathVariable UUID id, @RequestBody EndreSkjema endreSkjema) {
+    public Permitteringsskjema endre(@PathVariable UUID id, @RequestBody EndrePermitteringsskjema endreSkjema) {
         String fnr = fnrExtractor.autentisertBruker();
         Permitteringsskjema permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr)
                 .orElseThrow(IkkeFunnetException::new);

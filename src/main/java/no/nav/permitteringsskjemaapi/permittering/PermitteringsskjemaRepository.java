@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi;
+package no.nav.permitteringsskjemaapi.permittering;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

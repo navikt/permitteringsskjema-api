@@ -2,9 +2,9 @@ package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
 
 import lombok.Builder;
 import lombok.Value;
-import no.nav.permitteringsskjemaapi.SkjemaType;
-import no.nav.permitteringsskjemaapi.Yrkeskategori;
-import no.nav.permitteringsskjemaapi.Årsakskode;
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType;
+import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori;
+import no.nav.permitteringsskjemaapi.permittering.Årsakskode;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
@@ -24,7 +24,7 @@ public class ArbeidsgiverRapport {
     @NotNull
     Instant sendtInnTidspunkt;
     @NotNull
-    SkjemaType type;
+    PermitteringsskjemaType type;
     @NotNull
     String kontaktNavn;
     @NotNull
