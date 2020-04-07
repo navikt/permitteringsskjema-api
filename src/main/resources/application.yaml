@@ -57,7 +57,7 @@ permittering:
 ---
 permittering:
   arbeidsgiver:
-    enabled: true
+    enabled: false
 management:
    endpoints:
       web:
