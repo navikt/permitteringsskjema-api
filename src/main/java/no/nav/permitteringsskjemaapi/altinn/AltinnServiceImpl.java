@@ -61,7 +61,8 @@ public class AltinnServiceImpl implements AltinnService {
 
     @Cacheable(ALTINN_TJENESTE_CACHE)
     public List<AltinnOrganisasjon> hentOrganisasjonerBasertPaRettigheter(String fnr, String serviceKode, String serviceEdition) {
-        String query = "&serviceCode=" + serviceKode
+        String query = "&$filter=Type+ne+'Person'+and+Status+eq+'Active'"
+                + "&serviceCode=" + serviceKode
                 + "&serviceEdition=" + serviceEdition;
         return hentReporteesFraAltinn(query, fnr);
     }
