@@ -8,7 +8,6 @@ import org.springframework.data.domain.AbstractAggregateRoot;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.EnumSet;
@@ -57,24 +56,11 @@ public class Arbeidsforhold extends AbstractAggregateRoot {
         }).collect(Collectors.toList());
     }
 
-    public void endreInnhentetBeløp(BigDecimal innhentetBeløp) {
-        setInnhentetTidspunkt(Instant.now());
-        setInntektInnhentet(innhentetBeløp);
-        beregnRefusjon();
+    public void settInnhentetInformasjon(RefusjonsberegningResponse refusjonsberegningResponse) {
+        setInnhentetTidspunkt(refusjonsberegningResponse.getTidspunkt());
+        setInntektInnhentet(refusjonsberegningResponse.getInnhentetInntekt());
+        setBeregningsdetaljer(refusjonsberegningResponse.getBeregningsdetaljer());
+        setRefusjonsbeløp(refusjonsberegningResponse.getRefusjonsbeløp());
         registerEvent(new ArbeidsforholdBeregnet(this));
-    }
-
-    private void beregnRefusjon() {
-        // Fyll ut med skikkelig logikk her...
-        BigDecimal graderingIDesimal = BigDecimal.valueOf(gradering).divide(BigDecimal.valueOf(100));
-        BigDecimal beregnet = inntektInnhentet.multiply(graderingIDesimal);
-
-        // Er over 6G på liksom
-        if (beregnet.intValue() > 8000) {
-            beregningsdetaljer.add(Beregningsdetalj.SEKS_G);
-            beregnet = new BigDecimal(8000);
-        }
-
-        setRefusjonsbeløp(beregnet.setScale(2, RoundingMode.CEILING));
     }
 }
