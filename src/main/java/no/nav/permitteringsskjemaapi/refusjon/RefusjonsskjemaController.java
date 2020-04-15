@@ -56,7 +56,7 @@ public class RefusjonsskjemaController {
     }
 
     private Optional<AltinnOrganisasjon> hentOrganisasjon(String fnr, String bedriftNr) {
-        List<AltinnOrganisasjon> organisasjonerMedTilgang = altinnService.hentOrganisasjonerBasertPaRettigheter(fnr, altinnConfig.getInntektsmeldingServieCode(), altinnConfig.getInntektsmeldingServiceEditionCode());
+        List<AltinnOrganisasjon> organisasjonerMedTilgang = altinnService.hentOrganisasjonerBasertPåRettigheter(fnr, altinnConfig.getInntektsmeldingServieCode(), altinnConfig.getInntektsmeldingServiceEditionCode());
         return organisasjonerMedTilgang.stream()
                 .filter(o -> o.getOrganizationNumber().equals(bedriftNr))
                 .findFirst();

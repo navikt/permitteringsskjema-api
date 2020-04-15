@@ -53,7 +53,7 @@ public class AltinnServiceImpl implements AltinnService {
         return hentReporteesFraAltinn(query, fnr);
     }
 
-    public List<AltinnOrganisasjon> hentOrganisasjonerBasertPaRettigheter(String fnr, String serviceKode, String serviceEdition) {
+    public List<AltinnOrganisasjon> hentOrganisasjonerBasertPåRettigheter(String fnr, String serviceKode, String serviceEdition) {
         String query = "&$filter=Type+ne+'Person'+and+Status+eq+'Active'"
                 + "&serviceCode=" + serviceKode
                 + "&serviceEdition=" + serviceEdition;
