@@ -1,6 +1,7 @@
 package no.nav.permitteringsskjemaapi.refusjon;
 
 import lombok.AllArgsConstructor;
+import no.nav.permitteringsskjemaapi.altinn.AltinnConfig;
 import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon;
 import no.nav.permitteringsskjemaapi.altinn.AltinnService;
 import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException;
@@ -25,6 +26,7 @@ public class RefusjonsskjemaController {
     private final AltinnService altinnService;
     private final RefusjonsskjemaRepository repository;
     private final FeatureToggleService featureToggleService;
+    private final AltinnConfig altinnConfig;
 
     @GetMapping("/{id}")
     public Refusjonsskjema hent(@PathVariable UUID id) {
@@ -54,7 +56,7 @@ public class RefusjonsskjemaController {
     }
 
     private Optional<AltinnOrganisasjon> hentOrganisasjon(String fnr, String bedriftNr) {
-        List<AltinnOrganisasjon> organisasjonerMedTilgang = altinnService.hentOrganisasjoner(fnr);
+        List<AltinnOrganisasjon> organisasjonerMedTilgang = altinnService.hentOrganisasjonerBasertPaRettigheter(fnr, altinnConfig.getInntektsmeldingSc(), altinnConfig.getInntektsmeldingSec());
         return organisasjonerMedTilgang.stream()
                 .filter(o -> o.getOrganizationNumber().equals(bedriftNr))
                 .findFirst();
