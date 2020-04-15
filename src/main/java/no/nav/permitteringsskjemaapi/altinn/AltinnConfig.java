@@ -12,6 +12,6 @@ public class AltinnConfig {
     private String altinnurl;
     private String APIGwHeader;
     private String altinnProxyUrl;
-    private String inntektsmeldingServieCode;
+    private String inntektsmeldingServiceCode;
     private String inntektsmeldingServiceEditionCode;
 }
