@@ -29,6 +29,6 @@ public class OrganisasjonerController {
     @GetMapping("/refusjon")
     public List<AltinnOrganisasjon> hentOrganisasjonerBasertPaRettigheter() {
         String fnr = tokenUtil.autentisertBruker();
-        return altinnService.hentOrganisasjonerBasertPaRettigheter(fnr, altinnConfig.getInntektsmeldingSc(), altinnConfig.getInntektsmeldingSec());
+        return altinnService.hentOrganisasjonerBasertPaRettigheter(fnr, altinnConfig.getInntektsmeldingServieCode(), altinnConfig.getInntektsmeldingServiceEditionCode());
     }
 }
