@@ -101,6 +101,8 @@ altinn:
   altinnHeader: "lokal"
   APIGwHeader: "lokal"
   altinnProxyUrl: "http://localhost:${mock.port}/altinn/"
+  inntektsmeldingServiceCode: 1234
+  inntektsmeldingServiceEditionCode: 1
 
 ---
 management:
@@ -133,6 +135,8 @@ altinn:
   altinnHeader: ${ALTINN_HEADER}
   APIGwHeader: ${ALTINN_APIGW_HEADER}
   altinnProxyUrl: https://arbeidsgiver.nais.preprod.local/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
+  inntektsmeldingServiceCode: 4936
+  inntektsmeldingServiceEditionCode: 1
 
 ---
 spring:
@@ -152,3 +156,5 @@ altinn:
   altinnHeader: ${ALTINN_HEADER}
   APIGwHeader: ${ALTINN_APIGW_HEADER}
   altinnProxyUrl: https://arbeidsgiver.nais.adeo.no/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
+  inntektsmeldingServiceCode: 4936
+  inntektsmeldingServiceEditionCode: 1

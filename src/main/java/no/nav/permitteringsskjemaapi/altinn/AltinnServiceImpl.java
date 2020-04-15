@@ -7,7 +7,6 @@ import no.nav.permitteringsskjemaapi.exceptions.PermitteringsApiException;
 import no.nav.permitteringsskjemaapi.featuretoggles.FeatureToggleService;
 import no.nav.permitteringsskjemaapi.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,12 +21,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static no.nav.permitteringsskjemaapi.altinn.AltinnCacheConfig.ALTINN_CACHE;
-import static no.nav.permitteringsskjemaapi.altinn.AltinnCacheConfig.ALTINN_TJENESTE_CACHE;
-
 @Slf4j
 @Component
-@ConditionalOnClusters(clusters = {Cluster.DEV_FSS, Cluster.PROD_FSS})
+@ConditionalOnClusters(clusters = { Cluster.DEV_FSS, Cluster.PROD_FSS })
 public class AltinnServiceImpl implements AltinnService {
 
     private static final int ALTINN_ORG_PAGE_SIZE = 500;
@@ -52,20 +48,17 @@ public class AltinnServiceImpl implements AltinnService {
         this.headerEntity = new HttpEntity<>(headers);
     }
 
-    @Cacheable(ALTINN_CACHE)
     public List<AltinnOrganisasjon> hentOrganisasjoner(String fnr) {
         String query = "&$filter=Type+ne+'Person'+and+Status+eq+'Active'";
         return hentReporteesFraAltinn(query, fnr);
     }
 
-
-    @Cacheable(ALTINN_TJENESTE_CACHE)
-    public List<AltinnOrganisasjon> hentOrganisasjonerBasertPaRettigheter(String fnr, String serviceKode, String serviceEdition) {
-        String query = "&serviceCode=" + serviceKode
+    public List<AltinnOrganisasjon> hentOrganisasjonerBasertPåRettigheter(String fnr, String serviceKode, String serviceEdition) {
+        String query = "&$filter=Type+ne+'Person'+and+Status+eq+'Active'"
+                + "&serviceCode=" + serviceKode
                 + "&serviceEdition=" + serviceEdition;
         return hentReporteesFraAltinn(query, fnr);
     }
-
 
     private List<AltinnOrganisasjon> hentReporteesFraAltinn(String query, String fnr) {
         String baseUrl;
@@ -82,7 +75,8 @@ public class AltinnServiceImpl implements AltinnService {
 
         String url = baseUrl + "reportees/?ForceEIAuthentication" + query;
 
-        return getFromAltinn(new ParameterizedTypeReference<>() {}, url, ALTINN_ORG_PAGE_SIZE, headers);
+        return getFromAltinn(new ParameterizedTypeReference<>() {
+        }, url, ALTINN_ORG_PAGE_SIZE, headers);
     }
 
     <T> List<T> getFromAltinn(
