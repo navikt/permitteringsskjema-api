@@ -8,7 +8,6 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -21,7 +20,7 @@ import static no.nav.permitteringsskjemaapi.util.StreamUtil.not;
 @ConditionalOnLocal
 public class RefusjonsberegnerJobb implements DisposableBean {
     private final ArbeidsforholdRepository repository;
-    private final InntektskomponentClient inntektskomponentClient;
+    private final RefusjonsberegningClient refusjonsberegningClient;
     private final ThreadPoolExecutor executor = new ThreadPoolExecutor(4, 4,
             0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
 
@@ -44,8 +43,9 @@ public class RefusjonsberegnerJobb implements DisposableBean {
 
     private Callable<Arbeidsforhold> innhentOgBeregn(Arbeidsforhold arbeidsforhold) {
         return () -> {
-            BigDecimal innhentetBeløp = inntektskomponentClient.hentInntekt();
-            arbeidsforhold.endreInnhentetBeløp(innhentetBeløp);
+            RefusjonsberegningRequest request = new RefusjonsberegningRequest(arbeidsforhold.getFnr(), arbeidsforhold.getBedriftNr(), arbeidsforhold.getGradering(), arbeidsforhold.getPeriodeStart(), arbeidsforhold.getPeriodeSlutt());
+            RefusjonsberegningResponse response = refusjonsberegningClient.beregnRefusjon(request);
+            arbeidsforhold.settInnhentetInformasjon(response);
 
             // Sjekken behøves fordi raden kan være slettet i tiden fra jobben startet til nå
             if (repository.existsById(arbeidsforhold.getId())) {
