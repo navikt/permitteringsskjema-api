@@ -2,6 +2,7 @@ package no.nav.permitteringsskjemaapi.refusjon;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ import java.util.Set;
 
 @Component
 @Slf4j
+@ConditionalOnProperty(prefix = "permittering.refusjon-beregning", name = "simulator")
 public class FakeRefusjonsberegningClient implements RefusjonsberegningClient {
     private static final BigDecimal EN_G_DAGSBELØP = new BigDecimal(384);
     private static final BigDecimal SEKS_G_DAGSBELØP = EN_G_DAGSBELØP.multiply(BigDecimal.valueOf(6));
