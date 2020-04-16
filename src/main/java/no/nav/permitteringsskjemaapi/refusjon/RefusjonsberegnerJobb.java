@@ -3,8 +3,8 @@ package no.nav.permitteringsskjemaapi.refusjon;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.foreldrepenger.boot.conditionals.ConditionalOnLocal;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ import static no.nav.permitteringsskjemaapi.util.StreamUtil.not;
 @Component
 @AllArgsConstructor
 @Slf4j
-@ConditionalOnLocal
+@ConditionalOnProperty(prefix = "permittering.refusjon-beregning", name = "enabled")
 public class RefusjonsberegnerJobb implements DisposableBean {
     private final ArbeidsforholdRepository repository;
     private final RefusjonsberegningClient refusjonsberegningClient;
