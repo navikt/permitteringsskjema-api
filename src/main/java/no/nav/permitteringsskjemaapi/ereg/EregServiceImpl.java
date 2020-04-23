@@ -19,9 +19,6 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Component
-@ConditionalOnClusters(clusters = { Cluster.DEV_FSS, Cluster.PROD_FSS })
-@ConditionalOnLocal
-@Profile("wiremock")
 public class EregServiceImpl implements EregService {
 
     @Value("${ereg.url}")
@@ -36,6 +33,7 @@ public class EregServiceImpl implements EregService {
     @Override
     public EregOrganisasjon hentOrganisasjon(String orgnr) {
         String eregurMedParam = eregUrl + orgnr;
+        System.out.println("hentorg urll: " + eregurMedParam);
         try {
         ResponseEntity<EregOrganisasjon> response = restTemplate.exchange(eregurMedParam, HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), EregOrganisasjon.class);
         return response.getBody();

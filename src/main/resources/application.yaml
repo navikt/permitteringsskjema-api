@@ -110,7 +110,7 @@ altinn:
   inntektsmeldingServiceEditionCode: 1
 
 ereg:
-  url: "http://localhost:8090/ereg/"
+  url: "http://localhost:${mock.port}/ereg/"
 
 ---
 management:

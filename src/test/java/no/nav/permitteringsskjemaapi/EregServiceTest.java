@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles({"wiremock","local"})
+@TestPropertySource(properties = {"mock.port=8085"})
 public class EregServiceTest {
     @Autowired
     private EregService eregService;
