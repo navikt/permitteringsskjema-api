@@ -33,6 +33,7 @@ public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
 
     @Override
     public void publiser(ArbeidsgiverRapport rapport) {
+        log.info("Legger permitteringsskjema {} på kø", rapport.getId());
         var record = new ProducerRecord<>(config.getTopic(), rapport.getId().toString(),
                 mapper.writeValueAsString(rapport));
         record.headers().add(new RecordHeader(NAV_CALL_ID, callIdOrNew().getBytes()));
