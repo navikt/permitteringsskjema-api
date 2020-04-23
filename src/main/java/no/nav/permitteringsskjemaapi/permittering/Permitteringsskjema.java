@@ -129,6 +129,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     }
 
     public void sendInn(String utførtAv) {
+        sjekkOmSkjemaErSendtInn();
         sjekkOmSkjemaErAvbrutt();
         sjekkOmObligatoriskInformasjonErFyltUt();
         setSendtInnTidspunkt(Instant.now());
