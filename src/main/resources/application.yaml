@@ -53,6 +53,12 @@ permittering:
     minimum-idle: 1
     maximum-pool-size: 8
     max-lifetime: 300000
+mock:
+  enabled: true
+  port: 8081
+
+ereg:
+  url: "http://localhost:${mock.port}/ereg/"
 
 ---
 permittering:
@@ -109,8 +115,6 @@ altinn:
   inntektsmeldingServiceCode: 1234
   inntektsmeldingServiceEditionCode: 1
 
-ereg:
-  url: "http://localhost:${mock.port}/ereg/"
 
 ---
 management:
