@@ -53,8 +53,15 @@ class PermitteringsskjemaTest {
     @Test
     void skal_ikke_kunne_endres_etter_at_det_er_avbrutt() {
         Permitteringsskjema skjema = PermitteringTestData.enPermitteringMedAltFyltUt();
-        skjema.avbryt("");
+        skjema.setAvbrutt(true);
         assertThatThrownBy(() -> skjema.endre(EndrePermitteringsskjema.builder().build(), ""))
                 .isInstanceOf(SkjemaErAvbruttException.class);
+    }
+
+    @Test
+    void skal_ikke_kunne_avbrytes_etter_at_det_er_sendt_inn() {
+        Permitteringsskjema skjema = PermitteringTestData.enPermitteringMedAltFyltUt();
+        skjema.setSendtInnTidspunkt(Instant.now());
+        assertThatThrownBy(() -> skjema.avbryt("")).isInstanceOf(RuntimeException.class);
     }
 }
