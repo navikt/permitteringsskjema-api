@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import no.nav.permitteringsskjemaapi.ereg.EregOrganisasjon;
+import no.nav.permitteringsskjemaapi.ereg.EregService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +26,9 @@ import no.nav.security.token.support.core.api.Protected;
 public class PermitteringsskjemaController {
     private final TokenUtil fnrExtractor;
     private final AltinnService altinnService;
+    private final EregService eregService;
     private final PermitteringsskjemaRepository repository;
+
 
     @GetMapping("/{id}")
     public Permitteringsskjema hent(@PathVariable UUID id) {
@@ -42,11 +46,13 @@ public class PermitteringsskjemaController {
     @PostMapping
     public ResponseEntity<Permitteringsskjema> opprett(@RequestBody OpprettPermitteringsskjema opprettSkjema) {
         String fnr = fnrExtractor.autentisertBruker();
-        AltinnOrganisasjon organisasjon = hentOrganisasjon(fnr, opprettSkjema.getBedriftNr()).orElseThrow(IkkeFunnetException::new);;
+        //AltinnOrganisasjon organisasjon = hentOrganisasjon(fnr, opprettSkjema.getBedriftNr()).orElseThrow(IkkeFunnetException::new);
+        EregOrganisasjon brregOrg= hentOrgFraBrreg(opprettSkjema.getBedriftNr());
         List<AltinnOrganisasjon> organisasjoner = sjekkTilgangOgHentAlleAltinnOrgs(fnr, opprettSkjema.getUnderenheter());
         System.out.print(organisasjoner);
+        System.out.print(brregOrg);
         Permitteringsskjema skjema = Permitteringsskjema.opprettSkjema(opprettSkjema, fnr);
-        skjema.setBedriftNavn(organisasjon.getName());
+        skjema.setBedriftNavn(brregOrg.hentNavn());
         Permitteringsskjema lagretSkjema = repository.save(skjema);
         return ResponseEntity.status(HttpStatus.CREATED).body(lagretSkjema);
     }
@@ -60,6 +66,10 @@ public class PermitteringsskjemaController {
                 .filter(o -> o.getOrganizationNumber().equals(bedriftNr))
                 .findFirst();
     }
+    private EregOrganisasjon hentOrgFraBrreg(String bedriftNr) {
+        return eregService.hentOrganisasjon(bedriftNr);
+    }
+
     private Optional<AltinnOrganisasjon> hentOrganisasjon(String fnr, String bedriftNr) {
         List<AltinnOrganisasjon> organisasjonerMedTilgang = altinnService.hentOrganisasjoner(fnr);
         sjekkOmErIListeMedOrgs(bedriftNr, organisasjonerMedTilgang);

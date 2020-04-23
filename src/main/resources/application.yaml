@@ -109,6 +109,9 @@ altinn:
   inntektsmeldingServiceCode: 1234
   inntektsmeldingServiceEditionCode: 1
 
+ereg:
+  url: "http://localhost:8090/ereg/"
+
 ---
 management:
    endpoints:
@@ -143,6 +146,9 @@ altinn:
   inntektsmeldingServiceCode: 4936
   inntektsmeldingServiceEditionCode: 1
 
+ereg:
+  url: "https://modapp-q1.adeo.no/ereg/api/v1/organisasjon/"
+
 ---
 spring:
   profiles: prod-fss
@@ -163,3 +169,6 @@ altinn:
   altinnProxyUrl: https://arbeidsgiver.nais.adeo.no/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
   inntektsmeldingServiceCode: 4936
   inntektsmeldingServiceEditionCode: 1
+
+ereg:
+  url: "https://modapp.adeo.no/ereg/api/v1/organisasjon/"
