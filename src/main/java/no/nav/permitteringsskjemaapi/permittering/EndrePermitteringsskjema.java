@@ -15,6 +15,7 @@ public class EndrePermitteringsskjema {
     String kontaktNavn;
     String kontaktTlf;
     String kontaktEpost;
+    String bedriftNr;
     LocalDate varsletAnsattDato;
     LocalDate varsletNavDato;
     LocalDate startDato;
@@ -26,4 +27,5 @@ public class EndrePermitteringsskjema {
     List<Yrkeskategori> yrkeskategorier = new ArrayList<>();
     Årsakskode årsakskode;
     String årsakstekst;
+    List<Bedrift> bedrifter;
 }

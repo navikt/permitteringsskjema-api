@@ -60,13 +60,15 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     @Enumerated(EnumType.STRING)
     private Årsakskode årsakskode;
     private String årsakstekst;
+    @OneToMany(mappedBy = "permitteringsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Bedrift> bedrifter = new ArrayList();
 
     public static Permitteringsskjema opprettSkjema(OpprettPermitteringsskjema opprettSkjema, String utførtAv) {
         Permitteringsskjema skjema = new Permitteringsskjema();
         skjema.setId(UUID.randomUUID());
         skjema.setOpprettetTidspunkt(Instant.now());
         skjema.setOpprettetAv(utførtAv);
-        skjema.setBedriftNr(opprettSkjema.getBedriftNr());
+       // skjema.setBedriftNr(opprettSkjema.getBedriftNr());
         skjema.setType(opprettSkjema.getType());
         skjema.registerEvent(new PermitteringsskjemaOpprettet(skjema, utførtAv));
         return skjema;
@@ -75,6 +77,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     public void endre(EndrePermitteringsskjema endreSkjema, String utførtAv) {
         sjekkOmSkjemaErAvbrutt();
         sjekkOmSkjemaErSendtInn();
+        setBedriftNr(endreSkjema.getBedriftNr());
         setType(endreSkjema.getType());
         setKontaktNavn(endreSkjema.getKontaktNavn());
         setKontaktTlf(endreSkjema.getKontaktTlf());
@@ -96,6 +99,11 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         personer.addAll(endreSkjema.getPersoner());
         personer.forEach(p -> p.setId(UUID.randomUUID()));
         personer.forEach(p -> p.setPermitteringsskjema(this));
+        bedrifter.clear();
+        bedrifter.addAll(endreSkjema.getBedrifter());
+        bedrifter.forEach(p -> p.setId(UUID.randomUUID()));
+        bedrifter.forEach(p -> p.setPermitteringsskjema(this));
+
         registerEvent(new PermitteringsskjemaEndret(this, utførtAv));
     }
 

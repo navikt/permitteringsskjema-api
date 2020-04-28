@@ -47,12 +47,10 @@ public class PermitteringsskjemaController {
     public ResponseEntity<Permitteringsskjema> opprett(@RequestBody OpprettPermitteringsskjema opprettSkjema) {
         String fnr = fnrExtractor.autentisertBruker();
         //AltinnOrganisasjon organisasjon = hentOrganisasjon(fnr, opprettSkjema.getBedriftNr()).orElseThrow(IkkeFunnetException::new);
-        EregOrganisasjon brregOrg= hentOrgFraBrreg(opprettSkjema.getBedriftNr());
-        List<AltinnOrganisasjon> organisasjoner = sjekkTilgangOgHentAlleAltinnOrgs(fnr, opprettSkjema.getUnderenheter());
-        System.out.print(organisasjoner);
-        System.out.print(brregOrg);
+        //EregOrganisasjon brregOrg= hentOrgFraBrreg(opprettSkjema.getBedriftNr());
+        //List<AltinnOrganisasjon> organisasjoner = sjekkTilgangOgHentAlleAltinnOrgs(fnr, opprettSkjema.getUnderenheter());
         Permitteringsskjema skjema = Permitteringsskjema.opprettSkjema(opprettSkjema, fnr);
-        skjema.setBedriftNavn(brregOrg.hentNavn());
+        //skjema.setBedriftNavn(brregOrg.hentNavn());
         Permitteringsskjema lagretSkjema = repository.save(skjema);
         return ResponseEntity.status(HttpStatus.CREATED).body(lagretSkjema);
     }

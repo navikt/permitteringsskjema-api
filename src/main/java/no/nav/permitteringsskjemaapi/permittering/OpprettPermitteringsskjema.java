@@ -6,7 +6,7 @@ import java.util.List;
 
 @Value
 public class OpprettPermitteringsskjema {
-    String bedriftNr;
+    //String bedriftNr;
     PermitteringsskjemaType type;
-    List<String> underenheter;
+    //List<String> underenheter;
 }

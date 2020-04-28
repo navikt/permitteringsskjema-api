@@ -12,6 +12,18 @@
           "Content-Type": "application/json"
         }
       }
-    }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPattern": "/ereg/([0-9]{8})6"
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"organisasjonsnummer\": \"910825550\",\n  \"type\": \"JuridiskEnhet\",\n  \"navn\": {\n    \"navnelinje1\": \"Tranøy og Sande i\",\n    \"navnelinje4\": \"Vestfold Regnskap\",\n    \"bruksperiode\": {\n      \"fom\": \"2020-02-12T13:25:49.397\"\n    },\n    \"gyldighetsperiode\": {\n      \"fom\": \"2020-02-12\"\n    }\n  },\n  \"organisasjonDetaljer\": {\n    \"registreringsdato\": \"2020-02-12T00:00:00\",\n    \"enhetstyper\": [\n      {\n        \"enhetstype\": \"AS\",\n        \"bruksperiode\": {\n          \"fom\": \"2020-02-12T13:25:49.376\"\n        },\n        \"gyldighetsperiode\": {\n          \"fom\": \"2020-02-12\"\n        }\n      }\n    ],\n    \"navn\": [\n      {\n        \"navnelinje1\": \"TranÃ¸y og Sande i Vestfold Regnska\",\n        \"navnelinje2\": \"p\",\n        \"bruksperiode\": {\n          \"fom\": \"2020-02-12T13:25:49.397\"\n        },\n        \"gyldighetsperiode\": {\n          \"fom\": \"2020-02-12\"\n        }\n      }\n    ],\n    \"postadresser\": [\n      {\n        \"type\": \"Postadresse\",\n        \"adresselinje1\": \"Julius Veum, HMS avdelingen, Ã\u0085sgat\",\n        \"adresselinje2\": \"en 24\",\n        \"postnummer\": \"3060\",\n        \"poststed\": \"Svelvik\",\n        \"landkode\": \"NO\",\n        \"kommunenummer\": \"0711\",\n        \"bruksperiode\": {\n          \"fom\": \"2020-02-12T13:25:49.406\"\n        },\n        \"gyldighetsperiode\": {\n          \"fom\": \"2020-02-12\"\n        }\n      }\n    ],\n    \"sistEndret\": \"2020-02-12\"\n  },\n  \"juridiskEnhetDetaljer\": {\n    \"enhetstype\": \"AS\"\n  }\n}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      },
   ]
 }
