@@ -136,7 +136,7 @@
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>boot-conditionals</artifactId>
-            <version>1.0.20200301232451-61d66ff</version>
+            <version>1.0.20200504131224-15ec9cb</version>
         </dependency>
         <!-- Unleash -->
         <dependency>
