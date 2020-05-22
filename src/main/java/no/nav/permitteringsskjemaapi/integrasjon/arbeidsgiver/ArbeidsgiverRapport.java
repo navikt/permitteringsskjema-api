@@ -2,6 +2,7 @@ package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
 
 import lombok.Builder;
 import lombok.Value;
+import no.nav.permitteringsskjemaapi.permittering.Bedrift;
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType;
 import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori;
 import no.nav.permitteringsskjemaapi.permittering.Årsakskode;
@@ -49,4 +50,6 @@ public class ArbeidsgiverRapport {
     String årsakstekst;
     @NotNull
     List<Yrkeskategori> yrkeskategorier;
+    @NotNull
+    List<Bedrift> bedrifter;
 }
