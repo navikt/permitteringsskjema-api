@@ -22,6 +22,10 @@
     </properties>
     <repositories>
         <repository>
+            <id>github-package-registry-navikt</id>
+            <url>https://maven.pkg.github.com/navikt/maven-release</url>
+        </repository>
+        <repository>
             <id>confluent</id>
             <url>http://packages.confluent.io/maven/</url>
         </repository>
