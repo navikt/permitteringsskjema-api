@@ -33,7 +33,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Bygg og test med Maven
-        run: mvn package -B -Dsurefire.useFile=false --settings .github/workflows/.m2/settings.xml
+        run: mvn package -B -Dsurefire.useFile=false -X --settings .github/workflows/.m2/settings.xml
 
       - name: Sjekk om branch er oppdatert mot master
         id: sjekk-mot-master
