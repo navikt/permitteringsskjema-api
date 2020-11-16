@@ -23,7 +23,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
-@ConditionalOnClusters(clusters = { Cluster.DEV_FSS, Cluster.PROD_FSS })
+@ConditionalOnClusters(clusters = {Cluster.DEV_FSS, Cluster.PROD_FSS}, namespaces = {})
 public class AltinnServiceImpl implements AltinnService {
 
     private static final int ALTINN_ORG_PAGE_SIZE = 500;

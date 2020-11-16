@@ -18,7 +18,7 @@ import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil;
 import no.nav.vault.jdbc.hikaricp.VaultError;
 
 @Configuration
-@ConditionalOnClusters(clusters = { Cluster.DEV_FSS, Cluster.PROD_FSS })
+@ConditionalOnClusters(clusters = {Cluster.DEV_FSS, Cluster.PROD_FSS}, namespaces = {})
 public class VaultDatabaseConfiguration {
     private final DatabaseProperties config;
 
