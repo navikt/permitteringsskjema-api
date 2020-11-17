@@ -6,7 +6,7 @@ on:
       - 'master'
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
   IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/permitteringsskjema-api
   IMAGE: docker.pkg.github.com/${{ github.repository }}/permitteringsskjema-api:${{ github.sha }}
 
@@ -18,7 +18,7 @@ jobs:
       - name: Lukk deployment-issues
         uses: actions/github-script@0.8.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
           script: |
             github.issues.listForRepo({
               owner: context.repo.owner,
