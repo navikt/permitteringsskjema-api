@@ -9,7 +9,7 @@ jobs:
       - name: Slash command dispatch
         uses: peter-evans/slash-command-dispatch@v1
         with:
-          reaction-token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+          reaction-token: ${{ secrets.GITHUB_TOKEN }}
           token: ${{ secrets.NOTIFICATION }}
           commands: deploy
           issue-type: issue
