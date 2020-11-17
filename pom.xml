@@ -22,6 +22,10 @@
     </properties>
     <repositories>
         <repository>
+            <id>github-package-registry-navikt</id>
+            <url>https://maven.pkg.github.com/navikt/maven-release</url>
+        </repository>
+        <repository>
             <id>confluent</id>
             <url>http://packages.confluent.io/maven/</url>
         </repository>
@@ -136,7 +140,7 @@
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>boot-conditionals</artifactId>
-            <version>1.0.20200301232451-61d66ff</version>
+            <version>1.0.20201106230022-1c62cbd</version>
         </dependency>
         <!-- Unleash -->
         <dependency>

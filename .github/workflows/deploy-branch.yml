@@ -3,7 +3,7 @@ on:
   repository_dispatch:
     types: [deploy-command]
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
   IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/permitteringsskjema-api
 
 jobs:
@@ -69,7 +69,7 @@ jobs:
         if: success()
         uses: actions/github-script@0.5.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets. }}
           script: |
             github.issues.listForRepo({
               owner: context.repo.owner,

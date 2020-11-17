@@ -3,41 +3,41 @@ server:
   servlet:
     context-path: /permitteringsskjema-api
 info:
-   app:
-      version: '@project.version@'
-      build:
-         time: '@timestamp@'
+  app:
+    version: '@project.version@'
+    build:
+      time: '@timestamp@'
 management:
-   endpoints:
-      web:
-         exposure:
-            include: info, health, metrics, prometheus
-         base-path: /internal/actuator
-   endpoint:
-      health:
-         show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: info, health, metrics, prometheus
+      base-path: /internal/actuator
+  endpoint:
+    health:
+      show-details: never
 spring:
   jackson:
-      default-property-inclusion: non-absent
+    default-property-inclusion: non-absent
   kafka:
-      properties:
-         security:
-            protocol: SASL_SSL
-         sasl:
-            mechanism: PLAIN
-            jaas:
-               config: org.apache.kafka.common.security.plain.PlainLoginModule required username=${systembruker.username} password=${systembruker.password};
-      consumer:
-         enable-auto-commit: false
-         bootstrap-servers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443
-         group-id: group_id
-         auto-offset-reset: earliest
-         key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-         value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      producer:
-         bootstrap-servers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443
-         key-serializer: org.apache.kafka.common.serialization.StringSerializer
-         value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    properties:
+      security:
+        protocol: SASL_SSL
+      sasl:
+        mechanism: PLAIN
+        jaas:
+          config: org.apache.kafka.common.security.plain.PlainLoginModule required username=${systembruker.username} password=${systembruker.password};
+    consumer:
+      enable-auto-commit: false
+      bootstrap-servers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443
+      group-id: group_id
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      bootstrap-servers: a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 
 permittering:
@@ -60,27 +60,27 @@ permittering:
     enabled: false
   refusjon-beregning:
     enabled: true
-#    uri: http://localhost:8090/permittering-refusjon-api/beregn
+    #    uri: http://localhost:8090/permittering-refusjon-api/beregn
     simulator: true
 
 management:
-   endpoints:
-      web:
-         exposure:
-            include: '*'
-   endpoint:
-      health:
-         show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
 spring:
   profiles: local
   kafka:
-      properties:
-         security:
-            protocol: PLAINTEXT
-      consumer:
-         bootstrap-servers: localhost:9092
-      producer:
-         bootstrap-servers: localhost:9092
+    properties:
+      security:
+        protocol: PLAINTEXT
+    consumer:
+      bootstrap-servers: localhost:9092
+    producer:
+      bootstrap-servers: localhost:9092
   datasource:
     platform: postgres
     url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
@@ -97,9 +97,9 @@ mock:
   port: 8081
 
 no.nav.security.jwt.issuer.selvbetjening:
-      discoveryurl: http://metadata-selvbetjening
-      accepted_audience: aud-localhost
-      cookiename: localhost-idtoken
+  discoveryurl: http://metadata-selvbetjening
+  accepted_audience: aud-localhost
+  cookiename: localhost-idtoken
 
 altinn:
   altinnUrl: "http://localhost:${mock.port}/altinn/"
@@ -111,29 +111,29 @@ altinn:
 
 ---
 management:
-   endpoints:
-      web:
-         exposure:
-            include: '*'
-   endpoint:
-      health:
-         show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
 spring:
   profiles: dev-fss
   datasource:
     platform: postgres
     driverClassName: org.postgresql.Driver
   kafka:
-      consumer:
-         bootstrap-servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00046.preprod.local:8443
-      producer:
-         bootstrap-servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00046.preprod.local:8443
+    consumer:
+      bootstrap-servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00046.preprod.local:8443
+    producer:
+      bootstrap-servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00046.preprod.local:8443
 
 no.nav.security.jwt.issuer.selvbetjening:
-      discoveryurl: https://login.microsoftonline.com/NAVtestB2C.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten_ver1
-      accepted_audience: 0090b6e1-ffcc-4c37-bc21-049f7d1f0fe5
-      cookiename: selvbetjening-idtoken
-      proxyurl: http://webproxy.nais:8088
+  discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
+  accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
+  cookiename: selvbetjening-idtoken
+  proxyurl: http://webproxy.nais:8088
 
 altinn:
   altinnUrl: "https://api-gw-q1.adeo.no/ekstern/altinn/api/serviceowner/"
@@ -151,8 +151,8 @@ spring:
     driverClassName: org.postgresql.Driver
 
 no.nav.security.jwt.issuer.selvbetjening:
-  discoveryurl: https://login.microsoftonline.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten
-  accepted_audience: 45104d6a-f5bc-4e8c-b352-4bbfc9381f25
+  discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
+  accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
   cookiename: selvbetjening-idtoken
   proxyurl: http://webproxy.nais:8088
 
