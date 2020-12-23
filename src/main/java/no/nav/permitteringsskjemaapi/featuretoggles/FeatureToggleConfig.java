@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Profile;
 public class FeatureToggleConfig {
 
     private static final String APP_NAME = "permitteringsskjema-api";
-    private final static String UNLEASH_API_URL = "https://unleash.nais.adeo.no/api/";
+    private final static String UNLEASH_API_URL = "https://unleash.nais.io/api/";
     @Bean
     @ConditionalOnClusters(clusters = {Cluster.DEV_FSS, Cluster.PROD_FSS}, namespaces = {})
     public Unleash initializeUnleash( ByEnvironmentStrategy byEnvironmentStrategy,
