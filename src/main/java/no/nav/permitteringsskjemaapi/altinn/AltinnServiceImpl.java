@@ -66,7 +66,7 @@ public class AltinnServiceImpl implements AltinnService {
 
         if (featureToggleService.isEnabled("arbeidsgiver.permitteringsskjema-api.bruk-altinn-proxy")) {
             baseUrl = altinnProxyUrl;
-            headers = getAuthHeadersForInnloggetBruker();
+            headers = getAltinnProxyHeaders();
         } else {
             baseUrl = altinnUrl;
             headers = headerEntity;
@@ -104,9 +104,10 @@ public class AltinnServiceImpl implements AltinnService {
         return new ArrayList<T>(response);
     }
 
-    private HttpEntity<HttpHeaders> getAuthHeadersForInnloggetBruker() {
+    private HttpEntity<HttpHeaders> getAltinnProxyHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(tokenUtil.getTokenForInnloggetBruker());
+        headers.set("x-consumer-id", "permitteringsskjema-api");
         return new HttpEntity<>(headers);
     }
 }
