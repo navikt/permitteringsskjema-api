@@ -101,26 +101,3 @@ jobs:
           RESOURCE: nais/dev.yaml
           PRINT_PAYLOAD: true
 
-  deploy-prod:
-    name: Deploy til prod
-    runs-on: ubuntu-20.04
-    needs: deploy-dev
-    steps:
-      - name: Finn REPOSITORY_NAME
-        run: echo "REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}')" >> $GITHUB_ENV
-
-      - name: Sett IMAGE_BASE
-        run: echo "IMAGE_BASE=$(echo "docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME")" >> $GITHUB_ENV
-
-      - name: Sett IMAGE
-        run: echo "IMAGE=$(echo "$IMAGE_BASE:${{ github.sha }}")" >> $GITHUB_ENV
-
-      - name: Sjekk ut kode
-        uses: actions/checkout@v2
-      - name: Deploy til prod-fss
-        uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-fss
-          RESOURCE: nais/prod.yaml
-          PRINT_PAYLOAD: true
