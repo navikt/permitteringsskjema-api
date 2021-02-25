@@ -2,16 +2,22 @@ name: Deploy til dev
 on:
   repository_dispatch:
     types: [deploy-command]
+
 env:
-  GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
-  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/permitteringsskjema-api
+  GITHUB_REPOSITORY: ${{ github.repository }}
 
 jobs:
   deploy-branch:
     name: Deploy til dev
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
+      - name: Finn REPOSITORY_NAME
+        run: echo "REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}')" >> $GITHUB_ENV
+
+      - name: Sett IMAGE_BASE
+        run: echo "IMAGE_BASE=$(echo "docker.pkg.github.com/$GITHUB_REPOSITORY/$REPOSITORY_NAME")" >> $GITHUB_ENV
+
       - name: Kommenterer med link til action
         uses: actions/github-script@0.5.0
         with:
@@ -21,7 +27,7 @@ jobs:
               issue_number: ${{ github.event.client_payload.github.payload.issue.number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Deploy satt i gang: https://github.com/navikt/permitteringsskjema-api/actions/runs/${{ github.run_id }}'
+              body: 'Deploy satt i gang: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
             })
 
       - name: Sjekk ut kode
@@ -31,7 +37,7 @@ jobs:
           fetch-depth: 0
 
       - name: Sett miljøvariabel COMMIT
-        run: echo "name=COMMIT::$(git rev-parse HEAD)" >> $GITHUB_ENV
+        run: echo "COMMIT=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
       - name: Sjekk om COMMIT er oppdatert mot master
         run: |
@@ -39,7 +45,7 @@ jobs:
           git merge-base --is-ancestor origin/master $COMMIT
 
       - name: Sett miljøvariabel IMAGE
-        run: echo "name=IMAGE::$IMAGE_BASE:$COMMIT" >> $GITHUB_ENV
+        run: echo "IMAGE=$IMAGE_BASE:$COMMIT" >> $GITHUB_ENV
 
       - name: Deploy til dev-fss
         uses: nais/deploy/actions/deploy@v1
