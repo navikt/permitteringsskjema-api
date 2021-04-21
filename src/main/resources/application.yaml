@@ -58,10 +58,6 @@ permittering:
 permittering:
   arbeidsgiver:
     enabled: false
-  refusjon-beregning:
-    enabled: true
-    #    uri: http://localhost:8090/permittering-refusjon-api/beregn
-    simulator: true
 
 management:
   endpoints:
