@@ -18,7 +18,6 @@ public class OrganisasjonerController {
 
     private final AltinnService altinnService;
     private final TokenUtil tokenUtil;
-    private final AltinnConfig altinnConfig;
 
     @GetMapping
     public List<AltinnOrganisasjon> hentOrganisasjoner() {
