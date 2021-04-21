@@ -1,0 +1,1 @@
+drop table refusjonsskjema, arbeidsforhold, arbeidsforhold_beregningsdetaljer;
