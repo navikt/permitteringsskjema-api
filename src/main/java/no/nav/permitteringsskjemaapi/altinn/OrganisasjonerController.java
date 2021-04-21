@@ -25,10 +25,4 @@ public class OrganisasjonerController {
         String fnr = tokenUtil.autentisertBruker();
         return altinnService.hentOrganisasjoner(fnr);
     }
-
-    @GetMapping("/refusjon")
-    public List<AltinnOrganisasjon> hentOrganisasjonerBasertPåRettigheter() {
-        String fnr = tokenUtil.autentisertBruker();
-        return altinnService.hentOrganisasjonerBasertPåRettigheter(fnr, altinnConfig.getInntektsmeldingServiceCode(), altinnConfig.getInntektsmeldingServiceEditionCode());
-    }
 }
