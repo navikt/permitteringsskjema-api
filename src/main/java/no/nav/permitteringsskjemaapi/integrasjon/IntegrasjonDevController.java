@@ -8,10 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import no.nav.foreldrepenger.boot.conditionals.ConditionalOnNotProd;
-import no.nav.permitteringsskjemaapi.permittering.PermittertPerson;
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.Arbeidsgiver;
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.ArbeidsgiverRapport;
-import no.nav.permitteringsskjemaapi.integrasjon.arbeidstaker.Permittering;
 import no.nav.security.token.support.core.api.Unprotected;
 
 @RestController
@@ -19,18 +17,10 @@ import no.nav.security.token.support.core.api.Unprotected;
 @Unprotected
 public class IntegrasjonDevController {
 
-    private final Permittering permittering;
     private final Arbeidsgiver arbeidsgiver;
 
-    public IntegrasjonDevController(Permittering permittering, Arbeidsgiver arbeidsgiver) {
-        this.permittering = permittering;
+    public IntegrasjonDevController(Arbeidsgiver arbeidsgiver) {
         this.arbeidsgiver = arbeidsgiver;
-    }
-
-    @PostMapping(value = "/permitter")
-    public ResponseEntity<?> permitter(@RequestBody @Valid PermittertPerson person) {
-        permittering.publiser(person);
-        return ResponseEntity.ok("OK");
     }
 
     @PostMapping(value = "/rapporter")
@@ -41,6 +31,6 @@ public class IntegrasjonDevController {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[permittering=" + permittering + ", arbeidsgiver=" + arbeidsgiver + "]";
+        return getClass().getSimpleName() + "[arbeidsgiver=" + arbeidsgiver + "]";
     }
 }
