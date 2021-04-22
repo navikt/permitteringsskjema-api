@@ -58,10 +58,6 @@ permittering:
 permittering:
   arbeidsgiver:
     enabled: false
-  refusjon-beregning:
-    enabled: true
-    #    uri: http://localhost:8090/permittering-refusjon-api/beregn
-    simulator: true
 
 management:
   endpoints:
@@ -106,8 +102,6 @@ altinn:
   altinnHeader: "lokal"
   APIGwHeader: "lokal"
   altinnProxyUrl: "http://localhost:${mock.port}/altinn/"
-  inntektsmeldingServiceCode: 1234
-  inntektsmeldingServiceEditionCode: 1
 
 ---
 management:
@@ -140,8 +134,6 @@ altinn:
   altinnHeader: ${ALTINN_HEADER}
   APIGwHeader: ${ALTINN_APIGW_HEADER}
   altinnProxyUrl: https://arbeidsgiver.dev.intern.nav.no/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
-  inntektsmeldingServiceCode: 4936
-  inntektsmeldingServiceEditionCode: 1
 
 ---
 spring:
@@ -161,5 +153,3 @@ altinn:
   altinnHeader: ${ALTINN_HEADER}
   APIGwHeader: ${ALTINN_APIGW_HEADER}
   altinnProxyUrl: https://arbeidsgiver.intern.nav.no/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
-  inntektsmeldingServiceCode: 4936
-  inntektsmeldingServiceEditionCode: 1
