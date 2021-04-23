@@ -41,9 +41,6 @@ spring:
 
 
 permittering:
-  dagpenger:
-    enabled: false
-    topic: aapen-permittering-dagpenger
   arbeidsgiver:
     enabled: true
     topic: aapen-permittering-arbeidsgiver
