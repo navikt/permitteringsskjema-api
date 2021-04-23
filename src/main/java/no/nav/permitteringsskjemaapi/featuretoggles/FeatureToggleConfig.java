@@ -33,7 +33,7 @@ public class FeatureToggleConfig {
         );
     }
 
-    @Profile(LOCAL)
+    @Profile({DEFAULT, LOCAL})
     @Bean
     public Unleash unleashMock() {
         FakeUnleash fakeUnleash = new FakeUnleash();

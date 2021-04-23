@@ -5,10 +5,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 
+import static no.nav.permitteringsskjemaapi.config.Constants.DEFAULT;
 import static no.nav.permitteringsskjemaapi.config.Constants.LOCAL;
 
 @Configuration
 @Import(TokenGeneratorConfiguration.class)
-@Profile(LOCAL)
+@Profile({DEFAULT, LOCAL})
 public class LocalJWTConfig {
 }

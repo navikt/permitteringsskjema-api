@@ -38,6 +38,6 @@ public final class ClusterAwareSpringProfileResolver {
         if (cluster.equals(PROD_FSS)) {
             return PROD_FSS;
         }
-        return "default";
+        return DEFAULT;
     }
 }

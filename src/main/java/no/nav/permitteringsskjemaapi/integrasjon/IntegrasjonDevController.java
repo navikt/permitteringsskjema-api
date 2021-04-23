@@ -13,10 +13,11 @@ import javax.validation.Valid;
 
 import static no.nav.permitteringsskjemaapi.config.Constants.DEV_FSS;
 import static no.nav.permitteringsskjemaapi.config.Constants.LOCAL;
+import static no.nav.permitteringsskjemaapi.config.Constants.DEFAULT;
 
 @RestController
 @Unprotected
-@Profile({LOCAL, DEV_FSS})
+@Profile({DEFAULT, LOCAL, DEV_FSS})
 public class IntegrasjonDevController {
 
     private final Arbeidsgiver arbeidsgiver;
