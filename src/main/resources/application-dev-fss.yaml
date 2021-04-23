@@ -1,0 +1,30 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+spring:
+  profiles: dev-fss
+  datasource:
+    platform: postgres
+    driverClassName: org.postgresql.Driver
+  kafka:
+    consumer:
+      bootstrap-servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00046.preprod.local:8443
+    producer:
+      bootstrap-servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00046.preprod.local:8443
+
+no.nav.security.jwt.issuer.selvbetjening:
+  discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
+  accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
+  cookiename: selvbetjening-idtoken
+  proxyurl: http://webproxy.nais:8088
+
+altinn:
+  altinnUrl: "https://api-gw-q1.adeo.no/ekstern/altinn/api/serviceowner/"
+  altinnHeader: ${ALTINN_HEADER}
+  APIGwHeader: ${ALTINN_APIGW_HEADER}
+  altinnProxyUrl: https://arbeidsgiver.dev.intern.nav.no/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
