@@ -38,6 +38,8 @@ spec:
       value: jdbc:postgresql://b27dbvl013.preprod.local:5432/permittering
     - name:  PERMITTERING_DATABASE_VAULT_STI
       value: postgresql/preprod-fss
+    - name: SPRING_PROFILES_ACTIVE
+      value: dev-fss
   prometheus:
     enabled: true
     path: /permitteringsskjema-api/internal/actuator/prometheus

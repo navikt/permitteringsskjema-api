@@ -1,0 +1,17 @@
+spring:
+  profiles: prod-fss
+  datasource:
+    platform: postgres
+    driverClassName: org.postgresql.Driver
+
+no.nav.security.jwt.issuer.selvbetjening:
+  discoveryurl: https://navnob2c.b2clogin.com/navnob2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1A_idporten
+  accepted_audience: 45104d6a-f5bc-4e8c-b352-4bbfc9381f25
+  cookiename: selvbetjening-idtoken
+  proxyurl: http://webproxy.nais:8088
+
+altinn:
+  altinnUrl: "https://api-gw.adeo.no/ekstern/altinn/api/serviceowner/"
+  altinnHeader: ${ALTINN_HEADER}
+  APIGwHeader: ${ALTINN_APIGW_HEADER}
+  altinnProxyUrl: https://arbeidsgiver.intern.nav.no/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
