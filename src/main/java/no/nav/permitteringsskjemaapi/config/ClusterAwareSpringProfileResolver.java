@@ -1,10 +1,7 @@
 package no.nav.permitteringsskjemaapi.config;
 
 import static java.lang.System.getenv;
-import static no.nav.foreldrepenger.boot.conditionals.EnvUtil.DEFAULT;
-import static no.nav.foreldrepenger.boot.conditionals.EnvUtil.DEV_FSS;
-import static no.nav.foreldrepenger.boot.conditionals.EnvUtil.LOCAL;
-import static no.nav.foreldrepenger.boot.conditionals.EnvUtil.PROD_FSS;
+import static no.nav.permitteringsskjemaapi.config.Constants.*;
 
 import java.util.Optional;
 
@@ -41,6 +38,6 @@ public final class ClusterAwareSpringProfileResolver {
         if (cluster.equals(PROD_FSS)) {
             return PROD_FSS;
         }
-        return DEFAULT;
+        return "default";
     }
 }

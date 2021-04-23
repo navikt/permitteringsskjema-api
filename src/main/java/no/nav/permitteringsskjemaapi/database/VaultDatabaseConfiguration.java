@@ -1,24 +1,24 @@
 package no.nav.permitteringsskjemaapi.database;
 
-import javax.sql.DataSource;
-
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil;
+import no.nav.vault.jdbc.hikaricp.VaultError;
 import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import javax.sql.DataSource;
 
-import no.nav.foreldrepenger.boot.conditionals.Cluster;
-import no.nav.foreldrepenger.boot.conditionals.ConditionalOnClusters;
-import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil;
-import no.nav.vault.jdbc.hikaricp.VaultError;
+import static no.nav.permitteringsskjemaapi.config.Constants.DEV_FSS;
+import static no.nav.permitteringsskjemaapi.config.Constants.PROD_FSS;
 
 @Configuration
-@ConditionalOnClusters(clusters = {Cluster.DEV_FSS, Cluster.PROD_FSS}, namespaces = {})
+@Profile({DEV_FSS, PROD_FSS})
 public class VaultDatabaseConfiguration {
     private final DatabaseProperties config;
 

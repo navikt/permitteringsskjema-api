@@ -14,6 +14,11 @@ public final class Constants {
     public static final String ISSUER = "selvbetjening";
     public static final String NAV_TOKEN_EXPIRY_ID = "Nav-Token-Expiry";
 
+    // Profiles
+    public static final String LOCAL = "local";
+    public static final String DEV_FSS = "dev-fss";
+    public static final String PROD_FSS = "prod-fss";
+
     private Constants() {
     }
 }

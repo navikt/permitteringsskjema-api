@@ -1,12 +1,11 @@
 package no.nav.permitteringsskjemaapi.altinn;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.foreldrepenger.boot.conditionals.Cluster;
-import no.nav.foreldrepenger.boot.conditionals.ConditionalOnClusters;
 import no.nav.permitteringsskjemaapi.exceptions.PermitteringsApiException;
 import no.nav.permitteringsskjemaapi.featuretoggles.FeatureToggleService;
 import no.nav.permitteringsskjemaapi.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,9 +20,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static no.nav.permitteringsskjemaapi.config.Constants.DEV_FSS;
+import static no.nav.permitteringsskjemaapi.config.Constants.PROD_FSS;
+
 @Slf4j
 @Component
-@ConditionalOnClusters(clusters = {Cluster.DEV_FSS, Cluster.PROD_FSS}, namespaces = {})
+@Profile({DEV_FSS, PROD_FSS})
 public class AltinnServiceImpl implements AltinnService {
 
     private static final int ALTINN_ORG_PAGE_SIZE = 500;
