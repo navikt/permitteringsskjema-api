@@ -1,0 +1,17 @@
+name: Build & deploy
+
+on: [push]
+
+jobs:
+  test:
+    name: Deploy kafka-topic
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/aiven'
+    steps:
+      - uses: actions/checkout@v1
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          VAR: version=${{ env.IMAGE }}
+          RESOURCE: nais/kafka-nav-dev.yaml
