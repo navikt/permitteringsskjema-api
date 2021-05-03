@@ -24,14 +24,9 @@ jobs:
       - name: Run tests
         run: mvn test
 
-  deploy-to-dev:
-    name: Deploy to dev
+  build:
+    name: Build
     needs: test
-    #########################
-    ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
-    ### e.g. github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test-branch'
-    #########################
-    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -54,6 +49,19 @@ jobs:
           echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           echo ${IMAGE}
           docker push ${IMAGE}
+
+
+  deploy-to-dev:
+    name: Deploy to dev
+    needs: build
+    #########################
+    ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
+    ### e.g. github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test-branch'
+    #########################
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/nytt-deployscript'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
@@ -63,7 +71,7 @@ jobs:
 
   deploy-to-prod:
     name: Deploy to prod
-    needs: test
+    needs: build
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
