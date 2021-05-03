@@ -1,0 +1,19 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: aapen-permittering-arbeidsgiver
+  namespace: arbeidsgiver
+  labels:
+    team: arbeidsgiver
+spec:
+  pool: nav-dev
+  config:  # optional; all fields are optional too; defaults shown
+    cleanupPolicy: delete  # delete, compact
+    minimumInSyncReplicas: 1
+    partitions: 1
+    retentionBytes: -1  # -1 means unlimited
+    retentionHours: 24  # default 72. -1 means unlimited
+  acl:
+    - team: arbeidsgiver
+      application: permitteringsskjema-api
+      access: write   # read, write, readwrite
