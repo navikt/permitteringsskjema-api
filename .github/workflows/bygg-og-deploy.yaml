@@ -82,3 +82,16 @@ jobs:
           CLUSTER: prod-fss
           VAR: version=${{ env.IMAGE }}
           RESOURCE: nais/prod-fss.yaml
+
+  deploy-kafka:
+    name: Deploy kafka-topic
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/aiven' # TODO master
+    steps:
+      - uses: actions/checkout@v1
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-gcp
+          VAR: version=${{ env.IMAGE }}
+          RESOURCE: nais/kafka-nav-dev.yaml
