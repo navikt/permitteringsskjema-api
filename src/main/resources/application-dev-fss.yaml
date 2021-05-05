@@ -13,9 +13,9 @@ spring:
     driverClassName: org.postgresql.Driver
   kafka:
     consumer:
-      bootstrap-servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00046.preprod.local:8443
+      bootstrap-servers: ${KAFKA_BROKERS}
     producer:
-      bootstrap-servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00046.preprod.local:8443
+      bootstrap-servers: ${KAFKA_BROKERS}
 
 no.nav.security.jwt.issuer.selvbetjening:
   discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
