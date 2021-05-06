@@ -1,6 +1,8 @@
 package no.nav.permitteringsskjemaapi.util;
 
-import static no.nav.permitteringsskjemaapi.config.Constants.ISSUER;
+import static no.nav.permitteringsskjemaapi.config.Constants.SELVBETJENING_ISSUER;
+import static no.nav.permitteringsskjemaapi.config.Constants.TOKENX_ISSUER;
+
 
 import java.util.Date;
 import java.util.Optional;
@@ -27,15 +29,27 @@ public class TokenUtil {
     }
 
     public Date getExpiryDate() {
-        return Optional.ofNullable(claimSet())
-                .map(JwtTokenClaims::getExpirationTime)
-                .orElse(null);
+        if(erInnloggetMedSelvbetjening()) {
+            return Optional.ofNullable(claimSet(SELVBETJENING_ISSUER))
+                    .map(JwtTokenClaims::getExpirationTime)
+                    .orElse(null);
+        } else {
+            return Optional.ofNullable(claimSet(TOKENX_ISSUER))
+                    .map(JwtTokenClaims::getExpirationTime)
+                    .orElse(null);
+        }
     }
 
     public String getSubject() {
-        return Optional.ofNullable(claimSet())
-                .map(JwtTokenClaims::getSubject)
-                .orElse(null);
+        if(erInnloggetMedSelvbetjening()) {
+            return Optional.ofNullable(claimSet(SELVBETJENING_ISSUER))
+                    .map(JwtTokenClaims::getSubject)
+                    .orElse(null);
+        } else {
+            return Optional.ofNullable(claimSet(TOKENX_ISSUER))
+                    .map(JwtTokenClaims::getSubject)
+                    .orElse(null);
+        }
     }
 
     public String autentisertBruker() {
@@ -44,7 +58,11 @@ public class TokenUtil {
     }
 
     public String getTokenForInnloggetBruker() {
-        return ctxHolder.getTokenValidationContext().getJwtToken(ISSUER).getTokenAsString();
+        if(erInnloggetMedSelvbetjening()) {
+            return ctxHolder.getTokenValidationContext().getJwtToken(SELVBETJENING_ISSUER).getTokenAsString();
+        } else {
+            return ctxHolder.getTokenValidationContext().getJwtToken(TOKENX_ISSUER).getTokenAsString();
+        }
     }
 
     public Fødselsnummer autentisertFNR() {
@@ -55,10 +73,18 @@ public class TokenUtil {
         return () -> new JwtTokenValidatorException(msg);
     }
 
-    private JwtTokenClaims claimSet() {
+    private JwtTokenClaims claimSet(String issuer) {
         return Optional.ofNullable(context())
-                .map(s -> s.getClaims(ISSUER))
+                .map(s -> s.getClaims(issuer))
                 .orElse(null);
+    }
+
+    private boolean erInnloggetMedSelvbetjening() {
+        return claimSet(SELVBETJENING_ISSUER) != null;
+    }
+
+    private boolean erInnloggetMedTokenX() {
+        return claimSet(TOKENX_ISSUER) != null;
     }
 
     private TokenValidationContext context() {

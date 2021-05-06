@@ -32,7 +32,6 @@ spec:
       mountPath: /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header
     - kvPath: /kv/preprod/fss/permitteringsskjema-api/default
       mountPath: /var/run/secrets/nais.io/permittering-api/altinn-header
-
   env:
     - name:  SPRING_DATASOURCE_URL
       value: jdbc:postgresql://b27dbvl013.preprod.local:5432/permittering
@@ -45,3 +44,9 @@ spec:
     path: /permitteringsskjema-api/internal/actuator/prometheus
   envFrom:
     - configmap: loginservice-idporten
+  tokenx:
+    enabled: true
+  accessPolicy:
+    - application: permittering
+      namespace: arbeidsgiver
+      cluster: dev-gcp

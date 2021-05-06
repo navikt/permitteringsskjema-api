@@ -17,11 +17,15 @@ spring:
     producer:
       bootstrap-servers: b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00046.preprod.local:8443
 
-no.nav.security.jwt.issuer.selvbetjening:
-  discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
-  accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
-  cookiename: selvbetjening-idtoken
-  proxyurl: http://webproxy.nais:8088
+no.nav.security.jwt:
+  issuer.selvbetjening:
+    discoveryurl: ${LOGINSERVICE_IDPORTEN_DISCOVERY_URL}
+    accepted_audience: ${LOGINSERVICE_IDPORTEN_AUDIENCE}
+    cookiename: selvbetjening-idtoken
+    proxyurl: http://webproxy.nais:8088
+  issuer.tokenx:
+    discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
+    accepted_audience: ${TOKEN_X_CLIENT_ID}
 
 altinn:
   altinnUrl: "https://api-gw-q1.adeo.no/ekstern/altinn/api/serviceowner/"
