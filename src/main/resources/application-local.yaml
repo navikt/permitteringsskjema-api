@@ -35,10 +35,13 @@ mock:
   enabled: true
   port: 8081
 
-no.nav.security.jwt.issuer.selvbetjening:
-  discoveryurl: http://metadata-selvbetjening
-  accepted_audience: aud-localhost
-  cookiename: localhost-idtoken
+mock-oauth2-server.port: 9000
+
+no.nav.security.jwt.issuer:
+  tokenx:
+    discoveryurl: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
+    cookie_name: localhost-idtoken
+    accepted_audience: tokenx
 
 altinn:
   altinnUrl: "http://localhost:${mock.port}/altinn/"
