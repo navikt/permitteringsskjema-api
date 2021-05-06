@@ -47,6 +47,8 @@ spec:
   tokenx:
     enabled: true
   accessPolicy:
-    - application: permittering
-      namespace: arbeidsgiver
-      cluster: dev-gcp
+    inbound:
+      rules:
+        - application: permittering
+          namespace: arbeidsgiver
+          cluster: dev-gcp
