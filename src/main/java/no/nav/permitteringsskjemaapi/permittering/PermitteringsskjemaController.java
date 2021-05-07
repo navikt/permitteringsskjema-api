@@ -3,6 +3,7 @@ package no.nav.permitteringsskjemaapi.permittering;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,16 +42,28 @@ public class PermitteringsskjemaController {
     @PostMapping
     public ResponseEntity<Permitteringsskjema> opprett(@RequestBody OpprettPermitteringsskjema opprettSkjema) {
         String fnr = fnrExtractor.autentisertBruker();
-        AltinnOrganisasjon organisasjon = hentOrganisasjon(fnr, opprettSkjema.getBedriftNr())
-                .orElseThrow(IkkeTilgangException::new);
+        AltinnOrganisasjon organisasjon = hentOrganisasjon(fnr, opprettSkjema.getBedriftNr()).orElseThrow(IkkeFunnetException::new);;
+        List<AltinnOrganisasjon> organisasjoner = sjekkTilgangOgHentAlleAltinnOrgs(fnr, opprettSkjema.getUnderenheter());
+        System.out.print(organisasjoner);
         Permitteringsskjema skjema = Permitteringsskjema.opprettSkjema(opprettSkjema, fnr);
         skjema.setBedriftNavn(organisasjon.getName());
         Permitteringsskjema lagretSkjema = repository.save(skjema);
         return ResponseEntity.status(HttpStatus.CREATED).body(lagretSkjema);
     }
+    private List<AltinnOrganisasjon> sjekkTilgangOgHentAlleAltinnOrgs(String fnr, List<String>underenheter) {
+        List<AltinnOrganisasjon> organisasjonerMedTilgang = altinnService.hentOrganisasjoner(fnr);
+        return underenheter.stream().map( o -> sjekkOmErIListeMedOrgs(o, organisasjonerMedTilgang).orElseThrow(IkkeTilgangException::new)).collect(Collectors.toList());
+    }
+
+    private Optional<AltinnOrganisasjon> sjekkOmErIListeMedOrgs(String bedriftNr,List<AltinnOrganisasjon> organisasjonerMedTilgang) {
+        return organisasjonerMedTilgang.stream()
+                .filter(o -> o.getOrganizationNumber().equals(bedriftNr))
+                .findFirst();
+    }
 
     private Optional<AltinnOrganisasjon> hentOrganisasjon(String fnr, String bedriftNr) {
         List<AltinnOrganisasjon> organisasjonerMedTilgang = altinnService.hentOrganisasjoner(fnr);
+        sjekkOmErIListeMedOrgs(bedriftNr, organisasjonerMedTilgang);
         return organisasjonerMedTilgang.stream()
                 .filter(o -> o.getOrganizationNumber().equals(bedriftNr))
                 .findFirst();
