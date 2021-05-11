@@ -23,23 +23,25 @@ spec:
     failureThreshold: 3
   ingresses:
     - https://arbeidsgiver.nais.preprod.local/permitteringsskjema-api/
-    - https://arbeidsgiver-permitteringsskjema-api.dev-fss-pub.nais.io/permitteringsskjema-api/
   vault:
     enabled: true
     paths:
-    - kvPath: /serviceuser/data/dev/srvpermittering-api
-      mountPath: /var/run/secrets/nais.io/srvpermittering-api
-    - kvPath: /apikey/apigw/dev/eksternapp.altinn.serviceowner/permitteringsskjema-api_q1
-      mountPath: /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header
-    - kvPath: /kv/preprod/fss/permitteringsskjema-api/default
-      mountPath: /var/run/secrets/nais.io/permittering-api/altinn-header
+      - kvPath: /serviceuser/data/dev/srvpermittering-api
+        mountPath: /var/run/secrets/nais.io/srvpermittering-api
+      - kvPath: /apikey/apigw/dev/eksternapp.altinn.serviceowner/permitteringsskjema-api_q1
+        mountPath: /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header
+      - kvPath: /kv/preprod/fss/permitteringsskjema-api/default
+        mountPath: /var/run/secrets/nais.io/permittering-api/altinn-header
+  gcp:
+    sqlInstances:
+      - name: altinn-meldinger-api
+        type: POSTGRES_12
+        databases:
+          - name: altinn-meldinger-db
+            envVarPrefix: DATABASE
   env:
-    - name:  SPRING_DATASOURCE_URL
-      value: jdbc:postgresql://b27dbvl013.preprod.local:5432/permittering
-    - name:  PERMITTERING_DATABASE_VAULT_STI
-      value: postgresql/preprod-fss
     - name: SPRING_PROFILES_ACTIVE
-      value: dev-fss
+      value: dev-gcp
   prometheus:
     enabled: true
     path: /permitteringsskjema-api/internal/actuator/prometheus
@@ -48,8 +50,6 @@ spec:
   tokenx:
     enabled: true
   accessPolicy:
-    inbound:
-      rules:
-        - application: permittering
-          namespace: arbeidsgiver
-          cluster: dev-gcp
+    - application: permittering
+      namespace: arbeidsgiver
+      cluster: dev-gcp
