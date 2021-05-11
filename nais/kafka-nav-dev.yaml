@@ -2,11 +2,9 @@ apiVersion: kafka.nais.io/v1
 kind: Topic
 metadata:
   name: aapen-permittering-arbeidsgiver
-  namespace: arbeidsgiver
+  namespace: permittering-og-nedbemanning
   labels:
-    team: arbeidsgiver
-  annotations:
-    kafka.nais.io/removeDataWhenResourceIsDeleted: "true"
+    team: permittering-og-nedbemanning
 spec:
   pool: nav-dev
   config:  # optional; all fields are optional too; defaults shown
