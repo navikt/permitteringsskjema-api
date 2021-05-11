@@ -58,13 +58,13 @@ jobs:
     ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
     ### e.g. github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test-branch'
     #########################
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/team-namespace'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - uses: nais/deploy/actions/deploy@v1
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
           CLUSTER: dev-fss
           VAR: version=${{ env.IMAGE }}
           RESOURCE: nais/dev-fss.yaml
@@ -78,7 +78,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: nais/deploy/actions/deploy@v1
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
           CLUSTER: prod-fss
           VAR: version=${{ env.IMAGE }}
           RESOURCE: nais/prod-fss.yaml

@@ -2,12 +2,12 @@ apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
   name: permitteringsskjema-api
-  namespace: default
+  namespace: permittering-og-nedbemanning
   labels:
-    team: arbeidsgiver
+    team: permittering-og-nedbemanning
 spec:
   image: {{image}}
-  team: arbeidsgiver
+  team: permittering-og-nedbemanning
   port: 8080
   webproxy: true
   liveness:
