@@ -31,7 +31,7 @@ spec:
       mountPath: /var/run/secrets/nais.io/srvpermittering-api
     - kvPath: /apikey/apigw/prod/eksternapp.altinn.serviceowner/permitteringsskjema-api
       mountPath: /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header
-    - kvPath: /kv/prod/fss/permitteringsskjema-api/default
+    - kvPath: /kv/prod/fss/permitteringsskjema-api/permitteringsskjema-api
       mountPath: /var/run/secrets/nais.io/permittering-api/altinn-header
   env:
     - name:  SPRING_DATASOURCE_URL

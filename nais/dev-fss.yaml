@@ -30,7 +30,7 @@ spec:
       mountPath: /var/run/secrets/nais.io/srvpermittering-api
     - kvPath: /apikey/apigw/dev/eksternapp.altinn.serviceowner/permitteringsskjema-api_q1
       mountPath: /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header
-    - kvPath: /kv/preprod/fss/permitteringsskjema-api/default
+    - kvPath: /kv/preprod/fss/permitteringsskjema-api/permitteringsskjema-api
       mountPath: /var/run/secrets/nais.io/permittering-api/altinn-header
 
   env:
