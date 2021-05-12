@@ -24,10 +24,6 @@ public class TokenUtil {
         this.ctxHolder = ctxHolder;
     }
 
-    public boolean erAutentisert() {
-        return getFnrFraToken() != null;
-    }
-
     public Date getExpiryDate() {
         if(erInnloggetMedSelvbetjening()) {
             return Optional.ofNullable(claimSet(SELVBETJENING_ISSUER))
@@ -54,7 +50,7 @@ public class TokenUtil {
 
     public String autentisertBruker() {
         return Optional.ofNullable(getFnrFraToken())
-                .orElseThrow(unauthenticated("Fant ikke subject"));
+                .orElseThrow(unauthenticated("Fant ikke fødselsnummer i token"));
     }
 
     public String getTokenForInnloggetBruker() {
@@ -63,10 +59,6 @@ public class TokenUtil {
         } else {
             return ctxHolder.getTokenValidationContext().getJwtToken(TOKENX_ISSUER).getTokenAsString();
         }
-    }
-
-    public Fødselsnummer autentisertFNR() {
-        return Fødselsnummer.valueOf(autentisertBruker());
     }
 
     private static Supplier<? extends JwtTokenValidatorException> unauthenticated(String msg) {
