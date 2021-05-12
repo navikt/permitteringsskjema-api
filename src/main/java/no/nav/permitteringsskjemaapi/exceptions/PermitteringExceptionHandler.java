@@ -120,7 +120,7 @@ public class PermitteringExceptionHandler extends ResponseEntityExceptionHandler
     }
 
     private String subject() {
-        return Optional.ofNullable(tokenUtil.getSubject())
+        return Optional.ofNullable(tokenUtil.getFnrFraToken())
                 .orElse("Uautentisert");
     }
 

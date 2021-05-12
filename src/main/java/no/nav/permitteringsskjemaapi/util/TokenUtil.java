@@ -25,7 +25,7 @@ public class TokenUtil {
     }
 
     public boolean erAutentisert() {
-        return getSubject() != null;
+        return getFnrFraToken() != null;
     }
 
     public Date getExpiryDate() {
@@ -40,20 +40,20 @@ public class TokenUtil {
         }
     }
 
-    public String getSubject() {
+    public String getFnrFraToken() {
         if(erInnloggetMedSelvbetjening()) {
             return Optional.ofNullable(claimSet(SELVBETJENING_ISSUER))
                     .map(JwtTokenClaims::getSubject)
                     .orElse(null);
         } else {
             return Optional.ofNullable(claimSet(TOKENX_ISSUER))
-                    .map(JwtTokenClaims::getSubject)
+                    .map(jwtTokenClaims -> (String) jwtTokenClaims.get("pid"))
                     .orElse(null);
         }
     }
 
     public String autentisertBruker() {
-        return Optional.ofNullable(getSubject())
+        return Optional.ofNullable(getFnrFraToken())
                 .orElseThrow(unauthenticated("Fant ikke subject"));
     }
 
