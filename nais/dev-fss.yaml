@@ -51,5 +51,5 @@ spec:
     inbound:
       rules:
         - application: permittering
-          namespace: arbeidsgiver
+          namespace: permittering-og-nedbemanning
           cluster: dev-gcp
