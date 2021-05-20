@@ -14,6 +14,6 @@ spec:
     retentionBytes: -1  # -1 means unlimited
     retentionHours: 24  # default 72. -1 means unlimited
   acl:
-    - team: arbeidsgiver
+    - team: permittering-og-nedbemanning
       application: permitteringsskjema-api
-      access: readwrite   # read, write, readwrite
+      access: write   # read, write, readwrite
