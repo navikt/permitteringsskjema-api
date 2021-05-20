@@ -16,4 +16,4 @@ spec:
   acl:
     - team: arbeidsgiver
       application: permitteringsskjema-api
-      access: write   # read, write, readwrite
+      access: readwrite   # read, write, readwrite
