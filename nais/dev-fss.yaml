@@ -23,6 +23,7 @@ spec:
     failureThreshold: 3
   ingresses:
     - https://arbeidsgiver.nais.preprod.local/permitteringsskjema-api/
+    - https://arbeidsgiver-permitteringsskjema-api.dev-fss-pub.nais.io/permitteringsskjema-api/
   vault:
     enabled: true
     paths:
@@ -47,3 +48,11 @@ spec:
     path: /permitteringsskjema-api/internal/actuator/prometheus
   envFrom:
     - configmap: loginservice-idporten
+  tokenx:
+    enabled: true
+  accessPolicy:
+    inbound:
+      rules:
+        - application: permittering
+          namespace: permittering-og-nedbemanning
+          cluster: dev-gcp
