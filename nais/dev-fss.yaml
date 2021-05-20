@@ -2,12 +2,12 @@ apiVersion: nais.io/v1alpha1
 kind: "Application"
 metadata:
   name: permitteringsskjema-api
-  namespace: default
+  namespace: permittering-og-nedbemanning
   labels:
-    team: arbeidsgiver
+    team: permittering-og-nedbemanning
 spec:
   image: {{image}}
-  team: arbeidsgiver
+  team: permittering-og-nedbemanning
   port: 8080
   liveness:
     path: /permitteringsskjema-api/internal/actuator/info
@@ -30,7 +30,7 @@ spec:
       mountPath: /var/run/secrets/nais.io/srvpermittering-api
     - kvPath: /apikey/apigw/dev/eksternapp.altinn.serviceowner/permitteringsskjema-api_q1
       mountPath: /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header
-    - kvPath: /kv/preprod/fss/permitteringsskjema-api/default
+    - kvPath: /kv/preprod/fss/permitteringsskjema-api/permittering-og-nedbemanning
       mountPath: /var/run/secrets/nais.io/permittering-api/altinn-header
 
   env:
