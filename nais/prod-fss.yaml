@@ -9,7 +9,6 @@ spec:
   image: {{image}}
   team: permittering-og-nedbemanning
   port: 8080
-  webproxy: true
   liveness:
     path: /permitteringsskjema-api/internal/actuator/info
     initialDelay: 30
