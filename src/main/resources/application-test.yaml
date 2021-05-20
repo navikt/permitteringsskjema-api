@@ -37,13 +37,10 @@ mock:
 
 mock-oauth2-server.port: 9000
 
-no.nav.security.jwt:
-  issuer.selvbetjening:
-    discoveryurl: http://localhost:${mock-oauth2-server.port}/selvbetjening/.well-known/openid-configuration
-    accepted_audience: aud-localhost
-    cookiename: localhost-idtoken
-  issuer.tokenx:
+no.nav.security.jwt.issuer:
+  tokenx:
     discoveryurl: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
+    cookie_name: localhost-idtoken
     accepted_audience: tokenx
 
 altinn:

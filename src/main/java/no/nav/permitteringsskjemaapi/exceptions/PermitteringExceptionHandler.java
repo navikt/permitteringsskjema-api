@@ -115,12 +115,12 @@ public class PermitteringExceptionHandler extends ResponseEntityExceptionHandler
     private ResponseEntity<Object> logAndHandle(HttpStatus status, Exception e, WebRequest req, HttpHeaders headers,
             List<Object> messages) {
         ApiError apiError = apiErrorFra(status, e, messages);
-        log.warn("({}) {} {} ({})", subject(), status, apiError.getMessages(), status.value(), e);
+        log.warn("({}) {} {} ({})", getFnrFraToken(), status, apiError.getMessages(), status.value(), e);
         return handleExceptionInternal(e, apiError, headers, status, req);
     }
 
-    private String subject() {
-        return Optional.ofNullable(tokenUtil.getSubject())
+    private String getFnrFraToken() {
+        return Optional.ofNullable(tokenUtil.getFnrFraToken())
                 .orElse("Uautentisert");
     }
 
