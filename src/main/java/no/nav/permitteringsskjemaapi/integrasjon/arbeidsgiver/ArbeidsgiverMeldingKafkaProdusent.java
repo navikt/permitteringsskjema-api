@@ -9,7 +9,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.event.EventListener;
-import org.springframework.kafka.core.KafkaOperations;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFutureCallback;
@@ -22,7 +22,7 @@ import static no.nav.permitteringsskjemaapi.util.MDCUtil.callIdOrNew;
 @Slf4j
 @RequiredArgsConstructor
 public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
-    private final KafkaOperations<String, String> kafkaOperations;
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapperWrapper mapper;
     private final ArbeidsgiverRapportConfig config;
 
@@ -65,7 +65,7 @@ public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
 
     private void send(ProducerRecord<String, String> record) {
         log.debug("Sender melding {} på {}", record.value(), config.getTopic());
-        kafkaOperations.send(record)
+        kafkaTemplate.send(record)
                 .addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
 
                     @Override
@@ -83,7 +83,7 @@ public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[kafkaOperations=" + kafkaOperations + ", mapper=" + mapper + ", config="
+        return getClass().getSimpleName() + "[kafkaOperations=" + kafkaTemplate + ", mapper=" + mapper + ", config="
                 + config + "]";
     }
 
