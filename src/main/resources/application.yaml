@@ -43,7 +43,7 @@ spring:
 permittering:
   arbeidsgiver:
     enabled: true
-    topic: arbeidsgiver.aapen-permittering-arbeidsgiver
+    topic: permittering-og-nedbemanning.aapen-permittering-arbeidsgiver
   database:
     database-navn: permittering
     database-url: ${spring.datasource.url}
