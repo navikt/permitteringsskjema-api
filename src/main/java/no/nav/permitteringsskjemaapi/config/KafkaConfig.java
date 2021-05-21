@@ -18,16 +18,19 @@ public class KafkaConfig {
     private final String keystorePath;
     private final String credstorePassword;
     private final String truststorePath;
+    private final String bootstrapServers;
 
     public KafkaConfig(
             @Value("${kafka.keystore.path}") String keystorePath,
             @Value("${kafka.credstore.password}") String credstorePassword,
-            @Value("${kafka.truststore.path}")String truststorePath)
+            @Value("${kafka.truststore.path}") String truststorePath,
+            @Value("${kafka.brokers}") String bootstrapServers)
              {
         this.keystorePath = keystorePath;
         this.credstorePassword = credstorePassword;
         this.truststorePath = truststorePath;
-    }
+                 this.bootstrapServers = bootstrapServers;
+             }
 
     @Bean
     public KafkaTemplate kafkaTemplate() {
@@ -43,7 +46,9 @@ public class KafkaConfig {
         configMap.put(ProducerConfig.CLIENT_ID_CONFIG,"permitteringsskjema-api");
         configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         configMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        configMap.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 
         return new KafkaTemplate(new DefaultKafkaProducerFactory(configMap));
     }
 }
+
