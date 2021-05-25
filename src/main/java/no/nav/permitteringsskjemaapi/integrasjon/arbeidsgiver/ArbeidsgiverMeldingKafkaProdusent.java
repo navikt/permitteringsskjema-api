@@ -70,13 +70,14 @@ public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
 
                     @Override
                     public void onSuccess(SendResult<String, String> result) {
-                        log.info("Sendte melding {} med offset {} på {} (on-prem)", record.value(),
+                        log.info("Sendte melding på {}", config.getTopic());
+                        log.debug("Sendte melding {} med offset {} på {} (on-prem)", record.value(),
                                 result.getRecordMetadata().offset(), config.getTopic());
                     }
 
                     @Override
                     public void onFailure(Throwable e) {
-                        log.warn("Kunne ikke sende melding {} på {}", record.value(), config.getTopic(), e);
+                        log.error("Kunne ikke sende melding {} på {}", record.value(), config.getTopic(), e);
                     }
                 });
     }

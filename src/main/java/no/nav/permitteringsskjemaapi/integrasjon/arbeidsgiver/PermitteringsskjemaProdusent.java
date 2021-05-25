@@ -9,24 +9,27 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
-import static no.nav.permitteringsskjemaapi.config.Constants.NAV_CALL_ID;
+import static no.nav.permitteringsskjemaapi.config.Constants.*;
+import static no.nav.permitteringsskjemaapi.config.Constants.DEFAULT;
 import static no.nav.permitteringsskjemaapi.util.MDCUtil.callIdOrNew;
 
 @Service
 @ConditionalOnProperty(name = "permittering.arbeidsgiver.enabled")
+@Profile({DEV_FSS, LOCAL, DEFAULT})
 @Slf4j
-public class KafkaProdusent implements Arbeidsgiver {
+public class PermitteringsskjemaProdusent implements Arbeidsgiver {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapperWrapper mapper;
     private final String topic;
 
-    public KafkaProdusent(
+    public PermitteringsskjemaProdusent(
             KafkaTemplateFactory kafkaTemplateFactory,
             ObjectMapperWrapper mapper,
             @Value("${kafka.topic}") String topic
@@ -80,13 +83,14 @@ public class KafkaProdusent implements Arbeidsgiver {
 
                     @Override
                     public void onSuccess(SendResult<String, String> result) {
-                        log.info("Sendte melding {} med offset {} på {}", record.value(),
+                        log.info("Sendte melding på {}", topic);
+                        log.debug("Sendte melding {} med offset {} på {}", record.value(),
                                 result.getRecordMetadata().offset(), topic);
                     }
 
                     @Override
                     public void onFailure(Throwable e) {
-                        log.warn("Kunne ikke sende melding {} på {}", record.value(), topic, e);
+                        log.error("Kunne ikke sende melding {} på {}", record.value(), topic, e);
                     }
                 });
     }
