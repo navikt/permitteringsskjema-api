@@ -28,7 +28,7 @@ public class KafkaProdusent implements Arbeidsgiver {
     public KafkaProdusent(
             KafkaTemplate<String, String> kafkaTemplate,
             ObjectMapperWrapper mapper,
-            @Value("kafka.topic") String topic
+            @Value("${kafka.topic}") String topic
     ) {
         this.kafkaTemplate = kafkaTemplate;
         this.mapper = mapper;
