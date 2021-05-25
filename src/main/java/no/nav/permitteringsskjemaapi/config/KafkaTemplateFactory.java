@@ -9,18 +9,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.apache.kafka.clients.CommonClientConfigs;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Configuration
-public class KafkaConfig {
+@Component
+public class KafkaTemplateFactory {
     private final String keystorePath;
     private final String credstorePassword;
     private final String truststorePath;
     private final String bootstrapServers;
 
-    public KafkaConfig(
+    public KafkaTemplateFactory(
             @Value("${kafka.keystore.path}") String keystorePath,
             @Value("${kafka.credstore.password}") String credstorePassword,
             @Value("${kafka.truststore.path}") String truststorePath,
@@ -32,8 +33,7 @@ public class KafkaConfig {
                  this.bootstrapServers = bootstrapServers;
              }
 
-    @Bean
-    public KafkaTemplate kafkaTemplateAiven() {
+    public KafkaTemplate<String, String> kafkaTemplate() {
         Map<String, String> configMap = new HashMap<>();
         configMap.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,keystorePath);
         configMap.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG,credstorePassword);

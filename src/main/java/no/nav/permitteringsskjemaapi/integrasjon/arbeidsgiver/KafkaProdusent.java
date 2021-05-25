@@ -1,6 +1,7 @@
 package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.permitteringsskjemaapi.config.KafkaTemplateFactory;
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema;
 import no.nav.permitteringsskjemaapi.permittering.domenehendelser.PermitteringsskjemaSendtInn;
 import no.nav.permitteringsskjemaapi.util.ObjectMapperWrapper;
@@ -26,11 +27,11 @@ public class KafkaProdusent implements Arbeidsgiver {
     private final String topic;
 
     public KafkaProdusent(
-            KafkaTemplate<String, String> kafkaTemplate,
+            KafkaTemplateFactory kafkaTemplateFactory,
             ObjectMapperWrapper mapper,
             @Value("${kafka.topic}") String topic
     ) {
-        this.kafkaTemplate = kafkaTemplate;
+        this.kafkaTemplate = kafkaTemplateFactory.kafkaTemplate();
         this.mapper = mapper;
         this.topic = topic;
     }
