@@ -33,7 +33,7 @@ public class KafkaConfig {
              }
 
     @Bean
-    public KafkaTemplate kafkaTemplate() {
+    public KafkaTemplate kafkaTemplateAiven() {
         Map<String, String> configMap = new HashMap<>();
         configMap.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,keystorePath);
         configMap.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG,credstorePassword);

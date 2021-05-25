@@ -43,7 +43,7 @@ spring:
 permittering:
   arbeidsgiver:
     enabled: true
-    topic: permittering-og-nedbemanning.aapen-permittering-arbeidsgiver
+    topic: aapen-permittering-arbeidsgiver
   database:
     database-navn: permittering
     database-url: ${spring.datasource.url}
@@ -52,6 +52,7 @@ permittering:
     max-lifetime: 300000
 
 kafka:
+  topic: permittering-og-nedbemanning.aapen-permittering-arbeidsgiver
   keystore.path: ${KAFKA_KEYSTORE_PATH:/dev/zero}
   truststore.path: ${KAFKA_TRUSTSTORE_PATH:/dev/zero}
   credstore.password: ${KAFKA_CREDSTORE_PASSWORD:pwd}
