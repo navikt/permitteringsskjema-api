@@ -17,7 +17,7 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 import static no.nav.permitteringsskjemaapi.config.Constants.NAV_CALL_ID;
 import static no.nav.permitteringsskjemaapi.util.MDCUtil.callIdOrNew;
 
-@Service
+@Service("onPremArbeidsgiver")
 @ConditionalOnProperty(name = "permittering.arbeidsgiver.enabled")
 @Slf4j
 @RequiredArgsConstructor

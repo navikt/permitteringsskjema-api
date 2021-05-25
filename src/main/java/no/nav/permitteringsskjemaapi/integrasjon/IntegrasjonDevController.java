@@ -3,6 +3,7 @@ package no.nav.permitteringsskjemaapi.integrasjon;
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.Arbeidsgiver;
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.ArbeidsgiverRapport;
 import no.nav.security.token.support.core.api.Unprotected;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,7 @@ public class IntegrasjonDevController {
 
     private final Arbeidsgiver arbeidsgiver;
 
-    public IntegrasjonDevController(Arbeidsgiver arbeidsgiver) {
+    public IntegrasjonDevController(@Qualifier("onPremArbeidsgiver") Arbeidsgiver arbeidsgiver) {
         this.arbeidsgiver = arbeidsgiver;
     }
 
