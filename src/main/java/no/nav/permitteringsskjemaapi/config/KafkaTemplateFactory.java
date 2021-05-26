@@ -29,13 +29,13 @@ public class KafkaTemplateFactory {
             @Value("${kafka.keystore.path}") String keystorePath,
             @Value("${kafka.credstore.password}") String credstorePassword,
             @Value("${kafka.truststore.path}") String truststorePath,
-            @Value("${kafka.brokers}") String bootstrapServers)
-             {
+            @Value("${kafka.brokers}") String bootstrapServers
+    ) {
         this.keystorePath = keystorePath;
         this.credstorePassword = credstorePassword;
         this.truststorePath = truststorePath;
-                 this.bootstrapServers = bootstrapServers;
-             }
+        this.bootstrapServers = bootstrapServers;
+    }
 
     public KafkaTemplate<String, String> kafkaTemplate() {
         Map<String, String> configMap = new HashMap<>();

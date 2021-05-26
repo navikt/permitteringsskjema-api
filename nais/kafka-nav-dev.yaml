@@ -7,13 +7,12 @@ metadata:
     team: permittering-og-nedbemanning
 spec:
   pool: nav-dev
-  config:  # optional; all fields are optional too; defaults shown
-    cleanupPolicy: delete  # delete, compact
+  config:
+    cleanupPolicy: delete
     minimumInSyncReplicas: 1
     partitions: 1
-    retentionBytes: -1  # -1 means unlimited
-    retentionHours: 24  # default 72. -1 means unlimited
+    retentionBytes: -1
   acl:
     - team: permittering-og-nedbemanning
       application: permitteringsskjema-api
-      access: write   # read, write, readwrite
+      access: write
