@@ -50,3 +50,11 @@ permittering:
     minimum-idle: 1
     maximum-pool-size: 8
     max-lifetime: 300000
+
+kafka:
+  topic: permittering-og-nedbemanning.aapen-permittering-arbeidsgiver
+  keystore.path: ${KAFKA_KEYSTORE_PATH:/dev/zero}
+  truststore.path: ${KAFKA_TRUSTSTORE_PATH:/dev/zero}
+  credstore.password: ${KAFKA_CREDSTORE_PASSWORD:pwd}
+  brokers: ${KAFKA_BROKERS:kafka-broker-lokal}
+

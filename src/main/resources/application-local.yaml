@@ -51,3 +51,4 @@ altinn:
   altinnHeader: "lokal"
   APIGwHeader: "lokal"
   altinnProxyUrl: "http://localhost:${mock.port}/altinn/"
+

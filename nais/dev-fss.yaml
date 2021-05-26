@@ -33,6 +33,9 @@ spec:
       mountPath: /var/run/secrets/nais.io/permittering-api/altinn-api-gw-header
     - kvPath: /kv/preprod/fss/permitteringsskjema-api/permittering-og-nedbemanning
       mountPath: /var/run/secrets/nais.io/permittering-api/altinn-header
+  kafka:
+    pool: nav-dev
+
   env:
     - name:  SPRING_DATASOURCE_URL
       value: jdbc:postgresql://b27dbvl013.preprod.local:5432/permittering

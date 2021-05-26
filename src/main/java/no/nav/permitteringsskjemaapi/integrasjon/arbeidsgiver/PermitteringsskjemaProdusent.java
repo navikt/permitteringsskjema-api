@@ -1,30 +1,43 @@
 package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.permitteringsskjemaapi.config.KafkaTemplateFactory;
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema;
 import no.nav.permitteringsskjemaapi.permittering.domenehendelser.PermitteringsskjemaSendtInn;
 import no.nav.permitteringsskjemaapi.util.ObjectMapperWrapper;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
-import org.springframework.kafka.core.KafkaOperations;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
-import static no.nav.permitteringsskjemaapi.config.Constants.NAV_CALL_ID;
+import static no.nav.permitteringsskjemaapi.config.Constants.*;
+import static no.nav.permitteringsskjemaapi.config.Constants.DEFAULT;
 import static no.nav.permitteringsskjemaapi.util.MDCUtil.callIdOrNew;
 
-@Service("onPremArbeidsgiver")
+@Service
 @ConditionalOnProperty(name = "permittering.arbeidsgiver.enabled")
+@Profile({DEV_FSS, LOCAL, DEFAULT})
 @Slf4j
-@RequiredArgsConstructor
-public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
-    private final KafkaOperations<String, String> kafkaOperations;
+public class PermitteringsskjemaProdusent implements Arbeidsgiver {
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapperWrapper mapper;
-    private final ArbeidsgiverRapportConfig config;
+    private final String topic;
+
+    public PermitteringsskjemaProdusent(
+            KafkaTemplateFactory kafkaTemplateFactory,
+            ObjectMapperWrapper mapper,
+            @Value("${kafka.topic}") String topic
+    ) {
+        this.kafkaTemplate = kafkaTemplateFactory.kafkaTemplate();
+        this.mapper = mapper;
+        this.topic = topic;
+    }
 
     @EventListener
     public void sendInn(PermitteringsskjemaSendtInn event) {
@@ -33,8 +46,8 @@ public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
 
     @Override
     public void publiser(ArbeidsgiverRapport rapport) {
-        log.info("Legger permitteringsskjema {} på kø (on-prem)", rapport.getId());
-        var record = new ProducerRecord<>(config.getTopic(), rapport.getId().toString(),
+        log.info("Legger permitteringsskjema {} på kø", rapport.getId());
+        var record = new ProducerRecord<>(topic, rapport.getId().toString(),
                 mapper.writeValueAsString(rapport));
         record.headers().add(new RecordHeader(NAV_CALL_ID, callIdOrNew().getBytes()));
         send(record);
@@ -64,28 +77,28 @@ public class ArbeidsgiverMeldingKafkaProdusent implements Arbeidsgiver {
     }
 
     private void send(ProducerRecord<String, String> record) {
-        log.debug("Sender melding {} på {}", record.value(), config.getTopic());
-        kafkaOperations.send(record)
+        log.debug("Sender melding {} på {}", record.value(), topic);
+        kafkaTemplate.send(record)
                 .addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
 
                     @Override
                     public void onSuccess(SendResult<String, String> result) {
-                        log.info("Sendte melding på {}", config.getTopic());
-                        log.debug("Sendte melding {} med offset {} på {} (on-prem)", record.value(),
-                                result.getRecordMetadata().offset(), config.getTopic());
+                        log.info("Sendte melding på {}", topic);
+                        log.debug("Sendte melding {} med offset {} på {}", record.value(),
+                                result.getRecordMetadata().offset(), topic);
                     }
 
                     @Override
                     public void onFailure(Throwable e) {
-                        log.error("Kunne ikke sende melding {} på {}", record.value(), config.getTopic(), e);
+                        log.error("Kunne ikke sende melding {} på {}", record.value(), topic, e);
                     }
                 });
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[kafkaOperations=" + kafkaOperations + ", mapper=" + mapper + ", config="
-                + config + "]";
+        return getClass().getSimpleName() + "[kafkaOperations=" + kafkaTemplate + ", mapper=" + mapper + ", topic="
+                + topic + "]";
     }
 
 }
