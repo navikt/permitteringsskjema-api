@@ -16,3 +16,6 @@ spec:
     - team: permittering-og-nedbemanning
       application: permitteringsskjema-api
       access: write
+    - team: team-dialog
+      application: sf-permiteringsvarsel
+      access: read
