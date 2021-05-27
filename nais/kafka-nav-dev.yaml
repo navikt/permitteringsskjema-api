@@ -19,3 +19,6 @@ spec:
     - team: team-dialog
       application: sf-permiteringsvarsel
       access: read
+    - team: dvh-arbeid
+      application: dvh-permittering-konsument
+      access: read
