@@ -24,7 +24,7 @@ import static no.nav.permitteringsskjemaapi.util.MDCUtil.callIdOrNew;
 @ConditionalOnProperty(name = "permittering.arbeidsgiver.enabled")
 @Profile({DEV_FSS, LOCAL, DEFAULT})
 @Slf4j
-public class PermitteringsskjemaProdusent implements Arbeidsgiver {
+public class PermitteringsskjemaProdusent {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapperWrapper mapper;
     private final String topic;
@@ -44,7 +44,6 @@ public class PermitteringsskjemaProdusent implements Arbeidsgiver {
         sendRapport(event.getPermitteringsskjema());
     }
 
-    @Override
     public void publiser(ArbeidsgiverRapport rapport) {
         log.info("Legger permitteringsskjema {} på kø", rapport.getId());
         var record = new ProducerRecord<>(topic, rapport.getId().toString(),
