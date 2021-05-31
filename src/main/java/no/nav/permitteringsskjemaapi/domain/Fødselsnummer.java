@@ -5,7 +5,8 @@ import static no.nav.permitteringsskjemaapi.util.StringUtil.*;
 import javax.persistence.Embeddable;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.google.common.base.Objects;
+
+import java.util.Objects;
 
 @Embeddable
 public class Fødselsnummer {
