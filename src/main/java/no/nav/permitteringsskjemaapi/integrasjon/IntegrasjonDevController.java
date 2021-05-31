@@ -23,7 +23,7 @@ public class IntegrasjonDevController {
 
     private final Arbeidsgiver arbeidsgiver;
 
-    public IntegrasjonDevController(@Qualifier("onPremArbeidsgiver") Arbeidsgiver arbeidsgiver) {
+    public IntegrasjonDevController(Arbeidsgiver arbeidsgiver) {
         this.arbeidsgiver = arbeidsgiver;
     }
 

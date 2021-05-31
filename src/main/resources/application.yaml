@@ -57,4 +57,3 @@ kafka:
   truststore.path: ${KAFKA_TRUSTSTORE_PATH:/dev/zero}
   credstore.password: ${KAFKA_CREDSTORE_PASSWORD:pwd}
   brokers: ${KAFKA_BROKERS:kafka-broker-lokal}
-

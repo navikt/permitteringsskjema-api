@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.kodeverk;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType;
 import no.nav.permitteringsskjemaapi.permittering.Årsakskode;
 import no.nav.security.token.support.core.api.Unprotected;
@@ -14,6 +15,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/kodeverk")
 public class KodeverkController {
+
+    @Hidden
     @GetMapping
     public Map<String, Map<? extends Enum, String>> alleKoder() {
         return Map.of(

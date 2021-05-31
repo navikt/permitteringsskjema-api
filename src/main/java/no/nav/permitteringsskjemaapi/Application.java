@@ -14,8 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableKafka
 @EnableScheduling
 @ConfigurationPropertiesScan("no.nav.permitteringsskjemaapi")
-@EnableJwtTokenValidation(ignore = { "org.springframework",
-        "springfox.documentation.swagger.web.ApiResourceController" })
+@EnableJwtTokenValidation(ignore = {"org.springframework", "org.springdoc"})
 public class Application {
     public static void main(String[] args) {
         new SpringApplicationBuilder(Application.class)
