@@ -15,7 +15,7 @@ spec:
   acl:
     - team: permittering-og-nedbemanning
       application: permitteringsskjema-api
-      access: write
+      access: readwrite
     - team: team-dialog
       application: sf-permiteringsvarsel
       access: read
