@@ -3,10 +3,8 @@ package no.nav.permitteringsskjemaapi.config;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -58,7 +56,7 @@ public class DevKafkaConsumerConfig {
         configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         configMap.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-
+        configMap.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 20000);
         return new DefaultKafkaConsumerFactory<>(configMap);
     }
 
@@ -68,6 +66,7 @@ public class DevKafkaConsumerConfig {
 
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConcurrency(1);
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
