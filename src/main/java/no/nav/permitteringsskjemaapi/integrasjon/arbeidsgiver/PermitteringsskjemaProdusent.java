@@ -8,7 +8,9 @@ import no.nav.permitteringsskjemaapi.util.ObjectMapperWrapper;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -28,15 +30,17 @@ public class PermitteringsskjemaProdusent {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapperWrapper mapper;
     private final String topic;
+    private final ApplicationContext context;
 
     public PermitteringsskjemaProdusent(
             KafkaTemplateFactory kafkaTemplateFactory,
             ObjectMapperWrapper mapper,
-            @Value("${kafka.topic}") String topic
-    ) {
+            @Value("${kafka.topic}") String topic,
+            ApplicationContext context) {
         this.kafkaTemplate = kafkaTemplateFactory.kafkaTemplate();
         this.mapper = mapper;
         this.topic = topic;
+        this.context = context;
     }
 
     @EventListener
@@ -89,7 +93,8 @@ public class PermitteringsskjemaProdusent {
 
                     @Override
                     public void onFailure(Throwable e) {
-                        log.error("Kunne ikke sende melding {} på {}", record.value(), topic, e);
+                        log.error("Kunne ikke sende melding på {}. Dette er kanskje på grunn av rullerte credentials. Appen stoppes.", topic, e);
+                        SpringApplication.exit(context);
                     }
                 });
     }
