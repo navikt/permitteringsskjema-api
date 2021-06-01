@@ -86,7 +86,7 @@ jobs:
   deploy-kafka:
     name: Deploy kafka-topic
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/kafka-dev-consumer'
     steps:
       - uses: actions/checkout@v1
       - uses: nais/deploy/actions/deploy@v1
