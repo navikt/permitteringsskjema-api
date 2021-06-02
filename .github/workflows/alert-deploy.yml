@@ -3,7 +3,7 @@ name: Deploy av alerts
 on:
   push:
     branches:
-      - 'main'
+      - 'master'
     paths:
       - 'alert-deploy.yaml'
       - '.github/workflows/alert-deploy.yaml'
