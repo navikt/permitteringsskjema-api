@@ -17,7 +17,7 @@ spec:
       for: 2m
       description: "App {{ $labels.log_app }} er nede i namespace {{ $labels.kubernetes_namespace }}"
       action: "`kubectl describe pod {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for events, og `kubectl logs {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for logger"
-    - alert: Det har skjedd en feil i permitteringsskjema-api
+    - alert: Det har skjedd en feil i permitteringsskjema-api, logget med level Error
       expr: sum(increase(logd_messages_total{log_app="permitteringsskjema-api",log_level="Error"}[10m])) > 0
       for: 10s
       description: "permitteringsskjema-api har logget en feil"
