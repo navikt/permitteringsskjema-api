@@ -1,0 +1,33 @@
+name: Deploy av alerts
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'alert-deploy.yaml'
+      - '.github/workflows/alert-deploy.yaml'
+      - 'nais/alerts.yaml'
+
+jobs:
+  deploy-alerts-dev:
+    name: Deploy alerts til dev fss
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
+          CLUSTER: dev-fss
+          RESOURCE: nais/alerts.yaml
+
+  deploy-alerts-prod:
+    name: Deploy alerts til prod fss
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
+          CLUSTER: prod-fss
+          RESOURCE: nais/alerts.yaml
