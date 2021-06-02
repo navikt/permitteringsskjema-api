@@ -56,4 +56,4 @@ kafka:
   keystore.path: ${KAFKA_KEYSTORE_PATH:/dev/zero}
   truststore.path: ${KAFKA_TRUSTSTORE_PATH:/dev/zero}
   credstore.password: ${KAFKA_CREDSTORE_PASSWORD:pwd}
-  brokers: ${KAFKA_BROKERS:http://localhost:9092}
+  brokers: ${KAFKA_BROKERS:localhost:9092}

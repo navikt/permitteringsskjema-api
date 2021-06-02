@@ -2,8 +2,8 @@ package no.nav.permitteringsskjemaapi.integrasjon;
 
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.Arbeidsgiver;
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.ArbeidsgiverRapport;
+import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.PermitteringsskjemaProdusent;
 import no.nav.security.token.support.core.api.Unprotected;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,13 +23,25 @@ public class IntegrasjonDevController {
 
     private final Arbeidsgiver arbeidsgiver;
 
-    public IntegrasjonDevController(Arbeidsgiver arbeidsgiver) {
+    private final PermitteringsskjemaProdusent permitteringsskjemaProdusent;
+
+    public IntegrasjonDevController(
+            Arbeidsgiver arbeidsgiver,
+            PermitteringsskjemaProdusent permitteringsskjemaProdusent
+    ) {
         this.arbeidsgiver = arbeidsgiver;
+        this.permitteringsskjemaProdusent = permitteringsskjemaProdusent;
     }
 
     @PostMapping(value = "/rapporter")
     public ResponseEntity<?> rapporter(@RequestBody @Valid ArbeidsgiverRapport rapport) {
         arbeidsgiver.publiser(rapport);
+        return ResponseEntity.ok("OK");
+    }
+
+    @PostMapping(value = "/rapporter-aiven")
+    public ResponseEntity<?> rapporterAiven(@RequestBody @Valid ArbeidsgiverRapport rapport) {
+        permitteringsskjemaProdusent.publiser(rapport);
         return ResponseEntity.ok("OK");
     }
 

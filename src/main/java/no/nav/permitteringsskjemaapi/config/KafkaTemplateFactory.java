@@ -46,7 +46,7 @@ public class KafkaTemplateFactory {
         configMap.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG,"JKS");
         configMap.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG,"PKCS12");
         configMap.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,truststorePath);
-        configMap.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG,"SSL");
+        configMap.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG,"PLAINTEXT");
         configMap.put(ProducerConfig.CLIENT_ID_CONFIG,"permitteringsskjema-api");
         configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         configMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
