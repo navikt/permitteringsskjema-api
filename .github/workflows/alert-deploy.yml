@@ -11,7 +11,7 @@ on:
 
 jobs:
   deploy-alerts-dev:
-    name: Deploy alerts til dev gcp
+    name: Deploy alerts til dev fss
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -22,7 +22,7 @@ jobs:
           RESOURCE: nais/alerts.yaml
 
   deploy-alerts-prod:
-    name: Deploy alerts til prod gcp
+    name: Deploy alerts til prod fss
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
