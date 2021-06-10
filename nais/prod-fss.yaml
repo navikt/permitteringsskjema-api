@@ -23,6 +23,7 @@ spec:
     failureThreshold: 3
   ingresses:
     - https://arbeidsgiver.nais.adeo.no/permitteringsskjema-api/
+    - https://arbeidsgiver-permitteringsskjema-api.prod-fss-pub.nais.io/permitteringsskjema-api/
   vault:
     enabled: true
     paths:
