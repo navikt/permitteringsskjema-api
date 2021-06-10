@@ -99,7 +99,7 @@ public class AltinnServiceImpl implements AltinnService {
                 response.addAll(currentResponseList);
                 hasMore = currentResponseList.size() >= pageSize;
             } catch (RestClientException exception) {
-                log.error("Feil fra Altinn med spørring: " + url + " Exception: " + exception.getMessage());
+                log.error("Feil fra Altinn med spørring: : Exception:"  + exception.getMessage());
                 throw new PermitteringsApiException("Det har skjedd en feil ved oppslag mot Altinn. Forsøk å laste siden på nytt");
             }
         }
