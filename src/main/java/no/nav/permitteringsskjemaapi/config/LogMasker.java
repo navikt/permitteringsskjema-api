@@ -20,13 +20,13 @@ public class LogMasker implements ValueMasker {
     }
 
     private String maskOrgnr(CharSequence sequence) {
-        Matcher orgnrMatcher = orgnrPattern.matcher(sequence);
-        return orgnrMatcher.replaceAll("*********");
+        Matcher matcher = orgnrPattern.matcher(sequence);
+        return matcher.replaceAll("*********");
     }
 
     private String maskFnr(CharSequence sequence) {
-        Matcher orgnrMatcher = fnrPattern.matcher(sequence);
-        return orgnrMatcher.replaceAll("***********");
+        Matcher matcher = fnrPattern.matcher(sequence);
+        return matcher.replaceAll("***********");
     }
 
 
