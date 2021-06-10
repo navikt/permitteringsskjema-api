@@ -83,8 +83,8 @@ jobs:
           VAR: version=${{ env.IMAGE }}
           RESOURCE: nais/prod-fss.yaml
 
-  deploy-kafka:
-    name: Deploy kafka-topic
+  deploy-kafka-dev:
+    name: Deploy kafka-topic to dev
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
@@ -95,3 +95,16 @@ jobs:
           CLUSTER: dev-gcp
           VAR: version=${{ env.IMAGE }}
           RESOURCE: nais/kafka-nav-dev.yaml
+
+  deploy-kafka-prod:
+    name: Deploy kafka-topic to prod
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v1
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
+          CLUSTER: prod-gcp
+          VAR: version=${{ env.IMAGE }}
+          RESOURCE: nais/kafka-nav-prod.yaml
