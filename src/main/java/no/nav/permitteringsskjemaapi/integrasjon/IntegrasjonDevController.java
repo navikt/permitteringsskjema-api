@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.integrasjon;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.ArbeidsgiverRapport;
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.PermitteringsskjemaProdusent;
 import no.nav.security.token.support.core.api.Unprotected;
@@ -16,6 +17,7 @@ import static no.nav.permitteringsskjemaapi.config.Constants.*;
 @RestController
 @Unprotected
 @Profile({DEFAULT, LOCAL, DEV_FSS})
+@Slf4j
 public class IntegrasjonDevController {
 
     private final PermitteringsskjemaProdusent permitteringsskjemaProdusent;
@@ -24,6 +26,7 @@ public class IntegrasjonDevController {
             PermitteringsskjemaProdusent permitteringsskjemaProdusent
     ) {
         this.permitteringsskjemaProdusent = permitteringsskjemaProdusent;
+        log.info("Orgnr: 123456789 Fnr: 12345678910");
     }
 
     @PostMapping(value = "/rapporter")
