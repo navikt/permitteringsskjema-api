@@ -35,7 +35,8 @@ kafka-console-consumer --bootstrap-server localhost:9092 --topic permittering-og
 `docker stop <ID>`
 
 ## Koble til H2-database lokalt
-TODO
+Åpne H2-konsollen på `http://localhost:8080/permitteringsskjema-api/h2-console` og fyll inn det som står under `spring.datasource` i `application-local.yaml`.
+
 
 ## Grafisk fremstilling av API-ene (swagger-ui)
 API-et kan sees og testes på `http://localhost:8080/permitteringsskjema-api/swagger-ui.html`
@@ -45,7 +46,15 @@ API-et kan sees og testes på `http://localhost:8080/permitteringsskjema-api/swa
 # Henvendelser
 
 ## For Nav-ansatte
-TODO
+Dette Git-repositoriet eies av [Team Permittering og Nedbemanning](https://teamkatalog.nais.adeo.no/team/9ba027cc-1ee6-4656-9e29-ef6b36349d8e).
+
+Slack-kanaler:
+* [#permittering-og-nedbemanning-utvikling](https://nav-it.slack.com/archives/C01MCK908M6)
+* [#arbeidsgiver-utvikling](https://nav-it.slack.com/archives/CD4MES6BB)
+* [#arbeidsgiver-general](https://nav-it.slack.com/archives/CCM649PDH)
 
 ## For folk utenfor Nav
-TODO
+* Opprett gjerne en issue i Github for alle typer spørlsmål
+* IT-utviklerne i Github-teamet https://github.com/orgs/navikt/teams/arbeidsgiver
+* IT-avdelingen i [Arbeids- og velferdsdirektoratet](https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/arbeids-og-velferdsdirektoratet-kontorinformasjon)
+
