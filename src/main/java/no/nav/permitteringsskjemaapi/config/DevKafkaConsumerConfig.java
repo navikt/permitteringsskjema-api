@@ -28,31 +28,34 @@ public class DevKafkaConsumerConfig {
     private final String credstorePassword;
     private final String truststorePath;
     private final String bootstrapServers;
+    private final String securityProtocol;
 
     public DevKafkaConsumerConfig(
             @Value("${kafka.keystore.path}") String keystorePath,
             @Value("${kafka.credstore.password}") String credstorePassword,
             @Value("${kafka.truststore.path}") String truststorePath,
-            @Value("${kafka.brokers}") String bootstrapServers
+            @Value("${kafka.brokers}") String bootstrapServers,
+            @Value("${kafka.security.protocol}") String securityProtocol
     ) {
         this.keystorePath = keystorePath;
         this.credstorePassword = credstorePassword;
         this.truststorePath = truststorePath;
         this.bootstrapServers = bootstrapServers;
+        this.securityProtocol = securityProtocol;
     }
 
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
         Map<String, Object> configMap = new HashMap<>();
-        configMap.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,keystorePath);
-        configMap.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG,credstorePassword);
-        configMap.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG,credstorePassword);
-        configMap.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG,credstorePassword);
-        configMap.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG,"JKS");
-        configMap.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG,"PKCS12");
-        configMap.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,truststorePath);
-        configMap.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG,"SSL");
-        configMap.put(ConsumerConfig.CLIENT_ID_CONFIG,"permitteringsskjema-api");
+        configMap.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, keystorePath);
+        configMap.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, credstorePassword);
+        configMap.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, credstorePassword);
+        configMap.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, credstorePassword);
+        configMap.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "JKS");
+        configMap.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12");
+        configMap.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, truststorePath);
+        configMap.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, securityProtocol);
+        configMap.put(ConsumerConfig.CLIENT_ID_CONFIG, "permitteringsskjema-api");
         configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         configMap.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
