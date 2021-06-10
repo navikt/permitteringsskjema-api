@@ -35,7 +35,8 @@ kafka-console-consumer --bootstrap-server localhost:9092 --topic permittering-og
 `docker stop <ID>`
 
 ## Koble til H2-database lokalt
-TODO
+Åpne H2-konsollen på `http://localhost:8080/permitteringsskjema-api/h2-console` og fyll inn det som står under `spring.datasource` i `application-local.yaml`.
+
 
 ## Grafisk fremstilling av API-ene (swagger-ui)
 API-et kan sees og testes på `http://localhost:8080/permitteringsskjema-api/swagger-ui.html`
