@@ -11,16 +11,27 @@ Frontend til skjemaet ligger her: https://github.com/navikt/arbeidsgiver-permitt
 Koden kan kjøres som en vanlig Spring Boot-applikasjon lokalt ved å starte `LokalApplikasjon`.
 Åpnes i browser: http://localhost:8080/permitteringsskjema-api/swagger-ui.html
 
-Default spring-profil er local, og da er alle avhengigheter mocket på localhost:8081.
+Hvis du vil kjøre applikasjonen med Kafka, se neste punkt.
+
+## Kafka
+Appen kan kjøres med lokal Kafka satt opp i `docker-compose.yaml`. Du må i så fall ha Docker og Kafka installert lokalt.
+
+ - Start kafka: `docker-compose up`
+
+ - Skriv meldinger fra topic ut i konsollen: 
+```
+kafka-console-consumer --bootstrap-server localhost:9092 --topic permittering-og-nedbemanning.aapen-permittering-arbeidsgiver --formatter kafka.tools.DefaultMessageFormatter --property print.key=true --property print.value=true
+```
+
 
 ## Docker
-Bygg image
+ - Bygg image:
 `docker build -t permitteringsskjema-api .`
 
-Kjør container (returnerer en ID)
+ - Kjør container (returnerer en ID):
 `docker run -d -p 8080:8080 permitteringsskjema-api`
 
-Stopp container
+ - Stopp container:
 `docker stop <ID>`
 
 ## Koble til H2-database lokalt
