@@ -1,21 +1,17 @@
 package no.nav.permitteringsskjemaapi.config;
 
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.apache.kafka.clients.CommonClientConfigs;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static no.nav.permitteringsskjemaapi.config.Constants.*;
-
-@Profile({DEV_FSS, LOCAL, DEFAULT})
 @Component
 public class KafkaTemplateFactory {
     private final String keystorePath;

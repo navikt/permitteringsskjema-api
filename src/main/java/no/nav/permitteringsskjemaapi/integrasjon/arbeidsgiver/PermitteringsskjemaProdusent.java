@@ -23,7 +23,6 @@ import static no.nav.permitteringsskjemaapi.config.Constants.DEFAULT;
 import static no.nav.permitteringsskjemaapi.util.MDCUtil.callIdOrNew;
 
 @Service
-@Profile({DEV_FSS, LOCAL, DEFAULT})
 @Slf4j
 public class PermitteringsskjemaProdusent {
     private final KafkaTemplate<String, String> kafkaTemplate;
