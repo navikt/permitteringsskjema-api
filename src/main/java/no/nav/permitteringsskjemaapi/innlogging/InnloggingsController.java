@@ -10,6 +10,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class InnloggingsController {
     @RequestMapping(value="/innlogget", method = RequestMethod.GET)
-    @ResponseBody
     public String erInnlogget(){return "ok";}
 }
