@@ -20,7 +20,7 @@ import java.util.Map;
 import static no.nav.permitteringsskjemaapi.config.Constants.*;
 
 @Configuration
-@Profile({DEV_FSS, LOCAL})
+@Profile({DEV_FSS})
 @Slf4j
 public class DevKafkaConsumerConfig {
 
