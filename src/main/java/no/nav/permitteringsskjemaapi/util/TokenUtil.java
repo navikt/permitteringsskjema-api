@@ -1,8 +1,6 @@
 package no.nav.permitteringsskjemaapi.util;
 
-import static no.nav.permitteringsskjemaapi.config.Constants.SELVBETJENING_ISSUER;
 import static no.nav.permitteringsskjemaapi.config.Constants.TOKENX_ISSUER;
-
 
 import java.util.Date;
 import java.util.Optional;
@@ -10,7 +8,6 @@ import java.util.function.Supplier;
 
 import org.springframework.stereotype.Component;
 
-import no.nav.permitteringsskjemaapi.domain.Fødselsnummer;
 import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException;
@@ -25,27 +22,15 @@ public class TokenUtil {
     }
 
     public Date getExpiryDate() {
-        if(erInnloggetMedSelvbetjening()) {
-            return Optional.ofNullable(claimSet(SELVBETJENING_ISSUER))
-                    .map(JwtTokenClaims::getExpirationTime)
-                    .orElse(null);
-        } else {
-            return Optional.ofNullable(claimSet(TOKENX_ISSUER))
-                    .map(JwtTokenClaims::getExpirationTime)
-                    .orElse(null);
-        }
+        return Optional.ofNullable(claimSet(TOKENX_ISSUER))
+                .map(JwtTokenClaims::getExpirationTime)
+                .orElse(null);
     }
 
     public String getFnrFraToken() {
-        if(erInnloggetMedSelvbetjening()) {
-            return Optional.ofNullable(claimSet(SELVBETJENING_ISSUER))
-                    .map(JwtTokenClaims::getSubject)
-                    .orElse(null);
-        } else {
-            return Optional.ofNullable(claimSet(TOKENX_ISSUER))
-                    .map(jwtTokenClaims -> (String) jwtTokenClaims.get("pid"))
-                    .orElse(null);
-        }
+        return Optional.ofNullable(claimSet(TOKENX_ISSUER))
+                .map(jwtTokenClaims -> (String) jwtTokenClaims.get("pid"))
+                .orElse(null);
     }
 
     public String autentisertBruker() {
@@ -54,11 +39,7 @@ public class TokenUtil {
     }
 
     public String getTokenForInnloggetBruker() {
-        if(erInnloggetMedSelvbetjening()) {
-            return ctxHolder.getTokenValidationContext().getJwtToken(SELVBETJENING_ISSUER).getTokenAsString();
-        } else {
-            return ctxHolder.getTokenValidationContext().getJwtToken(TOKENX_ISSUER).getTokenAsString();
-        }
+        return ctxHolder.getTokenValidationContext().getJwtToken(TOKENX_ISSUER).getTokenAsString();
     }
 
     private static Supplier<? extends JwtTokenValidatorException> unauthenticated(String msg) {
@@ -69,14 +50,6 @@ public class TokenUtil {
         return Optional.ofNullable(context())
                 .map(s -> s.getClaims(issuer))
                 .orElse(null);
-    }
-
-    private boolean erInnloggetMedSelvbetjening() {
-        return claimSet(SELVBETJENING_ISSUER) != null;
-    }
-
-    private boolean erInnloggetMedTokenX() {
-        return claimSet(TOKENX_ISSUER) != null;
     }
 
     private TokenValidationContext context() {
