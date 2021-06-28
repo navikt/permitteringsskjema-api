@@ -58,7 +58,7 @@ jobs:
     ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
     ### e.g. github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test-branch'
     #########################
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/slettet-loginservice'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/sletter-on-prem-kafka'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
