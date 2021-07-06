@@ -27,9 +27,9 @@ public class LocalOauthConfig {
     public LocalOauthConfig() {
         DefaultOAuth2TokenCallback callback = new DefaultOAuth2TokenCallback(
                 "aad",
-                UUID.randomUUID().toString(),
+                "19097302327",
                 List.of("aud-localhost"),
-                Collections.emptyMap(),
+                Map.of("pid", "19097302327"),
                 3600L
         );
 

@@ -24,11 +24,12 @@ public class PermitteringsskjemaController {
     private final TokenUtil fnrExtractor;
     private final AltinnService altinnService;
     private final PermitteringsskjemaRepository repository;
+    private final PermitteringsskjemaJuridiskEnhetRepository juridiskEnhetRepository;
 
     @GetMapping("/{id}")
-    public Permitteringsskjema hent(@PathVariable UUID id) {
+    public PermitteringsskjemaJuridiskEnhet hent(@PathVariable UUID id) {
         String fnr = fnrExtractor.autentisertBruker();
-        return repository.findByIdAndOpprettetAv(id, fnr)
+        return juridiskEnhetRepository.findByIdAndOpprettetAv(id, fnr)
                 .orElseThrow(IkkeFunnetException::new);
     }
 
@@ -39,13 +40,13 @@ public class PermitteringsskjemaController {
     }
 
     @PostMapping
-    public ResponseEntity<Permitteringsskjema> opprett(@RequestBody OpprettPermitteringsskjema opprettSkjema) {
+    public ResponseEntity<PermitteringsskjemaJuridiskEnhet> opprett(@RequestBody OpprettPermitteringsskjema opprettSkjema) {
         String fnr = fnrExtractor.autentisertBruker();
         AltinnOrganisasjon organisasjon = hentOrganisasjon(fnr, opprettSkjema.getBedriftNr())
                 .orElseThrow(IkkeTilgangException::new);
-        Permitteringsskjema skjema = Permitteringsskjema.opprettSkjema(opprettSkjema, fnr);
+        PermitteringsskjemaJuridiskEnhet skjema = PermitteringsskjemaJuridiskEnhet.opprettSkjema(opprettSkjema, fnr);
         skjema.setBedriftNavn(organisasjon.getName());
-        Permitteringsskjema lagretSkjema = repository.save(skjema);
+        PermitteringsskjemaJuridiskEnhet lagretSkjema = juridiskEnhetRepository.save(skjema);
         return ResponseEntity.status(HttpStatus.CREATED).body(lagretSkjema);
     }
 
@@ -57,29 +58,42 @@ public class PermitteringsskjemaController {
     }
 
     @PutMapping("/{id}")
-    public Permitteringsskjema endre(@PathVariable UUID id, @RequestBody EndrePermitteringsskjema endreSkjema) {
+    public PermitteringsskjemaJuridiskEnhet endre(@PathVariable UUID id, @RequestBody List<EndrePermitteringsskjema> endreSkjemaer) {
         String fnr = fnrExtractor.autentisertBruker();
-        Permitteringsskjema permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr)
+        PermitteringsskjemaJuridiskEnhet permitteringsskjemaJuridiskEnhet = juridiskEnhetRepository.findByIdAndOpprettetAv(id, fnr)
                 .orElseThrow(IkkeFunnetException::new);
-        permitteringsskjema.endre(endreSkjema, fnrExtractor.autentisertBruker());
-        return repository.save(permitteringsskjema);
+        // Loope alle skjemaer, upsert, koble til juridisk enhet
+        endreSkjemaer.stream().forEach(endreSkjema -> {
+            Permitteringsskjema permitteringsskjema = repository.findByIdAndOpprettetAv(permitteringsskjemaJuridiskEnhet.getId(), fnr)
+                    .orElse(Permitteringsskjema.opprettFraJuridiskEnhetSkjema(permitteringsskjemaJuridiskEnhet));
+
+            permitteringsskjema.endre(endreSkjema, fnrExtractor.autentisertBruker());
+            repository.save(permitteringsskjema);
+        });
+
+        return juridiskEnhetRepository.getOne(id);
     }
 
     @PostMapping("/{id}/send-inn")
-    public Permitteringsskjema sendInn(@PathVariable UUID id) {
+    public PermitteringsskjemaJuridiskEnhet sendInn(@PathVariable UUID id) {
         String fnr = fnrExtractor.autentisertBruker();
-        Permitteringsskjema permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr)
+        PermitteringsskjemaJuridiskEnhet permitteringsskjemaJuridiskEnhet = juridiskEnhetRepository.findByIdAndOpprettetAv(id, fnr)
                 .orElseThrow(IkkeFunnetException::new);
-        permitteringsskjema.sendInn(fnrExtractor.autentisertBruker());
-        return repository.save(permitteringsskjema);
+        permitteringsskjemaJuridiskEnhet.sendInn(fnrExtractor.autentisertBruker());
+        permitteringsskjemaJuridiskEnhet.getPermitteringsskjemaer().stream().forEach(skjema -> {
+            skjema.sendInn(fnr);
+            repository.save(skjema);
+        });
+        return juridiskEnhetRepository.save(permitteringsskjemaJuridiskEnhet);
     }
 
     @PostMapping("/{id}/avbryt")
-    public Permitteringsskjema avbryt(@PathVariable UUID id) {
+    public PermitteringsskjemaJuridiskEnhet avbryt(@PathVariable UUID id) {
         String fnr = fnrExtractor.autentisertBruker();
-        Permitteringsskjema permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr)
+        PermitteringsskjemaJuridiskEnhet permitteringsskjemaJuridiskEnhet = juridiskEnhetRepository.findByIdAndOpprettetAv(id, fnr)
                 .orElseThrow(IkkeFunnetException::new);
-        permitteringsskjema.avbryt(fnrExtractor.autentisertBruker());
-        return repository.save(permitteringsskjema);
+        permitteringsskjemaJuridiskEnhet.avbryt(fnrExtractor.autentisertBruker());
+        // Loope alle underskjemaer for å få event på avbrutt?
+        return juridiskEnhetRepository.save(permitteringsskjemaJuridiskEnhet);
     }
 }

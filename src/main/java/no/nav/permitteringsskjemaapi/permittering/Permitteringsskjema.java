@@ -60,6 +60,8 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     @Enumerated(EnumType.STRING)
     private Årsakskode årsakskode;
     private String årsakstekst;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private PermitteringsskjemaJuridiskEnhet permitteringsskjemaJuridiskEnhet;
 
     public static Permitteringsskjema opprettSkjema(OpprettPermitteringsskjema opprettSkjema, String utførtAv) {
         Permitteringsskjema skjema = new Permitteringsskjema();
@@ -69,6 +71,18 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         skjema.setBedriftNr(opprettSkjema.getBedriftNr());
         skjema.setType(opprettSkjema.getType());
         skjema.registerEvent(new PermitteringsskjemaOpprettet(skjema, utførtAv));
+        return skjema;
+    }
+
+    public static Permitteringsskjema opprettFraJuridiskEnhetSkjema(PermitteringsskjemaJuridiskEnhet juridiskEnhetSkjema) {
+        Permitteringsskjema skjema = new Permitteringsskjema();
+        skjema.setId(UUID.randomUUID());
+        skjema.setPermitteringsskjemaJuridiskEnhet(juridiskEnhetSkjema);
+        skjema.setOpprettetTidspunkt(Instant.now());
+        skjema.setOpprettetAv(juridiskEnhetSkjema.getOpprettetAv());
+        skjema.setBedriftNr(juridiskEnhetSkjema.getBedriftNr());
+        skjema.setType(juridiskEnhetSkjema.getType());
+        skjema.registerEvent(new PermitteringsskjemaOpprettet(skjema, juridiskEnhetSkjema.getOpprettetAv()));
         return skjema;
     }
 
