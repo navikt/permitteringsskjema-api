@@ -45,8 +45,6 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     @JsonIgnore
     private String opprettetAv;
     private Instant opprettetTidspunkt;
-    @OneToMany(mappedBy = "permitteringsskjema", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Person> personer = new ArrayList<>();
     private Instant sendtInnTidspunkt;
     private LocalDate sluttDato;
     private LocalDate startDato;
@@ -92,34 +90,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         yrkeskategorier.addAll(endreSkjema.getYrkeskategorier());
         yrkeskategorier.forEach(y -> y.setId(UUID.randomUUID()));
         yrkeskategorier.forEach(y -> y.setPermitteringsskjema(this));
-        personer.clear();
-        personer.addAll(endreSkjema.getPersoner());
-        personer.forEach(p -> p.setId(UUID.randomUUID()));
-        personer.forEach(p -> p.setPermitteringsskjema(this));
         registerEvent(new PermitteringsskjemaEndret(this, utførtAv));
-    }
-
-    public List<PermittertPerson> permittertePersoner() {
-        return personer.stream()
-                .map(this::tilPermittertPerson)
-                .collect(Collectors.toList());
-    }
-
-    private PermittertPerson tilPermittertPerson(Person p) {
-        return PermittertPerson.builder()
-                .person(p)
-                .fritekst(fritekst)
-                .kontaktNavn(kontaktNavn)
-                .kontaktTlf(kontaktTlf)
-                .opprettetTidspunkt(opprettetTidspunkt)
-                .orgNr(bedriftNr)
-                .sluttDato(sluttDato)
-                .startDato(startDato)
-                .type(type)
-                .ukjentSluttDato(ukjentSluttDato)
-                .varsletAnsattDato(varsletAnsattDato)
-                .varsletNavDato(varsletNavDato)
-                .build();
     }
 
     private void sjekkOmSkjemaErSendtInn() {
