@@ -9,6 +9,7 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,8 +26,8 @@ public class PermitteringsskjemaJuridiskEnhet {
     private Instant opprettetTidspunkt;
     @JsonIgnore
     private String opprettetAv;
-    @OneToMany
-    private List<Permitteringsskjema> permitteringsskjemaer;
+    @OneToMany(mappedBy = "permitteringsskjemaJuridiskEnhet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Permitteringsskjema> permitteringsskjemaer = new ArrayList<>();
 
     public static PermitteringsskjemaJuridiskEnhet opprettSkjema(OpprettPermitteringsskjema opprettSkjema, String utførtAv) {
         PermitteringsskjemaJuridiskEnhet skjemaJuridiskEnhet = new PermitteringsskjemaJuridiskEnhet();

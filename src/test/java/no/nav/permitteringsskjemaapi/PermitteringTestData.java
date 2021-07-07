@@ -1,9 +1,6 @@
 package no.nav.permitteringsskjemaapi;
 
-import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema;
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType;
-import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori;
-import no.nav.permitteringsskjemaapi.permittering.Årsakskode;
+import no.nav.permitteringsskjemaapi.permittering.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -49,6 +46,17 @@ public class PermitteringTestData {
         yrkeskategori.setStyrk08("0001");
         yrkeskategori.setLabel("Label");
         return yrkeskategori;
+    }
+
+    public static PermitteringsskjemaJuridiskEnhet enJuridiskEnhetUtenSkjemaer() {
+        var permitteringsskjemaJuridiskEnhet = new PermitteringsskjemaJuridiskEnhet();
+        permitteringsskjemaJuridiskEnhet.setId(UUID.randomUUID());
+        permitteringsskjemaJuridiskEnhet.setBedriftNavn("Navnet");
+        permitteringsskjemaJuridiskEnhet.setBedriftNr("999999999");
+        permitteringsskjemaJuridiskEnhet.setOpprettetTidspunkt(Instant.now());
+        permitteringsskjemaJuridiskEnhet.setOpprettetAv("99999999999");
+        permitteringsskjemaJuridiskEnhet.setType(PermitteringsskjemaType.MASSEOPPSIGELSE);
+        return permitteringsskjemaJuridiskEnhet;
     }
 
 }

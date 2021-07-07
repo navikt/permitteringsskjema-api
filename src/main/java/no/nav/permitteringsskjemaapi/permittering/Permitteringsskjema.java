@@ -61,6 +61,7 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
     private Årsakskode årsakskode;
     private String årsakstekst;
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "permitteringsskjema_juridisk_enhet_id")
     private PermitteringsskjemaJuridiskEnhet permitteringsskjemaJuridiskEnhet;
 
     public static Permitteringsskjema opprettSkjema(OpprettPermitteringsskjema opprettSkjema, String utførtAv) {
