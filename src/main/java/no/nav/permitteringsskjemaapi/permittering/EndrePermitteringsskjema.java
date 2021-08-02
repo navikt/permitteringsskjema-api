@@ -22,7 +22,6 @@ public class EndrePermitteringsskjema {
     Boolean ukjentSluttDato;
     String fritekst;
     Integer antallBerørt;
-    List<Person> personer = new ArrayList<>();
     List<Yrkeskategori> yrkeskategorier = new ArrayList<>();
     Årsakskode årsakskode;
     String årsakstekst;
