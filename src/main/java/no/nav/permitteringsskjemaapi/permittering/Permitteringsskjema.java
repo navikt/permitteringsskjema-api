@@ -120,9 +120,6 @@ public class Permitteringsskjema extends AbstractAggregateRoot<Permitteringsskje
         validateNotNull("Hvorfor det skal permitteres og hvilke yrkeskategorier som er berørt", fritekst, feil);
         validateNotNull("Antall berørt", antallBerørt, feil);
         validateNotNull("Årsakskode", årsakskode, feil);
-        if (årsakskode == Årsakskode.ANDRE_ÅRSAKER) {
-            validateNotNull("Årsakstekst", årsakstekst, feil);
-        }
         if (yrkeskategorier.isEmpty()) {
             feil.add("Yrkeskategori");
         }
