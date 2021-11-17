@@ -24,12 +24,7 @@ permittering:
   arbeidsgiver:
     enabled: true
     topic: aapen-permittering-arbeidsgiver
-  database:
-    database-navn: permittering
-    database-url: ${spring.datasource.url}
-    minimum-idle: 1
-    maximum-pool-size: 8
-    max-lifetime: 300000
+  database-url: ${NAIS_DATABASE_PERMITTERINGSSKJEMA_API_PERMITTERINGSSKJEMA_API_DB_URL}
 
 kafka:
   topic: permittering-og-nedbemanning.aapen-permittering-arbeidsgiver

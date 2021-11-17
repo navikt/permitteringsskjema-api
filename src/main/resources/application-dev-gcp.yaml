@@ -8,10 +8,6 @@ management:
       show-details: always
 spring:
   profiles: dev-gcp
-  datasource:
-    platform: postgres
-    driverClassName: org.postgresql.Driver
-    url: ${NAIS_DATABASE_PERMITTERINGSSKJEMA_API_PERMITTERINGSSKJEMA_API_DB_URL}
 
 no.nav.security.jwt:
   issuer.tokenx:
