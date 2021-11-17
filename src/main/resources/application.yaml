@@ -24,7 +24,10 @@ permittering:
   arbeidsgiver:
     enabled: true
     topic: aapen-permittering-arbeidsgiver
-  database-url: ${NAIS_DATABASE_PERMITTERINGSSKJEMA_API_PERMITTERINGSSKJEMA_API_DB_URL}
+  database:
+    url: "jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DATABASE}"
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
 
 kafka:
   topic: permittering-og-nedbemanning.aapen-permittering-arbeidsgiver

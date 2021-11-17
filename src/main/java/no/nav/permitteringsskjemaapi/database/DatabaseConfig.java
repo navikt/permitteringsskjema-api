@@ -14,15 +14,25 @@ import javax.sql.DataSource;
 public class DatabaseConfig {
 
     private final String url;
+    private final String username;
+    private final String password;
 
-    public DatabaseConfig(@Value("${permittering.database-url}") String url) {
+    public DatabaseConfig(
+            @Value("${permittering.database.url}") String url,
+            @Value("${permittering.database.username}") String username,
+            @Value("${permittering.database.password}") String password
+    ) {
         this.url = url;
+        this.username = username;
+        this.password = password;
     }
 
     @Bean
     public DataSource dataSource() {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(url);
+        config.setUsername(username);
+        config.setPassword(password);
         config.setMaximumPoolSize(2);
         config.setMinimumIdle(1);
         config.setInitializationFailTimeout(60000);
