@@ -30,3 +30,11 @@ spec:
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: dev-gcp
+  tokenx:
+    enabled: true
+  accessPolicy:
+    inbound:
+      rules:
+        - application: permittering
+          namespace: permittering-og-nedbemanning
+          cluster: dev-gcp

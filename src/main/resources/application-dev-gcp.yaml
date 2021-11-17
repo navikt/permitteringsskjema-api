@@ -20,6 +20,6 @@ no.nav.security.jwt:
 
 altinn:
   altinnUrl: "https://api-gw-q1.adeo.no/ekstern/altinn/api/serviceowner/"
-  altinnHeader: ${ALTINN_HEADER}
-  APIGwHeader: ${ALTINN_APIGW_HEADER}
+  altinnHeader: 1234 #${ALTINN_HEADER}
+  APIGwHeader: 1234 #${ALTINN_APIGW_HEADER}
   altinnProxyUrl: https://arbeidsgiver.dev.intern.nav.no/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
