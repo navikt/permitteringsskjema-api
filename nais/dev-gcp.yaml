@@ -27,4 +27,6 @@ spec:
         type: POSTGRES_12
         databases:
           - name: permitteringsskjema-api-db
-
+  env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: dev-gcp

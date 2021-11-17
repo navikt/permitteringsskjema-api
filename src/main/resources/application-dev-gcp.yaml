@@ -11,6 +11,7 @@ spring:
   datasource:
     platform: postgres
     driverClassName: org.postgresql.Driver
+    url: "jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DATABASE}"
 
 no.nav.security.jwt:
   issuer.tokenx:
