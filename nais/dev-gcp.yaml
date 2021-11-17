@@ -1,0 +1,30 @@
+apiVersion: nais.io/v1alpha1
+kind: "Application"
+metadata:
+  name: permitteringsskjema-api
+  namespace: permittering-og-nedbemanning
+  labels:
+    team: permittering-og-nedbemanning
+spec:
+  image: {{image}}
+  team: permittering-og-nedbemanning
+  port: 8080
+  liveness:
+    path: /permitteringsskjema-api/internal/actuator/info
+    initialDelay: 30
+    timeout: 1
+    periodSeconds: 10
+    failureThreshold: 3
+  readiness:
+    path: /permitteringsskjema-api/internal/actuator/info
+    initialDelay: 30
+    timeout: 1
+    periodSeconds: 10
+    failureThreshold: 3
+  gcp:
+    sqlInstances:
+      - name: permitteringsskjema-api
+        type: POSTGRES_12
+        databases:
+          - name: permitteringsskjema-api-db
+

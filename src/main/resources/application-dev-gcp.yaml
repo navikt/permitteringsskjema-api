@@ -1,0 +1,24 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+spring:
+  profiles: dev-gcp
+  datasource:
+    platform: postgres
+    driverClassName: org.postgresql.Driver
+
+no.nav.security.jwt:
+  issuer.tokenx:
+    discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
+    accepted_audience: ${TOKEN_X_CLIENT_ID}
+
+altinn:
+  altinnUrl: "https://api-gw-q1.adeo.no/ekstern/altinn/api/serviceowner/"
+  altinnHeader: ${ALTINN_HEADER}
+  APIGwHeader: ${ALTINN_APIGW_HEADER}
+  altinnProxyUrl: https://arbeidsgiver.dev.intern.nav.no/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
