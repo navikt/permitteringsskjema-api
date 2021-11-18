@@ -31,6 +31,8 @@ spec:
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: dev-gcp
+  envFrom:
+    - secret: permitteringsskjema-api-secrets
   tokenx:
     enabled: true
   accessPolicy:
