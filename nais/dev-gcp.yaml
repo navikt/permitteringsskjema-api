@@ -11,13 +11,13 @@ spec:
   port: 8080
   liveness:
     path: /permitteringsskjema-api/internal/actuator/info
-    initialDelay: 30
+    initialDelay: 60
     timeout: 1
     periodSeconds: 10
     failureThreshold: 3
   readiness:
     path: /permitteringsskjema-api/internal/actuator/info
-    initialDelay: 30
+    initialDelay: 60
     timeout: 1
     periodSeconds: 10
     failureThreshold: 3
@@ -28,6 +28,8 @@ spec:
         databases:
           - name: permitteringsskjema-api-db
             envVarPrefix: DATABASE
+  kafka:
+    pool: nav-dev
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: dev-gcp
