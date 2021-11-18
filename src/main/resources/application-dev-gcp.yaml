@@ -8,6 +8,8 @@ management:
       show-details: always
 spring:
   profiles: dev-gcp
+  flyway:
+    locations: classpath:/db/migration, classpath:/db/privileges
 
 no.nav.security.jwt:
   issuer.tokenx:
