@@ -31,12 +31,12 @@ public final class ClusterAwareSpringProfileResolver {
             return LOCAL;
         }
         LOG.info("Aktivt cluster er {}", cluster);
-        if (cluster.equals(DEV_FSS)) {
-            return DEV_FSS;
+        if (cluster.equals(DEV_GCP)) {
+            return DEV_GCP;
         }
 
-        if (cluster.equals(PROD_FSS)) {
-            return PROD_FSS;
+        if (cluster.equals(PROD_GCP)) {
+            return PROD_GCP;
         }
         return DEFAULT;
     }

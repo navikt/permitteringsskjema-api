@@ -20,12 +20,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static no.nav.permitteringsskjemaapi.config.Constants.DEV_FSS;
-import static no.nav.permitteringsskjemaapi.config.Constants.PROD_FSS;
+import static no.nav.permitteringsskjemaapi.config.Constants.DEV_GCP;
+import static no.nav.permitteringsskjemaapi.config.Constants.PROD_GCP;
 
 @Slf4j
 @Component
-@Profile({DEV_FSS, PROD_FSS})
+@Profile({DEV_GCP, PROD_GCP})
 public class AltinnServiceImpl implements AltinnService {
 
     private static final int ALTINN_ORG_PAGE_SIZE = 500;

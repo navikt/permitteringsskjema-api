@@ -15,7 +15,7 @@ import static no.nav.permitteringsskjemaapi.config.Constants.*;
 
 @RestController
 @Unprotected
-@Profile({LOCAL, DEV_FSS})
+@Profile({LOCAL, DEV_GCP})
 public class IntegrasjonDevController {
 
     private final PermitteringsskjemaProdusent permitteringsskjemaProdusent;

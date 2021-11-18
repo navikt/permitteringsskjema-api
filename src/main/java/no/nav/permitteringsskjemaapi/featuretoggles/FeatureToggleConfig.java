@@ -16,7 +16,7 @@ public class FeatureToggleConfig {
     private static final String APP_NAME = "permitteringsskjema-api";
     private final static String UNLEASH_API_URL = "https://unleash.nais.io/api/";
     @Bean
-    @Profile({DEV_FSS, PROD_FSS})
+    @Profile({DEV_GCP, PROD_GCP})
     public Unleash initializeUnleash( ByEnvironmentStrategy byEnvironmentStrategy,
                                       IsNotProdStrategy isNotProdStrategy)
             {
