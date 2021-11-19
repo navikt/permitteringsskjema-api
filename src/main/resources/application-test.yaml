@@ -29,11 +29,24 @@ mock:
 
 mock-oauth2-server.port: 9000
 
-no.nav.security.jwt.issuer:
-  tokenx:
-    discoveryurl: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
-    cookie_name: localhost-idtoken
-    accepted_audience: tokenx
+no.nav.security.jwt:
+  issuer:
+    tokenx:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
+      cookie_name: localhost-idtoken
+      accepted_audience: tokenx
+  client:
+    registration:
+      altinn-rettigheter-client:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:token-exchange
+        authentication:
+          client-id: 1245
+          client-jwk: src/test/resources/jwk.json
+          client-auth-method: private_key_jwt
+        token-exchange:
+          audience: dev-gcp:arbeidsgiver:altinn-rettigheter-proxy
+
 
 altinn:
   altinnUrl: "http://localhost:${mock.port}/altinn/"

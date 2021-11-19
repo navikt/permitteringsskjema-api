@@ -2,8 +2,6 @@ package no.nav.permitteringsskjemaapi.altinn;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.permitteringsskjemaapi.exceptions.PermitteringsApiException;
-import no.nav.permitteringsskjemaapi.featuretoggles.FeatureToggleService;
-import no.nav.permitteringsskjemaapi.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
@@ -30,24 +28,12 @@ public class AltinnServiceImpl implements AltinnService {
 
     private static final int ALTINN_ORG_PAGE_SIZE = 500;
     private final RestTemplate restTemplate;
-    private final HttpEntity<HttpHeaders> headerEntity;
-    private final String altinnUrl;
     private final String altinnProxyUrl;
-    private final FeatureToggleService featureToggleService;
-    private final TokenUtil tokenUtil;
 
     @Autowired
-    public AltinnServiceImpl(AltinnConfig altinnConfig, RestTemplate restTemplate, FeatureToggleService featureToggleService, TokenUtil tokenUtil) {
+    public AltinnServiceImpl(AltinnConfig altinnConfig, RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.altinnUrl = altinnConfig.getAltinnurl();
         this.altinnProxyUrl = altinnConfig.getAltinnProxyUrl();
-        this.featureToggleService = featureToggleService;
-        this.tokenUtil = tokenUtil;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("X-NAV-APIKEY", altinnConfig.getAPIGwHeader());
-        headers.set("APIKEY", altinnConfig.getAltinnHeader());
-        this.headerEntity = new HttpEntity<>(headers);
     }
 
     public List<AltinnOrganisasjon> hentOrganisasjoner(String fnr) {
@@ -65,27 +51,18 @@ public class AltinnServiceImpl implements AltinnService {
     private List<AltinnOrganisasjon> hentReporteesFraAltinn(String query, String fnr) {
         String baseUrl;
         HttpEntity<HttpHeaders> headers;
-
-        if (featureToggleService.isEnabled("arbeidsgiver.permitteringsskjema-api.bruk-altinn-proxy")) {
-            baseUrl = altinnProxyUrl;
-            headers = getAltinnProxyHeaders();
-        } else {
-            baseUrl = altinnUrl;
-            headers = headerEntity;
-            query += "&subject=" + fnr;
-        }
+        baseUrl = altinnProxyUrl;
 
         String url = baseUrl + "reportees/?ForceEIAuthentication" + query;
 
         return getFromAltinn(new ParameterizedTypeReference<>() {
-        }, url, ALTINN_ORG_PAGE_SIZE, headers);
+        }, url, ALTINN_ORG_PAGE_SIZE);
     }
 
     <T> List<T> getFromAltinn(
             ParameterizedTypeReference<List<T>> typeReference,
             String url,
-            int pageSize,
-            HttpEntity<HttpHeaders> headers
+            int pageSize
     ) {
         Set<T> response = new HashSet<T>();
         int pageNumber = 0;
@@ -94,7 +71,7 @@ public class AltinnServiceImpl implements AltinnService {
             pageNumber++;
             try {
                 String urlWithPagesizeAndOffset = url + "&$top=" + pageSize + "&$skip=" + ((pageNumber - 1) * pageSize);
-                ResponseEntity<List<T>> exchange = restTemplate.exchange(urlWithPagesizeAndOffset, HttpMethod.GET, headers, typeReference);
+                ResponseEntity<List<T>> exchange = restTemplate.exchange(urlWithPagesizeAndOffset, HttpMethod.GET, null, typeReference);
                 List<T> currentResponseList = exchange.getBody();
                 response.addAll(currentResponseList);
                 hasMore = currentResponseList.size() >= pageSize;
@@ -104,12 +81,5 @@ public class AltinnServiceImpl implements AltinnService {
             }
         }
         return new ArrayList<T>(response);
-    }
-
-    private HttpEntity<HttpHeaders> getAltinnProxyHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(tokenUtil.getTokenForInnloggetBruker());
-        headers.set("x-consumer-id", "permitteringsskjema-api");
-        return new HttpEntity<>(headers);
     }
 }
