@@ -6,12 +6,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static no.nav.permitteringsskjemaapi.config.Constants.DEFAULT;
-import static no.nav.permitteringsskjemaapi.config.Constants.LOCAL;
+import static no.nav.permitteringsskjemaapi.config.Constants.*;
 
 @Slf4j
 @Component
-@Profile({DEFAULT, LOCAL})
+@Profile({DEFAULT, LOCAL, TEST})
 public class FakeAltinnService implements AltinnService {
     @Override
     public List<AltinnOrganisasjon> hentOrganisasjoner(String fnr) {
