@@ -16,9 +16,10 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.*;
 
+import static no.nav.permitteringsskjemaapi.config.Constants.TEST;
+
 @Configuration
 @Import(MockLoginController.class)
-@Profile("local")
 public class LocalOauthConfig {
 
     private final Logger log = LoggerFactory.getLogger(MockOAuth2ServerAutoConfiguration.class);

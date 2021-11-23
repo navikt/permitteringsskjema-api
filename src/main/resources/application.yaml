@@ -17,6 +17,7 @@ management:
     health:
       show-details: never
 spring:
+  profiles.active: test
   jackson:
     default-property-inclusion: non-absent
 

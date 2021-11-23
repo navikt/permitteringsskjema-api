@@ -7,7 +7,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
-@ActiveProfiles("test")
 class ApplicationTests {
 
     @Test

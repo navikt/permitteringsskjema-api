@@ -10,7 +10,7 @@ import static no.nav.permitteringsskjemaapi.config.Constants.*;
 
 @Slf4j
 @Component
-@Profile({DEFAULT, LOCAL, TEST})
+@Profile(TEST)
 public class FakeAltinnService implements AltinnService {
     @Override
     public List<AltinnOrganisasjon> hentOrganisasjoner(String fnr) {

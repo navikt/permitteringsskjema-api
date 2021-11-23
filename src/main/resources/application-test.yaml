@@ -52,3 +52,5 @@ altinn:
   APIGwHeader: "lokal"
   altinnProxyUrl: "http://localhost:${mock.port}/altinn/"
 
+kafka:
+  security.protocol: PLAINTEXT
