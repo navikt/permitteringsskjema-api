@@ -7,9 +7,11 @@ management:
     health:
       show-details: always
 spring:
-  profiles: dev-gcp
   flyway:
     locations: classpath:/db/migration, classpath:/db/privileges
+  config:
+    activate:
+      on-profile: dev-gcp
 
 no.nav.security.jwt:
   client:
