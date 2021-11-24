@@ -32,4 +32,4 @@ no.nav.security.jwt:
 altinn:
   altinnHeader: ${ALTINN_HEADER}
   APIGwHeader: ${ALTINN_APIGW_HEADER}
-  altinnProxyUrl: http://altinn-rettigheter-proxy.arbeidsgiver/ekstern/altinn/api/serviceowner/
+  altinnProxyUrl: http://altinn-rettigheter-proxy.arbeidsgiver/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
