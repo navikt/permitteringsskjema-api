@@ -12,9 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
-import static no.nav.permitteringsskjemaapi.config.Constants.DEV_GCP;
-import static no.nav.permitteringsskjemaapi.config.Constants.PROD_GCP;
-
 @EnableOAuth2Client(cacheEnabled = true)
 @Configuration
 public class RestTemplateConfig {
@@ -25,7 +22,6 @@ public class RestTemplateConfig {
             ClientConfigurationProperties clientConfigurationProperties,
             OAuth2AccessTokenService oAuth2AccessTokenService
     ) {
-
         return restTemplateBuilder
                 .additionalInterceptors(
                         bearerTokenInterceptor(
@@ -34,12 +30,12 @@ public class RestTemplateConfig {
     }
 
     private ClientHttpRequestInterceptor bearerTokenInterceptor(
-            ClientProperties clientPropterties,
+            ClientProperties clientProperties,
             OAuth2AccessTokenService oAuth2AccessTokenService
     ) {
         return (httpRequest, bytes, clientHttpRequestExecution) ->  {
-            OAuth2AccessTokenResponse accessTokenReponse = oAuth2AccessTokenService.getAccessToken(clientPropterties);
-            httpRequest.getHeaders().setBearerAuth(accessTokenReponse.getAccessToken());
+            OAuth2AccessTokenResponse accessTokenResponse = oAuth2AccessTokenService.getAccessToken(clientProperties);
+            httpRequest.getHeaders().setBearerAuth(accessTokenResponse.getAccessToken());
             httpRequest.getHeaders().set("x-consumer-id", "permitteringsskjema-api");
             return clientHttpRequestExecution.execute(httpRequest, bytes);
         };

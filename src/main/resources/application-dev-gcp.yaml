@@ -30,7 +30,6 @@ no.nav.security.jwt:
     accepted_audience: ${TOKEN_X_CLIENT_ID}
 
 altinn:
-  altinnUrl: "https://api-gw-q1.adeo.no/ekstern/altinn/api/serviceowner/"
   altinnHeader: ${ALTINN_HEADER}
   APIGwHeader: ${ALTINN_APIGW_HEADER}
-  altinnProxyUrl: https://arbeidsgiver.dev.intern.nav.no/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
+  altinnProxyUrl: http://altinn-rettigheter-proxy.arbeidsgiver/ekstern/altinn/api/serviceowner/
