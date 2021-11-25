@@ -28,11 +28,9 @@ spec:
         databases:
           - name: permitteringsskjema-api-db
             envVarPrefix: DATABASE
-  kafka:
-    pool: nav-dev
   env:
     - name: SPRING_PROFILES_ACTIVE
-      value: dev-gcp
+      value: prod-gcp
   tokenx:
     enabled: true
   accessPolicy:
@@ -40,7 +38,7 @@ spec:
       rules:
         - application: permittering
           namespace: permittering-og-nedbemanning
-          cluster: dev-gcp
+          cluster: prod-gcp
     outbound:
       rules:
         - application: altinn-rettigheter-proxy

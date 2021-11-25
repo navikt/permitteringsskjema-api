@@ -50,8 +50,8 @@ public class AltinnServiceImpl implements AltinnService {
 
     private List<AltinnOrganisasjon> hentReporteesFraAltinn(String query, String fnr) {
         String baseUrl;
-        HttpEntity<HttpHeaders> headers;
         baseUrl = altinnProxyUrl;
+        query += "&subject=" + fnr;
 
         String url = baseUrl + "reportees/?ForceEIAuthentication" + query;
 

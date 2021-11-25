@@ -11,20 +11,20 @@ spring:
     locations: classpath:/db/migration, classpath:/db/privileges
   config:
     activate:
-      on-profile: dev-gcp
+      on-profile: prod-gcp
 
 no.nav.security.jwt:
   client:
     registration:
       altinn-rettigheter-client:
-        token-endpoint-url: https://tokendings.dev-gcp.nais.io/token
+        token-endpoint-url: https://tokendings.prod-gcp.nais.io/token
         grant-type: urn:ietf:params:oauth:grant-type:token-exchange
         authentication:
           client-id: ${TOKEN_X_CLIENT_ID}
           client-jwk: ${TOKEN_X_PRIVATE_JWK}
           client-auth-method: private_key_jwt
         token-exchange:
-          audience: dev-gcp:arbeidsgiver:altinn-rettigheter-proxy
+          audience: prod-gcp:arbeidsgiver:altinn-rettigheter-proxy
   issuer.tokenx:
     discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
     accepted_audience: ${TOKEN_X_CLIENT_ID}
