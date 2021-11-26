@@ -11,23 +11,23 @@ on:
 
 jobs:
   deploy-alerts-dev:
-    name: Deploy alerts til dev fss
+    name: Deploy alerts til dev gcp
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
-          CLUSTER: dev-fss
+          CLUSTER: dev-gcp
           RESOURCE: nais/alerts.yaml
 
   deploy-alerts-prod:
-    name: Deploy alerts til prod fss
+    name: Deploy alerts til prod gcp
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
-          CLUSTER: prod-fss
+          CLUSTER: prod-gcp
           RESOURCE: nais/alerts.yaml
