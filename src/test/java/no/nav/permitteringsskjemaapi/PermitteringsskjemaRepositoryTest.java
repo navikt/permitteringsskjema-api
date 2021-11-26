@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Profile("test")
+@ActiveProfiles("test")
 @DirtiesContext
 public class PermitteringsskjemaRepositoryTest {
     private Permitteringsskjema lagretPermitteringsskjema;

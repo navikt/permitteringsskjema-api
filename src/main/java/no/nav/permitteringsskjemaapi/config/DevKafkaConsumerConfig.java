@@ -17,10 +17,10 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import static no.nav.permitteringsskjemaapi.config.Constants.*;
+import static no.nav.permitteringsskjemaapi.config.Constants.DEV_GCP;
 
 @Configuration
-@Profile({DEV_FSS})
+@Profile({DEV_GCP})
 @Slf4j
 public class DevKafkaConsumerConfig {
 

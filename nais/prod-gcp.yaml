@@ -1,0 +1,47 @@
+apiVersion: nais.io/v1alpha1
+kind: "Application"
+metadata:
+  name: permitteringsskjema-api
+  namespace: permittering-og-nedbemanning
+  labels:
+    team: permittering-og-nedbemanning
+spec:
+  image: {{image}}
+  team: permittering-og-nedbemanning
+  port: 8080
+  liveness:
+    path: /permitteringsskjema-api/internal/actuator/info
+    initialDelay: 60
+    timeout: 1
+    periodSeconds: 10
+    failureThreshold: 3
+  readiness:
+    path: /permitteringsskjema-api/internal/actuator/info
+    initialDelay: 60
+    timeout: 1
+    periodSeconds: 10
+    failureThreshold: 3
+  gcp:
+    sqlInstances:
+      - name: permitteringsskjema-api
+        type: POSTGRES_12
+        databases:
+          - name: permitteringsskjema-api-db
+            envVarPrefix: DATABASE
+  kafka:
+    pool: nav-prod
+  env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: prod-gcp
+  tokenx:
+    enabled: true
+  accessPolicy:
+    inbound:
+      rules:
+        - application: permittering
+          namespace: permittering-og-nedbemanning
+          cluster: prod-gcp
+    outbound:
+      rules:
+        - application: altinn-rettigheter-proxy
+          namespace: arbeidsgiver

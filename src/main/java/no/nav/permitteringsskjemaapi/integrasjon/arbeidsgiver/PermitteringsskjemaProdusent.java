@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import static no.nav.permitteringsskjemaapi.config.Constants.*;
-import static no.nav.permitteringsskjemaapi.config.Constants.DEFAULT;
 import static no.nav.permitteringsskjemaapi.util.MDCUtil.callIdOrNew;
 
 @Service

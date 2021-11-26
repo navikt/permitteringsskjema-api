@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.innlogging;
+package no.nav.permitteringsskjemaapi;
 
 import com.nimbusds.jwt.SignedJWT;
 import no.nav.security.mock.oauth2.MockOAuth2Server;
@@ -16,8 +16,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
+import static no.nav.permitteringsskjemaapi.config.Constants.TEST;
+
 @RestController
-@Profile("local")
 public class LocalhostInnloggingsController {
 
     private MockOAuth2Server mockOAuth2Server;

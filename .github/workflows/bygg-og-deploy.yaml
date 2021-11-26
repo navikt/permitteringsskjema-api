@@ -10,10 +10,11 @@ jobs:
     name: Run tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-java@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v2
         with:
-          java-version: '15.x'
+          distribution: 'temurin'
+          java-version: '17'
 
       - uses: actions/cache@v1
         with:
@@ -29,10 +30,11 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-java@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v2
         with:
-          java-version: '15.x'
+          distribution: 'temurin'
+          java-version: '17'
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
@@ -50,38 +52,41 @@ jobs:
           echo ${IMAGE}
           docker push ${IMAGE}
 
-
-  deploy-to-dev:
-    name: Deploy to dev
+  deploy-to-dev-gcp:
+    name: Deploy to dev-gcp
     needs: build
     #########################
     ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
     ### e.g. github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test-branch'
     #########################
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/sletter-on-prem-kafka'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/flytt-til-gcp'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
-          CLUSTER: dev-fss
+          CLUSTER: dev-gcp
           VAR: version=${{ env.IMAGE }}
-          RESOURCE: nais/dev-fss.yaml
+          RESOURCE: nais/dev-gcp.yaml
 
-  deploy-to-prod:
-    name: Deploy to prod
+  deploy-to-prod-gcp:
+    name: Deploy to prod-gcp
     needs: build
-    if: github.ref == 'refs/heads/master'
+    #########################
+    ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
+    ### e.g. github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test-branch'
+    #########################
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/flytt-til-gcp'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
-          CLUSTER: prod-fss
+          CLUSTER: prod-gcp
           VAR: version=${{ env.IMAGE }}
-          RESOURCE: nais/prod-fss.yaml
+          RESOURCE: nais/prod-gcp.yaml
 
   deploy-kafka-dev:
     name: Deploy kafka-topic to dev

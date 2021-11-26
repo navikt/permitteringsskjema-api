@@ -17,6 +17,7 @@ management:
     health:
       show-details: never
 spring:
+  profiles.active: test
   jackson:
     default-property-inclusion: non-absent
 
@@ -25,11 +26,9 @@ permittering:
     enabled: true
     topic: aapen-permittering-arbeidsgiver
   database:
-    database-navn: permittering
-    database-url: ${spring.datasource.url}
-    minimum-idle: 1
-    maximum-pool-size: 8
-    max-lifetime: 300000
+    url: "jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DATABASE}"
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
 
 kafka:
   topic: permittering-og-nedbemanning.aapen-permittering-arbeidsgiver
