@@ -28,6 +28,8 @@ spec:
         databases:
           - name: permitteringsskjema-api-db
             envVarPrefix: DATABASE
+  kafka:
+    pool: nav-prod
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: prod-gcp
