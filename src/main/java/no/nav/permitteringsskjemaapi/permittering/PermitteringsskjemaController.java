@@ -50,7 +50,7 @@ public class PermitteringsskjemaController {
     }
 
     private Optional<AltinnOrganisasjon> hentOrganisasjon(String fnr, String bedriftNr) {
-        List<AltinnOrganisasjon> organisasjonerMedTilgang = altinnService.hentOrganisasjoner(fnr);
+        List<AltinnOrganisasjon> organisasjonerMedTilgang = altinnService.hentOrganisasjoner();
         return organisasjonerMedTilgang.stream()
                 .filter(o -> o.getOrganizationNumber().equals(bedriftNr))
                 .findFirst();

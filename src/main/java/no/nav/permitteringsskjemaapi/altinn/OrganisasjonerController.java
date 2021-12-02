@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
-import no.nav.permitteringsskjemaapi.util.TokenUtil;
 import no.nav.security.token.support.core.api.Protected;
 
 @RestController
@@ -17,11 +16,9 @@ import no.nav.security.token.support.core.api.Protected;
 public class OrganisasjonerController {
 
     private final AltinnService altinnService;
-    private final TokenUtil tokenUtil;
 
     @GetMapping
     public List<AltinnOrganisasjon> hentOrganisasjoner() {
-        String fnr = tokenUtil.autentisertBruker();
-        return altinnService.hentOrganisasjoner(fnr);
+        return altinnService.hentOrganisasjoner();
     }
 }

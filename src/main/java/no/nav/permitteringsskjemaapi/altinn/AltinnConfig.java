@@ -8,8 +8,5 @@ import org.springframework.stereotype.Component;
 @Data
 @ConfigurationProperties(prefix = "altinn")
 public class AltinnConfig {
-    private String altinnHeader;
-    private String altinnurl;
-    private String APIGwHeader;
     private String altinnProxyUrl;
 }
