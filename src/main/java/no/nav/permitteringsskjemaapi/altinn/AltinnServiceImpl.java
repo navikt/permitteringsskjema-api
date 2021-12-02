@@ -5,8 +5,6 @@ import no.nav.permitteringsskjemaapi.exceptions.PermitteringsApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -36,19 +34,19 @@ public class AltinnServiceImpl implements AltinnService {
         this.altinnProxyUrl = altinnConfig.getAltinnProxyUrl();
     }
 
-    public List<AltinnOrganisasjon> hentOrganisasjoner(String fnr) {
+    public List<AltinnOrganisasjon> hentOrganisasjoner() {
         String query = "&$filter=Type+ne+'Person'+and+Status+eq+'Active'";
-        return hentReporteesFraAltinn(query, fnr);
+        return hentReporteesFraAltinn(query);
     }
 
-    public List<AltinnOrganisasjon> hentOrganisasjonerBasertPåRettigheter(String fnr, String serviceKode, String serviceEdition) {
+    public List<AltinnOrganisasjon> hentOrganisasjonerBasertPåRettigheter(String serviceKode, String serviceEdition) {
         String query = "&$filter=Type+ne+'Person'+and+Status+eq+'Active'"
                 + "&serviceCode=" + serviceKode
                 + "&serviceEdition=" + serviceEdition;
-        return hentReporteesFraAltinn(query, fnr);
+        return hentReporteesFraAltinn(query);
     }
 
-    private List<AltinnOrganisasjon> hentReporteesFraAltinn(String query, String fnr) {
+    private List<AltinnOrganisasjon> hentReporteesFraAltinn(String query) {
         String baseUrl;
         baseUrl = altinnProxyUrl;
 
