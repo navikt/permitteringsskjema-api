@@ -26,5 +26,5 @@ spec:
       application: dvh-permittering-konsument
       access: read
     - team: permittering-og-nedbemanning
-      application: permitteringsvarsel-notifikasjon
+      application: permitteringsmelding-notifikasjon
       access: read
