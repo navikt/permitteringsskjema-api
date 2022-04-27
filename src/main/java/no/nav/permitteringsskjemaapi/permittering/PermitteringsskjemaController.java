@@ -1,8 +1,7 @@
 package no.nav.permitteringsskjemaapi.permittering;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +35,21 @@ public class PermitteringsskjemaController {
     public List<Permitteringsskjema> hent() {
         String fnr = fnrExtractor.autentisertBruker();
         return repository.findAllByOpprettetAv(fnr);
+    }
+
+    @GetMapping
+    public List<Permitteringsskjema> hentAlleSkjemaBasertPåRettighet(String bedriftNr) {
+        List<AltinnOrganisasjon> organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter(" ", "");
+        List<AltinnOrganisasjon> orgs = organisasjonerBasertPåRettighet.stream().filter(organisasjon -> organisasjon.getOrganizationNumber().equals( bedriftNr)).collect(Collectors.toList());
+        //if (orgs.size() > 0) {
+        //}
+        List<Permitteringsskjema> liste = new ArrayList<>(Collections.emptyList());
+        orgs.forEach(org -> {
+            List<Permitteringsskjema> lizt = repository.findAllByOrganisasjon(org.getOrganizationNumber()  );
+            liste.addAll(lizt);
+        });
+
+        return liste;
     }
 
     @PostMapping
