@@ -27,28 +27,43 @@ public class PermitteringsskjemaController {
     @GetMapping("/{id}")
     public Permitteringsskjema hent(@PathVariable UUID id) {
         String fnr = fnrExtractor.autentisertBruker();
-        return repository.findByIdAndOpprettetAv(id, fnr)
-                .orElseThrow(IkkeFunnetException::new);
+        Optional<Permitteringsskjema> permitteringsskjemaOpprettetAvBruker = repository.findByIdAndOpprettetAv(id, fnr);
+        if (permitteringsskjemaOpprettetAvBruker.isPresent()) {
+            return permitteringsskjemaOpprettetAvBruker.get();
+        }
+        Optional<Permitteringsskjema> permitteringsskjemaOpprettetAvAnnenBruker = repository.findById(id);
+        if (permitteringsskjemaOpprettetAvAnnenBruker.isPresent()) {
+            String orgnr = permitteringsskjemaOpprettetAvAnnenBruker.get().getBedriftNr();
+            List<AltinnOrganisasjon> organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter(" ", "");
+            Boolean harRettTilÅSeSkjema = organisasjonerBasertPåRettighet.stream().anyMatch(organisasjon -> organisasjon.getOrganizationNumber().equals(orgnr));
+            if (harRettTilÅSeSkjema && permitteringsskjemaOpprettetAvAnnenBruker.get().getSendtInnTidspunkt() !=null ) {
+                return permitteringsskjemaOpprettetAvAnnenBruker.get();
+            }
+        }
+        throw new IkkeFunnetException();
     }
 
     @GetMapping
     public List<Permitteringsskjema> hent() {
         String fnr = fnrExtractor.autentisertBruker();
-        return repository.findAllByOpprettetAv(fnr);
+        List<Permitteringsskjema> listeMedSkjemaBrukerenHArOpprettet = repository.findAllByOpprettetAv(fnr);
+        List<Permitteringsskjema> listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil = hentAlleSkjemaBasertPåRettighet();
+        List<Permitteringsskjema> alleSkjema = new ArrayList<>(Collections.emptyList());
+        alleSkjema.addAll(listeMedSkjemaBrukerenHArOpprettet);
+        alleSkjema.addAll(listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil);
+        return alleSkjema;
+
     }
 
-    @GetMapping
-    public List<Permitteringsskjema> hentAlleSkjemaBasertPåRettighet(String bedriftNr) {
+    public List<Permitteringsskjema> hentAlleSkjemaBasertPåRettighet() {
         List<AltinnOrganisasjon> organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter(" ", "");
-        List<AltinnOrganisasjon> orgs = organisasjonerBasertPåRettighet.stream().filter(organisasjon -> organisasjon.getOrganizationNumber().equals( bedriftNr)).collect(Collectors.toList());
-        //if (orgs.size() > 0) {
-        //}
         List<Permitteringsskjema> liste = new ArrayList<>(Collections.emptyList());
-        orgs.forEach(org -> {
-            List<Permitteringsskjema> lizt = repository.findAllByOrganisasjon(org.getOrganizationNumber()  );
-            liste.addAll(lizt);
-        });
-
+        if (organisasjonerBasertPåRettighet.size() > 0) {
+            organisasjonerBasertPåRettighet.forEach(org -> {
+                List<Permitteringsskjema> listeMedInnsendteSkjema = repository.findAllByOrganisasjon(org.getOrganizationNumber()).stream().filter(skjema -> skjema.getSendtInnTidspunkt() != null).collect(Collectors.toList());
+                liste.addAll(listeMedInnsendteSkjema);
+            });
+        }
         return liste;
     }
 

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public interface PermitteringsskjemaRepository extends JpaRepository<Permitteringsskjema, UUID> {
     Optional<Permitteringsskjema> findByIdAndOpprettetAv(UUID id, String opprettetAv);
+    Optional<Permitteringsskjema> findById(UUID id);
     List<Permitteringsskjema> findAllByOpprettetAv(String opprettetAv);
-    List<Permitteringsskjema> findAllByOrganisasjon(String orgnr);
+    List<Permitteringsskjema> findAllByOrganisasjon(String bedriftNr);
 }
