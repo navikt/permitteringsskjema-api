@@ -34,7 +34,7 @@ public class PermitteringsskjemaController {
         Optional<Permitteringsskjema> permitteringsskjemaOpprettetAvAnnenBruker = repository.findById(id);
         if (permitteringsskjemaOpprettetAvAnnenBruker.isPresent()) {
             String orgnr = permitteringsskjemaOpprettetAvAnnenBruker.get().getBedriftNr();
-            List<AltinnOrganisasjon> organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter(" ", "");
+            List<AltinnOrganisasjon> organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1");
             Boolean harRettTilÅSeSkjema = organisasjonerBasertPåRettighet.stream().anyMatch(organisasjon -> organisasjon.getOrganizationNumber().equals(orgnr));
             if (harRettTilÅSeSkjema && permitteringsskjemaOpprettetAvAnnenBruker.get().getSendtInnTidspunkt() !=null ) {
                 return permitteringsskjemaOpprettetAvAnnenBruker.get();
@@ -56,7 +56,7 @@ public class PermitteringsskjemaController {
     }
 
     public List<Permitteringsskjema> hentAlleSkjemaBasertPåRettighet() {
-        List<AltinnOrganisasjon> organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter(" ", "");
+        List<AltinnOrganisasjon> organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1");
         List<Permitteringsskjema> liste = new ArrayList<>(Collections.emptyList());
         if (organisasjonerBasertPåRettighet.size() > 0) {
             organisasjonerBasertPåRettighet.forEach(org -> {
