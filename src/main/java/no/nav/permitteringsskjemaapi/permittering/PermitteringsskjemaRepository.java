@@ -10,5 +10,5 @@ public interface PermitteringsskjemaRepository extends JpaRepository<Permitterin
     Optional<Permitteringsskjema> findByIdAndOpprettetAv(UUID id, String opprettetAv);
     Optional<Permitteringsskjema> findById(UUID id);
     List<Permitteringsskjema> findAllByOpprettetAv(String opprettetAv);
-    List<Permitteringsskjema> findAllByOrganisasjon(String bedriftNr);
+    List<Permitteringsskjema> findAllByBedriftNr(String bedriftNr);
 }
