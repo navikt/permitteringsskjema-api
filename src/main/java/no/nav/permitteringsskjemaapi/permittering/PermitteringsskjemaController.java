@@ -5,8 +5,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lombok.AllArgsConstructor;
 import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon;
@@ -47,8 +49,13 @@ public class PermitteringsskjemaController {
     @GetMapping
     public List<Permitteringsskjema> hent() {
         String fnr = fnrExtractor.autentisertBruker();
-        List<Permitteringsskjema> listeMedSkjemaBrukerenHArOpprettet = repository.findAllByOpprettetAv(fnr);
         List<Permitteringsskjema> listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil = hentAlleSkjemaBasertPåRettighet();
+        if (listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil.size() > 0) {
+            //lister opprettet av brukeren vil også være i denne lista
+            log.info("brukeren henter skjema basert pa rettigheter",listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil.size());
+            return listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil;
+        }
+        List<Permitteringsskjema> listeMedSkjemaBrukerenHArOpprettet = repository.findAllByOpprettetAv(fnr);
         List<Permitteringsskjema> alleSkjema = new ArrayList<>(Collections.emptyList());
         alleSkjema.addAll(listeMedSkjemaBrukerenHArOpprettet);
         alleSkjema.addAll(listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil);
@@ -60,6 +67,7 @@ public class PermitteringsskjemaController {
         List<AltinnOrganisasjon> organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1");
         List<Permitteringsskjema> liste = new ArrayList<>(Collections.emptyList());
         if (organisasjonerBasertPåRettighet.size() > 0) {
+            log.info("Skjema endret skjemaId={} hendelseId={}", organisasjonerBasertPåRettighet.size());
             organisasjonerBasertPåRettighet.forEach(org -> {
                 List<Permitteringsskjema> listeMedInnsendteSkjema = repository.findAllByBedriftNr(org.getOrganizationNumber()).stream().filter(skjema -> skjema.getSendtInnTidspunkt() != null).collect(Collectors.toList());
                 liste.addAll(listeMedInnsendteSkjema);
