@@ -52,7 +52,7 @@ public class PermitteringsskjemaController {
         List<Permitteringsskjema> alleSkjema = new ArrayList<>(Collections.emptyList());
         List<Permitteringsskjema> skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet();
         List<Permitteringsskjema> listeMedSkjemaBrukerenHarOpprettet = repository.findAllByOpprettetAv(fnr);
-        log.info("antall skjema opprette og rettighetsbasert:, {} ", listeMedSkjemaBrukerenHarOpprettet.size()+skjemaHentetBasertPåRettighet.size());
+        log.info("antall skjema opprette og rettighetsbasert:, {}, {}, {}", listeMedSkjemaBrukerenHarOpprettet.size()+skjemaHentetBasertPåRettighet.size(), skjemaHentetBasertPåRettighet.size(),listeMedSkjemaBrukerenHarOpprettet.size());
         if (skjemaHentetBasertPåRettighet.size() > 0) {
             alleSkjema.addAll(skjemaHentetBasertPåRettighet);
         }
