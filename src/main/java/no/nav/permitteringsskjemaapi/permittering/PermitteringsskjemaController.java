@@ -51,7 +51,7 @@ public class PermitteringsskjemaController {
         List<Permitteringsskjema> listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil = hentAlleSkjemaBasertPåRettighet();
         if (listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil.size() > 0) {
             //lister opprettet av brukeren vil også være i denne lista
-            log.info("brukeren henter skjema basert pa rettigheter",listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil.size());
+            log.info("brukeren henter skjema basert pa rettigheter {}",listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil.size());
             return listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil;
         }
         List<Permitteringsskjema> listeMedSkjemaBrukerenHArOpprettet = repository.findAllByOpprettetAv(fnr);
@@ -64,9 +64,10 @@ public class PermitteringsskjemaController {
 
     public List<Permitteringsskjema> hentAlleSkjemaBasertPåRettighet() {
         List<AltinnOrganisasjon> organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1");
+        log.info("Forsøker hente organisasjoner basert på rettigheter, {}", organisasjonerBasertPåRettighet.size());
         List<Permitteringsskjema> liste = new ArrayList<>(Collections.emptyList());
         if (organisasjonerBasertPåRettighet.size() > 0) {
-            log.info("Skjema endret skjemaId={} hendelseId={}", organisasjonerBasertPåRettighet.size());
+            log.info("Bruker har tilgang på organisasjoner basert på rettigheter, {}", organisasjonerBasertPåRettighet.size());
             organisasjonerBasertPåRettighet.forEach(org -> {
                 List<Permitteringsskjema> listeMedInnsendteSkjema = repository.findAllByBedriftNr(org.getOrganizationNumber()).stream().filter(skjema -> skjema.getSendtInnTidspunkt() != null).collect(Collectors.toList());
                 liste.addAll(listeMedInnsendteSkjema);

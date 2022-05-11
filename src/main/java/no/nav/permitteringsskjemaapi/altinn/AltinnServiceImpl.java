@@ -43,6 +43,7 @@ public class AltinnServiceImpl implements AltinnService {
         String query = "&$filter=Type+ne+'Person'+and+Status+eq+'Active'"
                 + "&serviceCode=" + serviceKode
                 + "&serviceEdition=" + serviceEdition;
+        log.info("query for a hente organisasjoner basert pa rettigheter, {}", query);
         return hentReporteesFraAltinn(query);
     }
 
@@ -64,6 +65,7 @@ public class AltinnServiceImpl implements AltinnService {
         Set<T> response = new HashSet<T>();
         int pageNumber = 0;
         boolean hasMore = true;
+        log.info("kaller altinn med url, {}", url);
         while (hasMore) {
             pageNumber++;
             try {
