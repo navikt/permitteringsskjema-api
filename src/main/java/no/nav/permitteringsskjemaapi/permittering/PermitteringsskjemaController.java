@@ -48,16 +48,27 @@ public class PermitteringsskjemaController {
     @GetMapping
     public List<Permitteringsskjema> hent() {
         String fnr = fnrExtractor.autentisertBruker();
-        List<Permitteringsskjema> listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil = hentAlleSkjemaBasertPåRettighet();
-        if (listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil.size() > 0) {
-            //lister opprettet av brukeren vil også være i denne lista
-            log.info("brukeren henter skjema basert pa rettigheter {}",listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil.size());
-            return listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil;
-        }
-        List<Permitteringsskjema> listeMedSkjemaBrukerenHArOpprettet = repository.findAllByOpprettetAv(fnr);
         List<Permitteringsskjema> alleSkjema = new ArrayList<>(Collections.emptyList());
-        alleSkjema.addAll(listeMedSkjemaBrukerenHArOpprettet);
-        alleSkjema.addAll(listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil);
+        List<Permitteringsskjema> listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil = hentAlleSkjemaBasertPåRettighet();
+        List<Permitteringsskjema> listeMedSkjemaBrukerenHarOpprettet = repository.findAllByOpprettetAv(fnr);
+        if (listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil.size() > 0) {
+            alleSkjema.addAll(listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil);
+        }
+        else {
+            return listeMedSkjemaBrukerenHarOpprettet;
+        }
+        //denne doble for-lokken fjerner duplikater
+        alleSkjema.forEach( skjema -> {
+            listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil.forEach(skjemaBrukerenHarOpprettet -> {
+                if (!skjema.getId().equals(skjemaBrukerenHarOpprettet.getId())) {
+                    alleSkjema.add(skjemaBrukerenHarOpprettet);
+                    log.info("bruker har skjema sendt inn av annen arbeidstaker");
+                }
+                else{
+                    log.info("bruker har skjema basert oå rettigheter som hen selv har sendt inn");
+                }
+            });
+        });
         return alleSkjema;
 
     }
