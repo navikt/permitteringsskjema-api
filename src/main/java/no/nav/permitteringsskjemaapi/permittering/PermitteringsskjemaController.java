@@ -60,8 +60,8 @@ public class PermitteringsskjemaController {
             return listeMedSkjemaBrukerenHarOpprettet;
         }
         if (listeMedSkjemaBrukerenHarOpprettet.size() >0 ) {
-            AtomicReference<Boolean> skjemaAlleredeLagtTil = new AtomicReference<>(false);
             listeMedSkjemaBrukerenHarOpprettet.forEach(skjemaBrukerenHarOpprettet -> {
+                AtomicReference<Boolean> skjemaAlleredeLagtTil = new AtomicReference<>(false);
                 alleSkjema.forEach( skjema -> {
                     if (skjema.getId().equals(skjemaBrukerenHarOpprettet.getId()) && !skjemaAlleredeLagtTil.get()) {
                         log.info("bruker har tilgang til skjema basert på rettighet");
