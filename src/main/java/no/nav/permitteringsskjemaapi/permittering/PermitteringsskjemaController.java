@@ -1,6 +1,7 @@
 package no.nav.permitteringsskjemaapi.permittering;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,26 +50,29 @@ public class PermitteringsskjemaController {
     public List<Permitteringsskjema> hent() {
         String fnr = fnrExtractor.autentisertBruker();
         List<Permitteringsskjema> alleSkjema = new ArrayList<>(Collections.emptyList());
-        List<Permitteringsskjema> listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil = hentAlleSkjemaBasertPåRettighet();
+        List<Permitteringsskjema> skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet();
         List<Permitteringsskjema> listeMedSkjemaBrukerenHarOpprettet = repository.findAllByOpprettetAv(fnr);
-        if (listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil.size() > 0) {
-            alleSkjema.addAll(listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil);
+        if (skjemaHentetBasertPåRettighet.size() > 0) {
+            alleSkjema.addAll(skjemaHentetBasertPåRettighet);
         }
         else {
             return listeMedSkjemaBrukerenHarOpprettet;
         }
-        //denne doble for-lokken fjerner duplikater
-        alleSkjema.forEach( skjema -> {
-            listeMedSkjemaOpprettetAvAndreBrukerenHarTilgangTil.forEach(skjemaBrukerenHarOpprettet -> {
-                if (!skjema.getId().equals(skjemaBrukerenHarOpprettet.getId())) {
+        if (listeMedSkjemaBrukerenHarOpprettet.size() >0 ) {
+            AtomicReference<Boolean> skjemaAlleredeLagtTil = new AtomicReference<>(false);
+            listeMedSkjemaBrukerenHarOpprettet.forEach(skjemaBrukerenHarOpprettet -> {
+                alleSkjema.forEach( skjema -> {
+                    if (skjema.getId().equals(skjemaBrukerenHarOpprettet.getId()) && !skjemaAlleredeLagtTil.get()) {
+                        log.info("bruker har tilgang til skjema basert på rettighet");
+                        skjemaAlleredeLagtTil.set(true);
+                    }
+                });
+                if (!skjemaAlleredeLagtTil.get()) {
+                    log.info("bruker har ikke altinnrettighet, men har opprettet skjemaet");
                     alleSkjema.add(skjemaBrukerenHarOpprettet);
-                    log.info("bruker har skjema sendt inn av annen arbeidstaker");
-                }
-                else{
-                    log.info("bruker har skjema basert oå rettigheter som hen selv har sendt inn");
                 }
             });
-        });
+        }
         return alleSkjema;
 
     }
