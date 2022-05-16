@@ -74,6 +74,11 @@ public class PermitteringsskjemaController {
                 }
             });
         }
+        alleSkjema.forEach(skjema -> {
+            if (!skjema.getOpprettetAv().equals(fnr)) {
+                log.info("en annen bruker har opprettet et skjema for bedrift, {}", skjema.getBedriftNr());
+            }
+        });
         log.info("alle skjema storrelse, {}", alleSkjema.size());
         return alleSkjema;
 
