@@ -52,7 +52,6 @@ public class PermitteringsskjemaController {
         List<Permitteringsskjema> alleSkjema = new ArrayList<>(Collections.emptyList());
         List<Permitteringsskjema> skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet();
         List<Permitteringsskjema> listeMedSkjemaBrukerenHarOpprettet = repository.findAllByOpprettetAv(fnr);
-        log.info("antall skjema opprette og rettighetsbasert:, {}, {}, {}", listeMedSkjemaBrukerenHarOpprettet.size()+skjemaHentetBasertPåRettighet.size(), skjemaHentetBasertPåRettighet.size(),listeMedSkjemaBrukerenHarOpprettet.size());
         if (skjemaHentetBasertPåRettighet.size() > 0) {
             alleSkjema.addAll(skjemaHentetBasertPåRettighet);
         }
@@ -64,32 +63,22 @@ public class PermitteringsskjemaController {
                 AtomicReference<Boolean> skjemaAlleredeLagtTil = new AtomicReference<>(false);
                 alleSkjema.forEach( skjema -> {
                     if (skjema.getId().equals(skjemaBrukerenHarOpprettet.getId()) && !skjemaAlleredeLagtTil.get()) {
-                        log.info("bruker har tilgang til skjema basert på rettighet");
                         skjemaAlleredeLagtTil.set(true);
                     }
                 });
                 if (!skjemaAlleredeLagtTil.get()) {
-                    log.info("bruker har ikke altinnrettighet, men har opprettet skjemaet");
                     alleSkjema.add(skjemaBrukerenHarOpprettet);
                 }
             });
         }
-        alleSkjema.forEach(skjema -> {
-            if (!skjema.getOpprettetAv().equals(fnr)) {
-                log.info("en annen bruker har opprettet et skjema for bedrift, {}", skjema.getBedriftNr());
-            }
-        });
-        log.info("alle skjema storrelse, {}", alleSkjema.size());
         return alleSkjema;
 
     }
 
     public List<Permitteringsskjema> hentAlleSkjemaBasertPåRettighet() {
         List<AltinnOrganisasjon> organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1");
-        log.info("Forsøker hente organisasjoner basert på rettigheter, {}", organisasjonerBasertPåRettighet.size());
         List<Permitteringsskjema> liste = new ArrayList<>(Collections.emptyList());
         if (organisasjonerBasertPåRettighet.size() > 0) {
-            log.info("Bruker har tilgang på organisasjoner basert på rettigheter, {}", organisasjonerBasertPåRettighet.size());
             organisasjonerBasertPåRettighet.forEach(org -> {
                 List<Permitteringsskjema> listeMedInnsendteSkjema = repository.findAllByBedriftNr(org.getOrganizationNumber()).stream().filter(skjema -> skjema.getSendtInnTidspunkt() != null).collect(Collectors.toList());
                 liste.addAll(listeMedInnsendteSkjema);
