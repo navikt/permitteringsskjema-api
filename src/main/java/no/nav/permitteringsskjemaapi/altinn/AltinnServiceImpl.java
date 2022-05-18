@@ -43,7 +43,6 @@ public class AltinnServiceImpl implements AltinnService {
         String query = "&$filter=Type+ne+'Person'+and+Status+eq+'Active'"
                 + "&serviceCode=" + serviceKode
                 + "&serviceEdition=" + serviceEdition;
-        log.info("query for a hente organisasjoner basert pa rettigheter, {}", query);
         return hentReporteesFraAltinn(query);
     }
 
