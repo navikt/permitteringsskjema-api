@@ -42,6 +42,9 @@ public class PermitteringsskjemaController {
             if (harRettTilÅSeSkjema && permitteringsskjemaOpprettetAvAnnenBruker.get().getSendtInnTidspunkt() !=null ) {
                 return permitteringsskjemaOpprettetAvAnnenBruker.get();
             }
+            if (!harRettTilÅSeSkjema) {
+                log.warn("Bruker forsoker hente skjema uten tilgang");
+            }
         }
         throw new IkkeFunnetException();
     }
