@@ -80,7 +80,6 @@ public class PermitteringsskjemaController {
 
     public List<Permitteringsskjema> hentAlleSkjemaBasertPåRettighet() {
         List<AltinnOrganisasjon> organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1");
-        log.info("brukeren har antall organisasjoner med rettigheten: {}", organisasjonerBasertPåRettighet.size());
         List<Permitteringsskjema> liste = new ArrayList<>(Collections.emptyList());
         if (organisasjonerBasertPåRettighet.size() > 0) {
             organisasjonerBasertPåRettighet.forEach(org -> {
