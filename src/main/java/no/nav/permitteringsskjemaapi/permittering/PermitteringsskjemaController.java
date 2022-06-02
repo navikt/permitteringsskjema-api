@@ -1,9 +1,10 @@
 package no.nav.permitteringsskjemaapi.permittering;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import no.nav.security.token.support.core.api.Protected;
 @AllArgsConstructor
 @RequestMapping("/skjema")
 @Protected
+@Slf4j
 public class PermitteringsskjemaController {
     private final TokenUtil fnrExtractor;
     private final AltinnService altinnService;
@@ -28,14 +30,64 @@ public class PermitteringsskjemaController {
     @GetMapping("/{id}")
     public Permitteringsskjema hent(@PathVariable UUID id) {
         String fnr = fnrExtractor.autentisertBruker();
-        return repository.findByIdAndOpprettetAv(id, fnr)
-                .orElseThrow(IkkeFunnetException::new);
+        Optional<Permitteringsskjema> permitteringsskjemaOpprettetAvBruker = repository.findByIdAndOpprettetAv(id, fnr);
+        if (permitteringsskjemaOpprettetAvBruker.isPresent()) {
+            return permitteringsskjemaOpprettetAvBruker.get();
+        }
+        Optional<Permitteringsskjema> permitteringsskjemaOpprettetAvAnnenBruker = repository.findById(id);
+        if (permitteringsskjemaOpprettetAvAnnenBruker.isPresent()) {
+            String orgnr = permitteringsskjemaOpprettetAvAnnenBruker.get().getBedriftNr();
+            List<AltinnOrganisasjon> organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1");
+            Boolean harRettTilÅSeSkjema = organisasjonerBasertPåRettighet.stream().anyMatch(organisasjon -> organisasjon.getOrganizationNumber().equals(orgnr));
+            if (harRettTilÅSeSkjema && permitteringsskjemaOpprettetAvAnnenBruker.get().getSendtInnTidspunkt() !=null ) {
+                return permitteringsskjemaOpprettetAvAnnenBruker.get();
+            }
+            if (!harRettTilÅSeSkjema) {
+                log.warn("Bruker forsoker hente skjema uten tilgang");
+            }
+        }
+        throw new IkkeFunnetException();
     }
 
     @GetMapping
     public List<Permitteringsskjema> hent() {
         String fnr = fnrExtractor.autentisertBruker();
-        return repository.findAllByOpprettetAv(fnr);
+        List<Permitteringsskjema> alleSkjema = new ArrayList<>(Collections.emptyList());
+        List<Permitteringsskjema> skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet();
+        List<Permitteringsskjema> listeMedSkjemaBrukerenHarOpprettet = repository.findAllByOpprettetAv(fnr);
+        if (skjemaHentetBasertPåRettighet.size() > 0) {
+            alleSkjema.addAll(skjemaHentetBasertPåRettighet);
+        }
+        else {
+            return listeMedSkjemaBrukerenHarOpprettet;
+        }
+        if (listeMedSkjemaBrukerenHarOpprettet.size() >0 ) {
+            listeMedSkjemaBrukerenHarOpprettet.forEach(skjemaBrukerenHarOpprettet -> {
+                AtomicReference<Boolean> skjemaAlleredeLagtTil = new AtomicReference<>(false);
+                alleSkjema.forEach( skjema -> {
+                    if (skjema.getId().equals(skjemaBrukerenHarOpprettet.getId()) && !skjemaAlleredeLagtTil.get()) {
+                        skjemaAlleredeLagtTil.set(true);
+                    }
+                });
+                if (!skjemaAlleredeLagtTil.get()) {
+                    alleSkjema.add(skjemaBrukerenHarOpprettet);
+                }
+            });
+        }
+        return alleSkjema;
+
+    }
+
+    public List<Permitteringsskjema> hentAlleSkjemaBasertPåRettighet() {
+        List<AltinnOrganisasjon> organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1");
+        List<Permitteringsskjema> liste = new ArrayList<>(Collections.emptyList());
+        if (organisasjonerBasertPåRettighet.size() > 0) {
+            organisasjonerBasertPåRettighet.forEach(org -> {
+                List<Permitteringsskjema> listeMedInnsendteSkjema = repository.findAllByBedriftNr(org.getOrganizationNumber()).stream().filter(skjema -> skjema.getSendtInnTidspunkt() != null).collect(Collectors.toList());
+                liste.addAll(listeMedInnsendteSkjema);
+            });
+        }
+        return liste;
     }
 
     @PostMapping
