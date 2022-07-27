@@ -16,8 +16,6 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.*;
 
-import static no.nav.permitteringsskjemaapi.config.Constants.TEST;
-
 @Configuration
 @Import(MockLoginController.class)
 public class LocalOauthConfig {
@@ -26,9 +24,11 @@ public class LocalOauthConfig {
     private final MockOAuth2Server mockOAuth2Server;
 
     public LocalOauthConfig() {
+
         DefaultOAuth2TokenCallback callback = new DefaultOAuth2TokenCallback(
                 "aad",
                 "19097302327",
+                "JWT",
                 List.of("aud-localhost"),
                 Map.of("pid", "19097302327"),
                 3600L
@@ -37,6 +37,7 @@ public class LocalOauthConfig {
         this.mockOAuth2Server = new MockOAuth2Server(
                 new OAuth2Config(
                         false,
+                        "",
                         new OAuth2TokenProvider(),
                         Set.of(callback)
                 )
