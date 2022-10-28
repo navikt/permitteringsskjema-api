@@ -19,7 +19,7 @@
         <timestamp>${maven.build.timestamp}</timestamp>
         <java.version>17</java.version>
         <confluent.version>5.4.1</confluent.version>
-        <nav.security.version>2.0.21</nav.security.version>
+        <nav.security.version>2.1.7</nav.security.version>
     </properties>
     <repositories>
         <repository>
