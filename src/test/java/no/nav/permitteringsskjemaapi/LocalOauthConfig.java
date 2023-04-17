@@ -5,41 +5,37 @@ import no.nav.security.mock.oauth2.OAuth2Config;
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback;
 import no.nav.security.mock.oauth2.token.OAuth2TokenProvider;
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever;
-import no.nav.security.token.support.spring.test.MockLoginController;
-import no.nav.security.token.support.spring.test.MockOAuth2ServerAutoConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Configuration
-@Import(MockLoginController.class)
 public class LocalOauthConfig {
 
-    private final Logger log = LoggerFactory.getLogger(MockOAuth2ServerAutoConfiguration.class);
     private final MockOAuth2Server mockOAuth2Server;
 
     public LocalOauthConfig() {
-
-        DefaultOAuth2TokenCallback callback = new DefaultOAuth2TokenCallback(
-                "aad",
-                "19097302327",
-                "JWT",
-                List.of("aud-localhost"),
-                Map.of("pid", "19097302327"),
-                3600L
-        );
 
         this.mockOAuth2Server = new MockOAuth2Server(
                 new OAuth2Config(
                         false,
                         "",
                         new OAuth2TokenProvider(),
-                        Set.of(callback)
+                        Set.of(new DefaultOAuth2TokenCallback(
+                                "aad",
+                                "19097302327",
+                                "JWT",
+                                List.of("aud-localhost"),
+                                Map.of("pid", "19097302327"),
+                                3600L
+                        ))
                 )
         );
     }
@@ -58,19 +54,11 @@ public class LocalOauthConfig {
 
     @PostConstruct
     void start() {
-        try {
-            int port = 9000;
-            log.debug("starting mock oauth2 server on port " + port);
-            mockOAuth2Server.start(port);
-        } catch (IOException e) {
-            log.error("could not register and start MockOAuth2Server");
-            throw new RuntimeException(e);
-        }
+        mockOAuth2Server.start(9000);
     }
 
     @PreDestroy
-    void shutdown() throws IOException {
-        log.debug("shutting down the mock oauth2 server.");
+    void shutdown() {
         mockOAuth2Server.shutdown();
     }
 }
