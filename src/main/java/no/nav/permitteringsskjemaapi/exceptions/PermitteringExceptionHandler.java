@@ -1,19 +1,13 @@
 package no.nav.permitteringsskjemaapi.exceptions;
 
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
-
-import java.util.List;
-import java.util.Optional;
-
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import no.nav.permitteringsskjemaapi.util.TokenUtil;
+import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException;
+import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -25,11 +19,11 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import no.nav.permitteringsskjemaapi.util.TokenUtil;
-import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException;
-import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException;
+import java.util.List;
+
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
 @AllArgsConstructor
@@ -40,21 +34,19 @@ public class PermitteringExceptionHandler extends ResponseEntityExceptionHandler
     @ResponseBody
     @ExceptionHandler(HttpStatusCodeException.class)
     public ResponseEntity<Object> handleHttpStatusCodeException(HttpStatusCodeException e, WebRequest request) {
-        if (e.getStatusCode().equals(UNAUTHORIZED) || e.getStatusCode().equals(FORBIDDEN)) {
-            return logAndHandle(e.getStatusCode(), e, request, tokenUtil.getExpiryDate());
+        if (e.getStatusCode().isSameCodeAs(UNAUTHORIZED) || e.getStatusCode().isSameCodeAs(FORBIDDEN)) {
+            return logAndHandle(HttpStatus.resolve(e.getStatusCode().value()), e, request, tokenUtil.getExpiryDate());
         }
-        return logAndHandle(e.getStatusCode(), e, request);
+        return logAndHandle(HttpStatus.resolve(e.getStatusCode().value()), e, request);
     }
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
-            HttpHeaders headers, HttpStatus status, WebRequest req) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers, HttpStatusCode status, WebRequest req) {
         return logAndHandle(UNPROCESSABLE_ENTITY, e, req, headers, validationErrors(e));
     }
 
     @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException e,
-            HttpHeaders headers, HttpStatus status, WebRequest req) {
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException e, HttpHeaders headers, HttpStatusCode status, WebRequest req) {
         return logAndHandle(UNPROCESSABLE_ENTITY, e, req, headers);
     }
 

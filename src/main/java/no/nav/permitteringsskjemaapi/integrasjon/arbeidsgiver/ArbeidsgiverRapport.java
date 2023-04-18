@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Value;
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType;
@@ -7,7 +8,6 @@ import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori;
 import no.nav.permitteringsskjemaapi.permittering.Årsakskode;
 import org.springframework.lang.Nullable;
 
-import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;

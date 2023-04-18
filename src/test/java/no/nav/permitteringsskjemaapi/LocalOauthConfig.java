@@ -1,5 +1,7 @@
 package no.nav.permitteringsskjemaapi;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import no.nav.security.mock.oauth2.MockOAuth2Server;
 import no.nav.security.mock.oauth2.OAuth2Config;
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback;
@@ -10,8 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

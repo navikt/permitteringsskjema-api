@@ -1,12 +1,11 @@
 package no.nav.permitteringsskjemaapi.domain;
 
-import static no.nav.permitteringsskjemaapi.util.StringUtil.*;
-
-import javax.persistence.Embeddable;
-
 import com.fasterxml.jackson.annotation.JsonValue;
+import jakarta.persistence.Embeddable;
 
 import java.util.Objects;
+
+import static no.nav.permitteringsskjemaapi.util.StringUtil.mask;
 
 @Embeddable
 public class Fødselsnummer {

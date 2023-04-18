@@ -1,18 +1,11 @@
 package no.nav.permitteringsskjemaapi.http;
 
-import static no.nav.permitteringsskjemaapi.config.Constants.NAV_CALL_ID;
-import static no.nav.permitteringsskjemaapi.config.Constants.NAV_CONSUMER_ID;
-import static no.nav.permitteringsskjemaapi.util.MDCUtil.toMDC;
-import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
-
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import no.nav.permitteringsskjemaapi.util.CallIdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +14,12 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
-import no.nav.permitteringsskjemaapi.util.CallIdGenerator;
+import java.io.IOException;
+
+import static no.nav.permitteringsskjemaapi.config.Constants.NAV_CALL_ID;
+import static no.nav.permitteringsskjemaapi.config.Constants.NAV_CONSUMER_ID;
+import static no.nav.permitteringsskjemaapi.util.MDCUtil.toMDC;
+import static org.springframework.core.Ordered.LOWEST_PRECEDENCE;
 
 @Component
 @Order(LOWEST_PRECEDENCE)

@@ -9,16 +9,12 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
-import static no.nav.permitteringsskjemaapi.config.Constants.*;
+import static no.nav.permitteringsskjemaapi.config.Constants.NAV_CALL_ID;
 import static no.nav.permitteringsskjemaapi.util.MDCUtil.callIdOrNew;
 
 @Service
@@ -79,17 +75,12 @@ public class PermitteringsskjemaProdusent {
     private void send(ProducerRecord<String, String> record) {
         log.debug("Sender melding {} på {}", record.value(), topic);
         kafkaTemplate.send(record)
-                .addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
-
-                    @Override
-                    public void onSuccess(SendResult<String, String> result) {
+                .whenComplete((result, e) -> {
+                    if (e == null) {
                         log.info("Sendte melding på {}", topic);
                         log.debug("Sendte melding {} med offset {} på {}", record.value(),
                                 result.getRecordMetadata().offset(), topic);
-                    }
-
-                    @Override
-                    public void onFailure(Throwable e) {
+                    } else {
                         log.error("Kunne ikke sende melding på {}. Dette er kanskje på grunn av rullerte credentials. Appen stoppes.", topic, e);
                         SpringApplication.exit(context);
                     }
