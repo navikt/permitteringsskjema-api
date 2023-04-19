@@ -20,20 +20,24 @@ spring:
   profiles.active: test
   jackson:
     default-property-inclusion: non-absent
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
+    properties:
+      max.poll.interval.ms: 60000
+      auto.offset.reset: earliest
+      security.protocol: SSL
+      ssl:
+        keystore:
+          type: PKCS12
+          location: ${KAFKA_KEYSTORE_PATH}
+          password: ${KAFKA_CREDSTORE_PASSWORD}
+        truststore:
+          type: PKCS12
+          location: ${KAFKA_TRUSTSTORE_PATH}
+          password: ${KAFKA_CREDSTORE_PASSWORD}
 
 permittering:
-  arbeidsgiver:
-    enabled: true
-    topic: aapen-permittering-arbeidsgiver
   database:
     url: "jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DATABASE}"
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
-
-kafka:
-  topic: permittering-og-nedbemanning.aapen-permittering-arbeidsgiver
-  keystore.path: ${KAFKA_KEYSTORE_PATH:/dev/zero}
-  truststore.path: ${KAFKA_TRUSTSTORE_PATH:/dev/zero}
-  credstore.password: ${KAFKA_CREDSTORE_PASSWORD:pwd}
-  security.protocol: SSL
-  brokers: ${KAFKA_BROKERS:localhost:9092}

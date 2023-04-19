@@ -1,24 +1,14 @@
-package no.nav.permitteringsskjemaapi.altinn;
+package no.nav.permitteringsskjemaapi.altinn
 
-import java.util.List;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import lombok.AllArgsConstructor;
-import no.nav.security.token.support.core.api.Protected;
+import no.nav.security.token.support.core.api.Protected
+import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/organisasjoner")
-@AllArgsConstructor
 @Protected
-public class OrganisasjonerController {
+class OrganisasjonerController(
+    private val altinnService: AltinnService
+) {
 
-    private final AltinnService altinnService;
-
-    @GetMapping
-    public List<AltinnOrganisasjon> hentOrganisasjoner() {
-        return altinnService.hentOrganisasjoner();
-    }
+    @GetMapping("/organisasjoner")
+    fun hentOrganisasjoner() = altinnService.hentOrganisasjoner()
 }

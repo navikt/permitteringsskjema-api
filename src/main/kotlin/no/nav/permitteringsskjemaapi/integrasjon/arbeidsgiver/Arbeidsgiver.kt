@@ -1,7 +1,5 @@
-package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
+package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver
 
-public interface Arbeidsgiver {
-
-    void publiser(ArbeidsgiverRapport rapport);
-
+interface Arbeidsgiver {
+    fun publiser(rapport: ArbeidsgiverRapport?)
 }

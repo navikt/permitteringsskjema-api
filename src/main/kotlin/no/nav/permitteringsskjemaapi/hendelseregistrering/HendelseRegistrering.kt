@@ -1,47 +1,36 @@
-package no.nav.permitteringsskjemaapi.hendelseregistrering;
+package no.nav.permitteringsskjemaapi.hendelseregistrering
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import no.nav.permitteringsskjemaapi.permittering.domenehendelser.PermitteringsskjemaAvbrutt;
-import no.nav.permitteringsskjemaapi.permittering.domenehendelser.PermitteringsskjemaEndret;
-import no.nav.permitteringsskjemaapi.permittering.domenehendelser.PermitteringsskjemaOpprettet;
-import no.nav.permitteringsskjemaapi.permittering.domenehendelser.PermitteringsskjemaSendtInn;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
-
-import java.util.UUID;
+import no.nav.permitteringsskjemaapi.config.logger
+import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
+import org.springframework.stereotype.Component
 
 @Component
-@Slf4j
-@AllArgsConstructor
-public class HendelseRegistrering {
-    private final HendelseRepository repository;
+class HendelseRegistrering(
+    private val repository: HendelseRepository
+) {
+    private val log = logger()
 
-    @EventListener
-    public void opprettet(PermitteringsskjemaOpprettet event) {
-        UUID skjemaId = event.getPermitteringsskjema().getId();
-        Hendelse hendelse = repository.save(Hendelse.nyHendelse(skjemaId, HendelseType.OPPRETTET, event.getUtførtAv()));
-        log.info("Skjema opprettet skjemaId={} hendelseId={}", skjemaId.toString(), hendelse.getId().toString());
+    fun opprettet(permitteringsskjema: Permitteringsskjema, utførtAv: String) {
+        val skjemaId = permitteringsskjema.id!!
+        val hendelse = repository.save(Hendelse.nyHendelse(skjemaId, HendelseType.OPPRETTET, utførtAv))
+        log.info("Skjema opprettet skjemaId={} hendelseId={}", skjemaId, hendelse.id)
     }
 
-    @EventListener
-    public void endret(PermitteringsskjemaEndret event) {
-        UUID skjemaId = event.getPermitteringsskjema().getId();
-        Hendelse hendelse = repository.save(Hendelse.nyHendelse(skjemaId, HendelseType.ENDRET, event.getUtførtAv()));
-        log.info("Skjema endret skjemaId={} hendelseId={}", skjemaId.toString(), hendelse.getId().toString());
+    fun endret(permitteringsskjema: Permitteringsskjema, utførtAv: String) {
+        val skjemaId = permitteringsskjema.id!!
+        val hendelse = repository.save(Hendelse.nyHendelse(skjemaId, HendelseType.ENDRET, utførtAv))
+        log.info("Skjema endret skjemaId={} hendelseId={}", skjemaId, hendelse.id)
     }
 
-    @EventListener
-    public void sendtInn(PermitteringsskjemaSendtInn event) {
-        UUID skjemaId = event.getPermitteringsskjema().getId();
-        Hendelse hendelse = repository.save(Hendelse.nyHendelse(skjemaId, HendelseType.SENDT_INN, event.getUtførtAv()));
-        log.info("Skjema sendt inn skjemaId={} hendelseId={}", skjemaId.toString(), hendelse.getId().toString());
+    fun sendtInn(permitteringsskjema: Permitteringsskjema, utførtAv: String) {
+        val skjemaId = permitteringsskjema.id!!
+        val hendelse = repository.save(Hendelse.nyHendelse(skjemaId, HendelseType.SENDT_INN, utførtAv))
+        log.info("Skjema sendt inn skjemaId={} hendelseId={}", skjemaId, hendelse.id)
     }
 
-    @EventListener
-    public void avbrutt(PermitteringsskjemaAvbrutt event) {
-        UUID skjemaId = event.getPermitteringsskjema().getId();
-        Hendelse hendelse = repository.save(Hendelse.nyHendelse(skjemaId, HendelseType.AVBRUTT, event.getUtførtAv()));
-        log.info("Skjema avbrutt skjemaId={} hendelseId={}", skjemaId.toString(), hendelse.getId().toString());
+    fun avbrutt(permitteringsskjema: Permitteringsskjema, utførtAv: String) {
+        val skjemaId = permitteringsskjema.id!!
+        val hendelse = repository.save(Hendelse.nyHendelse(skjemaId, HendelseType.AVBRUTT, utførtAv))
+        log.info("Skjema avbrutt skjemaId={} hendelseId={}", skjemaId, hendelse.id)
     }
 }

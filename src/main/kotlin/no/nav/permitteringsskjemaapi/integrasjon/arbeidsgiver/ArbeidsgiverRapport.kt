@@ -1,52 +1,29 @@
-package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
+package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver
 
-import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Value;
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType;
-import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori;
-import no.nav.permitteringsskjemaapi.permittering.Årsakskode;
-import org.springframework.lang.Nullable;
+import jakarta.validation.constraints.NotNull
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
+import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
+import no.nav.permitteringsskjemaapi.permittering.Årsakskode
+import org.springframework.lang.Nullable
+import java.time.Instant
+import java.time.LocalDate
+import java.util.*
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-
-@Value
-@Builder
-public class ArbeidsgiverRapport {
-
-    @NotNull
-    UUID id;
-    @NotNull
-    String bedriftsnummer;
-    @NotNull
-    Instant sendtInnTidspunkt;
-    @NotNull
-    PermitteringsskjemaType type;
-    @NotNull
-    String kontaktNavn;
-    @NotNull
-    String kontaktTlf;
-    @NotNull
-    String kontaktEpost;
-    @NotNull
-    LocalDate varsletAnsattDato;
-    @NotNull
-    LocalDate varsletNavDato;
-    @NotNull
-    LocalDate startDato;
-    @Nullable
-    LocalDate sluttDato;
-    @Nullable
-    String fritekst;
-    @NotNull
-    Integer antallBerorte;
-    @NotNull
-    Årsakskode årsakskode;
-    @Nullable
-    String årsakstekst;
-    @NotNull
-    List<Yrkeskategori> yrkeskategorier;
-}
+data class ArbeidsgiverRapport(
+    var id: @NotNull UUID? = null,
+    var bedriftsnummer: @NotNull String? = null,
+    var sendtInnTidspunkt: @NotNull Instant? = null,
+    var type: @NotNull PermitteringsskjemaType? = null,
+    var kontaktNavn: @NotNull String? = null,
+    var kontaktTlf: @NotNull String? = null,
+    var kontaktEpost: @NotNull String? = null,
+    var varsletAnsattDato: @NotNull LocalDate? = null,
+    var varsletNavDato: @NotNull LocalDate? = null,
+    var startDato: @NotNull LocalDate? = null,
+    @Nullable var sluttDato: LocalDate? = null,
+    @Nullable var fritekst: String? = null,
+    var antallBerorte: @NotNull Int? = null,
+    var årsakskode: @NotNull Årsakskode? = null,
+    @Nullable var årsakstekst: String? = null,
+    var yrkeskategorier: @NotNull List<Yrkeskategori>? = null,
+)

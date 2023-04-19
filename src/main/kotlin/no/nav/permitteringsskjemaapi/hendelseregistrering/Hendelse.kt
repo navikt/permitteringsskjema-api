@@ -1,32 +1,29 @@
-package no.nav.permitteringsskjemaapi.hendelseregistrering;
+package no.nav.permitteringsskjemaapi.hendelseregistrering
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import lombok.Data;
+import jakarta.persistence.*
+import java.time.Instant
+import java.util.*
 
-import java.time.Instant;
-import java.util.UUID;
-
-@Data
 @Entity
-public class Hendelse {
-    @Id
-    private UUID id;
-    private UUID skjemaId;
-    private Instant tidspunkt;
-    @Enumerated(EnumType.STRING)
-    private HendelseType type;
-    private String utførtAv;
+data class Hendelse(
+    @field:Id
+    var id: UUID? = null,
+    var skjemaId: UUID? = null,
+    var tidspunkt: Instant? = null,
+    @field:Enumerated(EnumType.STRING)
+    var type: HendelseType? = null,
+    var utførtAv: String? = null,
 
-    public static Hendelse nyHendelse(UUID skjemaId, HendelseType type, String utførtAv) {
-        Hendelse hendelse = new Hendelse();
-        hendelse.id = UUID.randomUUID();
-        hendelse.skjemaId = skjemaId;
-        hendelse.tidspunkt = Instant.now();
-        hendelse.type = type;
-        hendelse.utførtAv = utførtAv;
-        return hendelse;
+) {
+    companion object {
+        fun nyHendelse(skjemaId: UUID, type: HendelseType, utførtAv: String): Hendelse {
+            val hendelse = Hendelse()
+            hendelse.id = UUID.randomUUID()
+            hendelse.skjemaId = skjemaId
+            hendelse.tidspunkt = Instant.now()
+            hendelse.type = type
+            hendelse.utførtAv = utførtAv
+            return hendelse
+        }
     }
 }

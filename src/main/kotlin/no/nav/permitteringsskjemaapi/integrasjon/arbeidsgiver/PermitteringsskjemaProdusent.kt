@@ -1,96 +1,81 @@
-package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
+package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver
 
-import lombok.extern.slf4j.Slf4j;
-import no.nav.permitteringsskjemaapi.config.KafkaTemplateFactory;
-import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema;
-import no.nav.permitteringsskjemaapi.permittering.domenehendelser.PermitteringsskjemaSendtInn;
-import no.nav.permitteringsskjemaapi.util.ObjectMapperWrapper;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.header.internals.RecordHeader;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.event.EventListener;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Service;
-
-import static no.nav.permitteringsskjemaapi.config.Constants.NAV_CALL_ID;
-import static no.nav.permitteringsskjemaapi.util.MDCUtil.callIdOrNew;
+import com.fasterxml.jackson.databind.ObjectMapper
+import no.nav.permitteringsskjemaapi.config.NAV_CALL_ID
+import no.nav.permitteringsskjemaapi.config.logger
+import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
+import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.header.internals.RecordHeader
+import org.slf4j.MDC
+import org.springframework.boot.SpringApplication
+import org.springframework.context.ApplicationContext
+import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.kafka.support.SendResult
+import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
-@Slf4j
-public class PermitteringsskjemaProdusent {
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapperWrapper mapper;
-    private final String topic;
-    private final ApplicationContext context;
+class PermitteringsskjemaProdusent(
+    private val kafkaTemplate: KafkaTemplate<String, String>,
+    private val mapper: ObjectMapper,
+    private val context: ApplicationContext
+) {
+    private val topic = "permittering-og-nedbemanning.aapen-permittering-arbeidsgiver"
+    private val log = logger()
 
-    public PermitteringsskjemaProdusent(
-            KafkaTemplateFactory kafkaTemplateFactory,
-            ObjectMapperWrapper mapper,
-            @Value("${kafka.topic}") String topic,
-            ApplicationContext context) {
-        this.kafkaTemplate = kafkaTemplateFactory.kafkaTemplate();
-        this.mapper = mapper;
-        this.topic = topic;
-        this.context = context;
+    fun sendInn(permitteringsskjema: Permitteringsskjema) {
+        sendRapport(permitteringsskjema)
     }
 
-    @EventListener
-    public void sendInn(PermitteringsskjemaSendtInn event) {
-        sendRapport(event.getPermitteringsskjema());
+    private fun publiser(rapport: ArbeidsgiverRapport) {
+        log.info("Legger permitteringsskjema {} på kø", rapport.id)
+        val record = ProducerRecord(topic, rapport.id.toString(), mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rapport))
+        record.headers().add(
+            RecordHeader(NAV_CALL_ID, (MDC.get(NAV_CALL_ID) ?: UUID.randomUUID().toString()).toByteArray())
+        )
+        send(record)
     }
 
-    public void publiser(ArbeidsgiverRapport rapport) {
-        log.info("Legger permitteringsskjema {} på kø", rapport.getId());
-        var record = new ProducerRecord<>(topic, rapport.getId().toString(),
-                mapper.writeValueAsString(rapport));
-        record.headers().add(new RecordHeader(NAV_CALL_ID, callIdOrNew().getBytes()));
-        send(record);
+    private fun sendRapport(skjema: Permitteringsskjema) {
+        val rapport = ArbeidsgiverRapport(
+            antallBerorte = skjema.antallBerørt,
+            bedriftsnummer = skjema.bedriftNr,
+            fritekst = skjema.fritekst,
+            id = skjema.id,
+            kontaktEpost = skjema.kontaktEpost,
+            kontaktNavn = skjema.kontaktNavn,
+            kontaktTlf = skjema.kontaktTlf,
+            sendtInnTidspunkt = skjema.sendtInnTidspunkt,
+            sluttDato = skjema.sluttDato,
+            startDato = skjema.startDato,
+            varsletAnsattDato = skjema.varsletAnsattDato,
+            varsletNavDato = skjema.varsletNavDato,
+            type = skjema.type,
+            årsakskode = skjema.årsakskode,
+            årsakstekst = skjema.årsakstekst,
+            yrkeskategorier = skjema.yrkeskategorier,
+        )
+        publiser(rapport)
     }
 
-    private void sendRapport(Permitteringsskjema skjema) {
-        var rapport = ArbeidsgiverRapport.builder()
-                .antallBerorte(skjema.getAntallBerørt())
-                .bedriftsnummer(skjema.getBedriftNr())
-                .fritekst(skjema.getFritekst())
-                .id(skjema.getId())
-                .kontaktEpost(skjema.getKontaktEpost())
-                .kontaktNavn(skjema.getKontaktNavn())
-                .kontaktTlf(skjema.getKontaktTlf())
-                .sendtInnTidspunkt(skjema.getSendtInnTidspunkt())
-                .sluttDato(skjema.getSluttDato())
-                .startDato(skjema.getStartDato())
-                .varsletAnsattDato(skjema.getVarsletAnsattDato())
-                .varsletNavDato(skjema.getVarsletNavDato())
-                .type(skjema.getType())
-                .årsakskode(skjema.getÅrsakskode())
-                .årsakstekst(skjema.getÅrsakstekst())
-                .yrkeskategorier(skjema.getYrkeskategorier())
-                .build();
-        publiser(rapport);
-
-    }
-
-    private void send(ProducerRecord<String, String> record) {
-        log.debug("Sender melding {} på {}", record.value(), topic);
+    private fun send(record: ProducerRecord<String?, String?>) {
+        log.debug("Sender melding {} på {}", record.value(), topic)
         kafkaTemplate.send(record)
-                .whenComplete((result, e) -> {
-                    if (e == null) {
-                        log.info("Sendte melding på {}", topic);
-                        log.debug("Sendte melding {} med offset {} på {}", record.value(),
-                                result.getRecordMetadata().offset(), topic);
-                    } else {
-                        log.error("Kunne ikke sende melding på {}. Dette er kanskje på grunn av rullerte credentials. Appen stoppes.", topic, e);
-                        SpringApplication.exit(context);
-                    }
-                });
+            .whenComplete { result: SendResult<String?, String?>, e: Throwable? ->
+                if (e == null) {
+                    log.info("Sendte melding på {}", topic)
+                    log.debug(
+                        "Sendte melding {} med offset {} på {}", record.value(),
+                        result.recordMetadata.offset(), topic
+                    )
+                } else {
+                    log.error(
+                        "Kunne ikke sende melding på {}. Dette er kanskje på grunn av rullerte credentials. Appen stoppes.",
+                        topic,
+                        e
+                    )
+                    SpringApplication.exit(context)
+                }
+            }
     }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[kafkaOperations=" + kafkaTemplate + ", mapper=" + mapper + ", topic="
-                + topic + "]";
-    }
-
 }

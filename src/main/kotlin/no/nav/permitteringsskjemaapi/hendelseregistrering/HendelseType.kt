@@ -1,5 +1,5 @@
-package no.nav.permitteringsskjemaapi.hendelseregistrering;
+package no.nav.permitteringsskjemaapi.hendelseregistrering
 
-public enum HendelseType {
+enum class HendelseType {
     OPPRETTET, ENDRET, SENDT_INN, AVBRUTT
 }

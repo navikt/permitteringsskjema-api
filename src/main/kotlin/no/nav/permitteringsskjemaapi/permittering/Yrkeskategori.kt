@@ -1,34 +1,23 @@
-package no.nav.permitteringsskjemaapi.permittering;
+package no.nav.permitteringsskjemaapi.permittering
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import java.util.*
 
-import java.util.UUID;
-
-// Lombok
-@Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-// JPA
 @Entity
-public class Yrkeskategori {
-    @Id
+data class Yrkeskategori(
     @JsonIgnore
-    private UUID id;
-
-    @ManyToOne
-    @JoinColumn(name = "permitteringsskjema_id")
+    @field:Id
+    var id: UUID? = null,
     @JsonIgnore
-    @ToString.Exclude
-    private Permitteringsskjema permitteringsskjema;
-
-    private Integer konseptId;
-    private String styrk08;
-    private String label;
-    private Integer antall;
-}
+    @field:ManyToOne
+    @field:JoinColumn(name = "permitteringsskjema_id")
+    var permitteringsskjema: Permitteringsskjema? = null,
+    var konseptId: Int? = null,
+    var styrk08: String? = null,
+    var label: String? = null,
+    var antall: Int? = null,
+)

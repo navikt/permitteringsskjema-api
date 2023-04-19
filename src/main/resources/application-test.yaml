@@ -54,5 +54,3 @@ no.nav.security.jwt:
 altinn:
   altinnProxyUrl: "http://localhost:${mock.port}/altinn/"
 
-kafka:
-  security.protocol: PLAINTEXT

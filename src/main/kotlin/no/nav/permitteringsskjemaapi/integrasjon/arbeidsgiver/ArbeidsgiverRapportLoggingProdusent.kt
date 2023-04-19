@@ -1,24 +1,16 @@
-package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver;
+package no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.stereotype.Service;
+import no.nav.permitteringsskjemaapi.config.logger
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.stereotype.Service
 
 @Service
-@ConditionalOnMissingBean(PermitteringsskjemaProdusent.class)
-public class ArbeidsgiverRapportLoggingProdusent implements Arbeidsgiver {
+@ConditionalOnMissingBean(PermitteringsskjemaProdusent::class)
+class ArbeidsgiverRapportLoggingProdusent : Arbeidsgiver {
+    private val topic = "permittering-og-nedbemanning.aapen-permittering-arbeidsgiver"
+    private val log = logger()
 
-    private static final Logger LOG = LoggerFactory.getLogger(ArbeidsgiverRapportLoggingProdusent.class);
-    private final String topic;
-
-    public ArbeidsgiverRapportLoggingProdusent(@Value("${kafka.topic}") String topic) {
-        this.topic = topic;
-    }
-
-    @Override
-    public void publiser(ArbeidsgiverRapport rapport) {
-        LOG.info("Sender {} på {}", rapport, topic);
+    override fun publiser(rapport: ArbeidsgiverRapport?) {
+        log.info("Sender {} på {}", rapport, topic)
     }
 }

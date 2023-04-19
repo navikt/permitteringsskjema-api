@@ -1,8 +1,6 @@
-package no.nav.permitteringsskjemaapi.hendelseregistrering;
+package no.nav.permitteringsskjemaapi.hendelseregistrering
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaRepository
+import java.util.*
 
-import java.util.UUID;
-
-public interface HendelseRepository extends JpaRepository<Hendelse, UUID> {
-}
+interface HendelseRepository : JpaRepository<Hendelse?, UUID?>

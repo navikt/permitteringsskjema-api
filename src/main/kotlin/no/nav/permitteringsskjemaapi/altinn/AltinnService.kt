@@ -1,8 +1,6 @@
-package no.nav.permitteringsskjemaapi.altinn;
+package no.nav.permitteringsskjemaapi.altinn
 
-import java.util.List;
-
-public interface AltinnService {
-    List<AltinnOrganisasjon> hentOrganisasjoner();
-    List<AltinnOrganisasjon> hentOrganisasjonerBasertPåRettigheter(String serviceKode, String serviceEdition);
+interface AltinnService {
+    fun hentOrganisasjoner(): List<AltinnOrganisasjon>
+    fun hentOrganisasjonerBasertPåRettigheter(serviceKode: String, serviceEdition: String): List<AltinnOrganisasjon>
 }

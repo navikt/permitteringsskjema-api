@@ -1,16 +1,12 @@
-package no.nav.permitteringsskjemaapi;
+package no.nav.permitteringsskjemaapi
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
+
 
 @SpringBootTest
-class ApplicationTests {
-
+internal class ApplicationTests {
     @Test
-    void contextLoads() {
+    fun contextLoads() {
     }
-
 }

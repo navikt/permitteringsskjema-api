@@ -1,12 +1,8 @@
-package no.nav.permitteringsskjemaapi.altinn;
+package no.nav.permitteringsskjemaapi.altinn
 
-import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.context.properties.ConfigurationProperties
 
-@Component
-@Data
 @ConfigurationProperties(prefix = "altinn")
-public class AltinnConfig {
-    private String altinnProxyUrl;
-}
+data class AltinnConfig(
+    var altinnProxyUrl: String = ""
+)

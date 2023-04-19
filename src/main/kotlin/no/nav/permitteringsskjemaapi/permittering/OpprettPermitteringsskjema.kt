@@ -1,9 +1,7 @@
-package no.nav.permitteringsskjemaapi.permittering;
+package no.nav.permitteringsskjemaapi.permittering
 
-import lombok.Value;
 
-@Value
-public class OpprettPermitteringsskjema {
-    String bedriftNr;
-    PermitteringsskjemaType type;
-}
+data class OpprettPermitteringsskjema(
+    var bedriftNr: String? = null,
+    var type: PermitteringsskjemaType? = null,
+)

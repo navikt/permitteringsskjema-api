@@ -1,45 +1,40 @@
-package no.nav.permitteringsskjemaapi.kodeverk;
+package no.nav.permitteringsskjemaapi.kodeverk
 
-import io.swagger.v3.oas.annotations.Hidden;
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType;
-import no.nav.permitteringsskjemaapi.permittering.Årsakskode;
-import no.nav.security.token.support.core.api.Unprotected;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.EnumMap;
-import java.util.Map;
+import io.swagger.v3.oas.annotations.Hidden
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
+import no.nav.permitteringsskjemaapi.permittering.Årsakskode
+import no.nav.security.token.support.core.api.Unprotected
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @Unprotected
 @RestController
 @RequestMapping("/kodeverk")
-public class KodeverkController {
-
+class KodeverkController {
     @Hidden
     @GetMapping
-    public Map<String, Map<? extends Enum, String>> alleKoder() {
-        return Map.of(
-                "årsakskoder", årsakskoder(),
-                "skjematyper", skjematyper()
-        );
-    }
+    fun alleKoder() = mapOf(
+        "årsakskoder" to årsakskoder(),
+        "skjematyper" to skjematyper()
+    )
 
     @GetMapping("/årsakskoder")
-    public Map<Årsakskode, String> årsakskoder() {
-        var map = new EnumMap<Årsakskode, String>(Årsakskode.class);
-        for (Årsakskode årsakskode : Årsakskode.values()) {
-            map.put(årsakskode, årsakskode.getNavn());
+    fun årsakskoder(): Map<Årsakskode?, String?> {
+        val map = EnumMap<Årsakskode, String?>(Årsakskode::class.java)
+        for (årsakskode in Årsakskode.values()) {
+            map[årsakskode] = årsakskode.navn
         }
-        return map;
+        return map
     }
 
     @GetMapping("/skjematyper")
-    public Map<PermitteringsskjemaType, String> skjematyper() {
-        var map = new EnumMap<PermitteringsskjemaType, String>(PermitteringsskjemaType.class);
-        for (var skjemaType : PermitteringsskjemaType.values()) {
-            map.put(skjemaType, skjemaType.getNavn());
+    fun skjematyper(): Map<PermitteringsskjemaType?, String?> {
+        val map = EnumMap<PermitteringsskjemaType, String>(
+            PermitteringsskjemaType::class.java
+        )
+        for (skjemaType in PermitteringsskjemaType.values()) {
+            map[skjemaType] = skjemaType.navn
         }
-        return map;
+        return map
     }
 }

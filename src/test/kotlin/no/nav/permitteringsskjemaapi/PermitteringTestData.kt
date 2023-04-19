@@ -1,54 +1,49 @@
-package no.nav.permitteringsskjemaapi;
+package no.nav.permitteringsskjemaapi
 
-import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema;
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType;
-import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori;
-import no.nav.permitteringsskjemaapi.permittering.Årsakskode;
+import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
+import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
+import no.nav.permitteringsskjemaapi.permittering.Årsakskode
+import java.time.Instant
+import java.time.LocalDate
+import java.util.*
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.UUID;
-
-public class PermitteringTestData {
-
-    public static Permitteringsskjema enPermitteringMedAltFyltUt() {
-        var permitteringsskjema = new Permitteringsskjema();
-        permitteringsskjema.setId(UUID.randomUUID());
-        permitteringsskjema.setOpprettetTidspunkt(Instant.now());
-        permitteringsskjema.setBedriftNr("999999999");
-        permitteringsskjema.setType(PermitteringsskjemaType.PERMITTERING_UTEN_LØNN);
-        permitteringsskjema.setKontaktNavn("Tore Toresen");
-        permitteringsskjema.setKontaktTlf("66778899");
-        permitteringsskjema.setKontaktEpost("per@bedrift.no");
-        permitteringsskjema.setVarsletAnsattDato(LocalDate.of(2020, 3, 16));
-        permitteringsskjema.setVarsletNavDato(LocalDate.of(2020, 9, 21));
-        permitteringsskjema.setStartDato(LocalDate.of(2020, 3, 17));
-        permitteringsskjema.setSluttDato(LocalDate.of(2020, 9, 18));
-        permitteringsskjema.setUkjentSluttDato(false);
-        permitteringsskjema.setFritekst("Fritekst");
-        permitteringsskjema.setAntallBerørt(1);
-        permitteringsskjema.setÅrsakskode(Årsakskode.MANGEL_PÅ_ARBEID);
-
-        Yrkeskategori enYrkeskategori = enYrkeskategori();
-        enYrkeskategori.setPermitteringsskjema(permitteringsskjema);
-        permitteringsskjema.getYrkeskategorier().add(enYrkeskategori);
-
-        return permitteringsskjema;
+object PermitteringTestData {
+    fun enPermitteringMedAltFyltUt(): Permitteringsskjema {
+        val permitteringsskjema = Permitteringsskjema()
+        permitteringsskjema.id = UUID.randomUUID()
+        permitteringsskjema.opprettetTidspunkt = Instant.now()
+        permitteringsskjema.bedriftNr = "999999999"
+        permitteringsskjema.type = PermitteringsskjemaType.PERMITTERING_UTEN_LØNN
+        permitteringsskjema.kontaktNavn = "Tore Toresen"
+        permitteringsskjema.kontaktTlf = "66778899"
+        permitteringsskjema.kontaktEpost = "per@bedrift.no"
+        permitteringsskjema.varsletAnsattDato = LocalDate.of(2020, 3, 16)
+        permitteringsskjema.varsletNavDato = LocalDate.of(2020, 9, 21)
+        permitteringsskjema.startDato = LocalDate.of(2020, 3, 17)
+        permitteringsskjema.sluttDato = LocalDate.of(2020, 9, 18)
+        permitteringsskjema.ukjentSluttDato = false
+        permitteringsskjema.fritekst = "Fritekst"
+        permitteringsskjema.antallBerørt = 1
+        permitteringsskjema.årsakskode = Årsakskode.MANGEL_PÅ_ARBEID
+        val enYrkeskategori = enYrkeskategori()
+        enYrkeskategori.permitteringsskjema = permitteringsskjema
+        permitteringsskjema.yrkeskategorier = listOf(enYrkeskategori)
+        return permitteringsskjema
     }
 
-    public static Permitteringsskjema enPermitteringMedIkkeAltFyltUt() {
-        var skjema = enPermitteringMedAltFyltUt();
-        skjema.setType(null);
-        return skjema;
+    fun enPermitteringMedIkkeAltFyltUt(): Permitteringsskjema {
+        val skjema = enPermitteringMedAltFyltUt()
+        skjema.type = null
+        return skjema
     }
 
-    private static Yrkeskategori enYrkeskategori() {
-        var yrkeskategori = new Yrkeskategori();
-        yrkeskategori.setId(UUID.randomUUID());
-        yrkeskategori.setKonseptId(1000);
-        yrkeskategori.setStyrk08("0001");
-        yrkeskategori.setLabel("Label");
-        return yrkeskategori;
+    private fun enYrkeskategori(): Yrkeskategori {
+        val yrkeskategori = Yrkeskategori()
+        yrkeskategori.id = UUID.randomUUID()
+        yrkeskategori.konseptId = 1000
+        yrkeskategori.styrk08 = "0001"
+        yrkeskategori.label = "Label"
+        return yrkeskategori
     }
-
 }

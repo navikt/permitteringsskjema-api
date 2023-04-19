@@ -1,67 +1,73 @@
-package no.nav.permitteringsskjemaapi;
+package no.nav.permitteringsskjemaapi
 
-import no.nav.permitteringsskjemaapi.exceptions.AlleFelterIkkeFyltUtException;
-import no.nav.permitteringsskjemaapi.exceptions.SkjemaErAvbruttException;
-import no.nav.permitteringsskjemaapi.permittering.EndrePermitteringsskjema;
-import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema;
-import org.junit.jupiter.api.Test;
+import no.nav.permitteringsskjemaapi.exceptions.AlleFelterIkkeFyltUtException
+import no.nav.permitteringsskjemaapi.exceptions.SkjemaErAvbruttException
+import no.nav.permitteringsskjemaapi.permittering.EndrePermitteringsskjema
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.Test
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
-import java.time.Instant;
-
-import static java.time.temporal.ChronoUnit.MILLIS;
-import static org.assertj.core.api.Assertions.*;
-
-class PermitteringsskjemaTest {
+internal class PermitteringsskjemaTest {
     @Test
-    void skal_ikke_kunne_endres_når_allerede_sendt_inn() {
-        Permitteringsskjema skjema = PermitteringTestData.enPermitteringMedAltFyltUt();
-        skjema.setSendtInnTidspunkt(Instant.now());
-        assertThatThrownBy(() -> skjema.endre(EndrePermitteringsskjema.builder().build(), "")).isInstanceOf(RuntimeException.class);
+    fun skal_ikke_kunne_endres_når_allerede_sendt_inn() {
+        val skjema = PermitteringTestData.enPermitteringMedAltFyltUt()
+        skjema.sendtInnTidspunkt = Instant.now()
+        Assertions.assertThatThrownBy {
+            skjema.endre(EndrePermitteringsskjema())
+        }.isInstanceOf(RuntimeException::class.java)
     }
 
     @Test
-    void skal_ikke_kunne_sendes_inn_når_allerede_sendt_inn() {
-        Permitteringsskjema skjema = PermitteringTestData.enPermitteringMedAltFyltUt();
-        skjema.setSendtInnTidspunkt(Instant.now());
-        assertThatThrownBy(() -> skjema.sendInn("")).isInstanceOf(RuntimeException.class);
+    fun skal_ikke_kunne_sendes_inn_når_allerede_sendt_inn() {
+        val skjema = PermitteringTestData.enPermitteringMedAltFyltUt()
+        skjema.sendtInnTidspunkt = Instant.now()
+        Assertions.assertThatThrownBy { skjema.sendInn() }.isInstanceOf(
+            RuntimeException::class.java
+        )
     }
 
     @Test
-    void skal_kunne_sendes_inn_når_alt_er_fylt_ut() {
-        Permitteringsskjema skjema = PermitteringTestData.enPermitteringMedAltFyltUt();
-        skjema.sendInn("");
+    fun skal_kunne_sendes_inn_når_alt_er_fylt_ut() {
+        val skjema = PermitteringTestData.enPermitteringMedAltFyltUt()
+        skjema.sendInn()
 
         // 100 ms er valgt litt vilkårlig, bare så det ikke sammenlignes eksakt på
         // nanosekundet
-        assertThat(skjema.getSendtInnTidspunkt()).isCloseTo(Instant.now(), within(100, MILLIS));
+        Assertions.assertThat(skjema.sendtInnTidspunkt).isCloseTo(Instant.now(), Assertions.within(100, ChronoUnit.MILLIS))
     }
 
     @Test
-    void skal_ikke_kunne_sendes_inn_når_det_mangler_noe() {
-        Permitteringsskjema skjema = PermitteringTestData.enPermitteringMedIkkeAltFyltUt();
-        skjema.setKontaktNavn("");
-        assertThatThrownBy(() -> skjema.sendInn("")).isInstanceOf(AlleFelterIkkeFyltUtException.class);
+    fun skal_ikke_kunne_sendes_inn_når_det_mangler_noe() {
+        val skjema = PermitteringTestData.enPermitteringMedIkkeAltFyltUt()
+        skjema.kontaktNavn = ""
+        Assertions.assertThatThrownBy {
+            skjema.sendInn()
+        }.isInstanceOf(AlleFelterIkkeFyltUtException::class.java)
     }
 
     @Test
-    void skal_kunne_avbrytes() {
-        Permitteringsskjema skjema = PermitteringTestData.enPermitteringMedAltFyltUt();
-        skjema.avbryt("");
-        assertThat(skjema.isAvbrutt());
+    fun skal_kunne_avbrytes() {
+        val skjema = PermitteringTestData.enPermitteringMedAltFyltUt()
+        skjema.avbryt()
+        Assertions.assertThat(skjema.avbrutt)
     }
 
     @Test
-    void skal_ikke_kunne_endres_etter_at_det_er_avbrutt() {
-        Permitteringsskjema skjema = PermitteringTestData.enPermitteringMedAltFyltUt();
-        skjema.setAvbrutt(true);
-        assertThatThrownBy(() -> skjema.endre(EndrePermitteringsskjema.builder().build(), ""))
-                .isInstanceOf(SkjemaErAvbruttException.class);
+    fun skal_ikke_kunne_endres_etter_at_det_er_avbrutt() {
+        val skjema = PermitteringTestData.enPermitteringMedAltFyltUt()
+        skjema.avbrutt = true
+        Assertions.assertThatThrownBy {
+            skjema.endre(EndrePermitteringsskjema())
+        }.isInstanceOf(SkjemaErAvbruttException::class.java)
     }
 
     @Test
-    void skal_ikke_kunne_avbrytes_etter_at_det_er_sendt_inn() {
-        Permitteringsskjema skjema = PermitteringTestData.enPermitteringMedAltFyltUt();
-        skjema.setSendtInnTidspunkt(Instant.now());
-        assertThatThrownBy(() -> skjema.avbryt("")).isInstanceOf(RuntimeException.class);
+    fun skal_ikke_kunne_avbrytes_etter_at_det_er_sendt_inn() {
+        val skjema = PermitteringTestData.enPermitteringMedAltFyltUt()
+        skjema.sendtInnTidspunkt = Instant.now()
+        Assertions.assertThatThrownBy {
+            skjema.avbryt()
+        }.isInstanceOf(RuntimeException::class.java)
     }
 }

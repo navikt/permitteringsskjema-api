@@ -1,28 +1,20 @@
-package no.nav.permitteringsskjemaapi.permittering;
+package no.nav.permitteringsskjemaapi.permittering
 
-import lombok.Builder;
-import lombok.Value;
+import java.time.LocalDate
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-@Builder
-@Value
-// Value object med felter som kan endres på et skjema
-public class EndrePermitteringsskjema {
-    PermitteringsskjemaType type;
-    String kontaktNavn;
-    String kontaktTlf;
-    String kontaktEpost;
-    LocalDate varsletAnsattDato;
-    LocalDate varsletNavDato;
-    LocalDate startDato;
-    LocalDate sluttDato;
-    Boolean ukjentSluttDato;
-    String fritekst;
-    Integer antallBerørt;
-    List<Yrkeskategori> yrkeskategorier = new ArrayList<>();
-    Årsakskode årsakskode;
-    String årsakstekst;
-}
+data class EndrePermitteringsskjema(
+    var type: PermitteringsskjemaType? = null,
+    var kontaktNavn: String? = null,
+    var kontaktTlf: String? = null,
+    var kontaktEpost: String? = null,
+    var varsletAnsattDato: LocalDate? = null,
+    var varsletNavDato: LocalDate? = null,
+    var startDato: LocalDate? = null,
+    var sluttDato: LocalDate? = null,
+    var ukjentSluttDato: Boolean? = null,
+    var fritekst: String? = null,
+    var antallBerørt: Int? = null,
+    var yrkeskategorier: List<Yrkeskategori> = listOf(),
+    var årsakskode: Årsakskode? = null,
+    var årsakstekst: String? = null,
+)
