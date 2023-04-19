@@ -24,7 +24,7 @@ jobs:
           - 3456:5432
     steps:
       - uses: actions/checkout@v3
-      - run: PGPASSWORD=postgres psql -U postgres -h localhost -p 2345 -f ./local-db-init.sql
+      - run: PGPASSWORD=postgres psql -U postgres -h localhost -p 3456 -f ./local-db-init.sql
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
