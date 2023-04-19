@@ -40,7 +40,7 @@ class Permitteringsskjema(
         orphanRemoval = true,
         fetch = FetchType.LAZY
     )
-    var yrkeskategorier: List<Yrkeskategori> = listOf(),
+    var yrkeskategorier: List<Yrkeskategori> = mutableListOf(),
     @field:Enumerated(EnumType.STRING)
     var årsakskode: Årsakskode? = null,
     var årsakstekst: String? = null,
@@ -120,6 +120,22 @@ class Permitteringsskjema(
         sjekkOmSkjemaErSendtInn()
         avbrutt = true
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Permitteringsskjema
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id?.hashCode() ?: 0
+    }
+
 
     companion object {
         private val log = logger()
