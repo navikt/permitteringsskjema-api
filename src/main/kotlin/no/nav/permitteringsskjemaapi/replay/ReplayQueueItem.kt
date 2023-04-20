@@ -1,17 +1,17 @@
-package no.nav.permitteringsskjemaapi.replay;
+package no.nav.permitteringsskjemaapi.replay
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.UUID;
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Table
+import java.util.*
 
 @Entity
 @Table(name = "replay_queue_items")
-public class ReplayQueueItem {
-    @Id
-    UUID id;
+data class ReplayQueueItem(
+    @field:Id
+    var id: UUID? = null,
 
-    @Column(name = "skjema_id")
-    UUID skjemaId;
-}
+    @field:Column(name = "skjema_id")
+    var skjemaId: UUID? = null,
+)
