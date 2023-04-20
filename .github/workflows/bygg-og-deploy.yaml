@@ -59,7 +59,7 @@ jobs:
     ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
     ### e.g. github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test-branch'
     #########################
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/limit_actuator'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/replay_queue'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -73,11 +73,7 @@ jobs:
   deploy-to-prod-gcp:
     name: Deploy to prod-gcp
     needs: build
-    #########################
-    ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
-    ### e.g. github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test-branch'
-    #########################
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/flytt-til-gcp'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
