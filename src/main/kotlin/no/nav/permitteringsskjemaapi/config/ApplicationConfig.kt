@@ -3,6 +3,9 @@ package no.nav.permitteringsskjemaapi.config
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
+import no.nav.security.token.support.client.spring.ClientConfigurationProperties
+import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -25,13 +28,28 @@ import java.util.*
 @EnableScheduling
 @Configuration
 @ConfigurationPropertiesScan("no.nav.permitteringsskjemaapi")
+@EnableOAuth2Client(cacheEnabled = true)
 @EnableJwtTokenValidation(ignore = ["org.springframework", "org.springdoc"])
 class ApplicationConfig {
 
     private val log = logger()
 
     @Bean
-    fun restTemplate(builder: RestTemplateBuilder): RestTemplate = builder.build()
+    fun bearerTokenRestTemplate(
+        restTemplateBuilder: RestTemplateBuilder,
+        clientConfigurationProperties: ClientConfigurationProperties,
+        oAuth2AccessTokenService: OAuth2AccessTokenService
+    ): RestTemplate = restTemplateBuilder
+        .additionalInterceptors(
+            ClientHttpRequestInterceptor { request, body, execution ->
+                val accessTokenResponse =
+                    oAuth2AccessTokenService.getAccessToken(clientConfigurationProperties.registration["altinn-rettigheter-client"])
+                request.headers.setBearerAuth(accessTokenResponse.accessToken)
+                request.headers["x-consumer-id"] = "permitteringsskjema-api"
+                execution.execute(request, body)
+            },
+        )
+        .build()
 
     /**
      * propagerer callid fra MDC til request header
