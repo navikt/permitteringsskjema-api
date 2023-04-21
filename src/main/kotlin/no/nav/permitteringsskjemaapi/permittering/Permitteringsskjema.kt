@@ -40,7 +40,7 @@ class Permitteringsskjema(
         orphanRemoval = true,
         fetch = FetchType.LAZY
     )
-    var yrkeskategorier: List<Yrkeskategori> = mutableListOf(),
+    var yrkeskategorier: MutableList<Yrkeskategori> = mutableListOf(),
     @field:Enumerated(EnumType.STRING)
     var årsakskode: Årsakskode? = null,
     var årsakstekst: String? = null,
@@ -63,7 +63,10 @@ class Permitteringsskjema(
         antallBerørt = endreSkjema.antallBerørt
         årsakskode = endreSkjema.årsakskode
         årsakstekst = endreSkjema.årsakstekst
-        yrkeskategorier = endreSkjema.yrkeskategorier.map { it.copy(id = UUID.randomUUID(), permitteringsskjema = this) }
+        yrkeskategorier.clear()
+        yrkeskategorier.addAll(
+            endreSkjema.yrkeskategorier.map { it.copy(id = UUID.randomUUID(), permitteringsskjema = this) }
+        )
 
     }
 

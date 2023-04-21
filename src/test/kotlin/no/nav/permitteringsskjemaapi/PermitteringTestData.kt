@@ -28,7 +28,7 @@ object PermitteringTestData {
         permitteringsskjema.årsakskode = Årsakskode.MANGEL_PÅ_ARBEID
         val enYrkeskategori = enYrkeskategori()
         enYrkeskategori.permitteringsskjema = permitteringsskjema
-        permitteringsskjema.yrkeskategorier = listOf(enYrkeskategori)
+        permitteringsskjema.yrkeskategorier = mutableListOf(enYrkeskategori)
         return permitteringsskjema
     }
 
