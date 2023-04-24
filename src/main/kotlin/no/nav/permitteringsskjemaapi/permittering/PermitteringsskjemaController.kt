@@ -12,8 +12,6 @@ import no.nav.security.token.support.core.api.Protected
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
-import java.util.concurrent.atomic.AtomicReference
-import java.util.function.Consumer
 
 @RestController
 @Protected
@@ -29,28 +27,12 @@ class PermitteringsskjemaController(
     @GetMapping("/skjema")
     fun hent(): List<Permitteringsskjema> {
         val fnr = fnrExtractor.autentisertBruker()
-        val alleSkjema: MutableList<Permitteringsskjema> = mutableListOf()
-        val skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet()
-        val listeMedSkjemaBrukerenHarOpprettet = repository.findAllByOpprettetAv(fnr)
-        if (skjemaHentetBasertPåRettighet.isNotEmpty()) {
-            alleSkjema.addAll(skjemaHentetBasertPåRettighet)
-        } else {
-            return listeMedSkjemaBrukerenHarOpprettet
-        }
-        if (listeMedSkjemaBrukerenHarOpprettet.isNotEmpty()) {
-            listeMedSkjemaBrukerenHarOpprettet.forEach(Consumer { skjemaBrukerenHarOpprettet: Permitteringsskjema ->
-                val skjemaAlleredeLagtTil = AtomicReference(false)
-                alleSkjema.forEach(Consumer { skjema: Permitteringsskjema ->
-                    if (skjema.id == skjemaBrukerenHarOpprettet.id && !skjemaAlleredeLagtTil.get()) {
-                        skjemaAlleredeLagtTil.set(true)
-                    }
-                })
-                if (!skjemaAlleredeLagtTil.get()) {
-                    alleSkjema.add(skjemaBrukerenHarOpprettet)
-                }
-            })
-        }
-        return alleSkjema
+
+        // TODO: fix in mem sorting of set
+        val skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet().toSet()
+        val listeMedSkjemaBrukerenHarOpprettet = repository.findAllByOpprettetAv(fnr).toSet()
+
+        return (skjemaHentetBasertPåRettighet + listeMedSkjemaBrukerenHarOpprettet).toList()
     }
     
     @GetMapping("/skjema/{id}")
@@ -123,14 +105,9 @@ class PermitteringsskjemaController(
     }
 
     fun hentAlleSkjemaBasertPåRettighet(): List<Permitteringsskjema> {
-        val organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1")
         val liste: MutableList<Permitteringsskjema> = mutableListOf()
-        if (organisasjonerBasertPåRettighet.isNotEmpty()) {
-            organisasjonerBasertPåRettighet.forEach(Consumer { org: AltinnOrganisasjon ->
-                val listeMedInnsendteSkjema = repository.findAllByBedriftNr(org.organizationNumber!!)
-                    .filter { it.sendtInnTidspunkt != null }
-                liste.addAll(listeMedInnsendteSkjema)
-            })
+        altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1").forEach { org: AltinnOrganisasjon ->
+            liste.addAll(repository.findAllByBedriftNr(org.organizationNumber!!))
         }
         return liste
     }
