@@ -1,6 +1,5 @@
 package no.nav.permitteringsskjemaapi.permittering
 
-import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException
@@ -28,11 +27,12 @@ class PermitteringsskjemaController(
     fun hent(): List<Permitteringsskjema> {
         val fnr = fnrExtractor.autentisertBruker()
 
-        // TODO: fix in mem sorting of set
         val skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet().toSet()
         val listeMedSkjemaBrukerenHarOpprettet = repository.findAllByOpprettetAv(fnr).toSet()
 
-        return (skjemaHentetBasertPåRettighet + listeMedSkjemaBrukerenHarOpprettet).toList()
+        return (skjemaHentetBasertPåRettighet + listeMedSkjemaBrukerenHarOpprettet).toList().sortedBy {
+            it.sendtInnTidspunkt ?: it.opprettetTidspunkt
+        }.reversed()
     }
     
     @GetMapping("/skjema/{id}")
@@ -100,15 +100,11 @@ class PermitteringsskjemaController(
         return repository.save(permitteringsskjema)
     }
 
-    private fun hentOrganisasjon(bedriftNr: String): AltinnOrganisasjon? {
-        return altinnService.hentOrganisasjoner().firstOrNull { it.organizationNumber == bedriftNr }
-    }
+    fun hentOrganisasjon(bedriftNr: String) =
+        altinnService.hentOrganisasjoner().firstOrNull { it.organizationNumber == bedriftNr }
 
-    fun hentAlleSkjemaBasertPåRettighet(): List<Permitteringsskjema> {
-        val liste: MutableList<Permitteringsskjema> = mutableListOf()
-        altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1").forEach { org: AltinnOrganisasjon ->
-            liste.addAll(repository.findAllByBedriftNr(org.organizationNumber!!))
+    fun hentAlleSkjemaBasertPåRettighet() =
+        altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1").flatMap {
+            repository.findAllByBedriftNr(it.organizationNumber!!)
         }
-        return liste
-    }
 }
