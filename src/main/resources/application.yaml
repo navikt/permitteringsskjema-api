@@ -20,20 +20,130 @@ spring:
   profiles.active: test
   jackson:
     default-property-inclusion: non-absent
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
+    properties:
+      max.poll.interval.ms: 60000
+      auto.offset.reset: earliest
+      security.protocol: SSL
+      ssl:
+        keystore:
+          type: PKCS12
+          location: ${KAFKA_KEYSTORE_PATH}
+          password: ${KAFKA_CREDSTORE_PASSWORD}
+        truststore:
+          type: PKCS12
+          location: ${KAFKA_TRUSTSTORE_PATH}
+          password: ${KAFKA_CREDSTORE_PASSWORD}
 
 permittering:
-  arbeidsgiver:
-    enabled: true
-    topic: aapen-permittering-arbeidsgiver
   database:
     url: "jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DATABASE}"
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
 
-kafka:
-  topic: permittering-og-nedbemanning.aapen-permittering-arbeidsgiver
-  keystore.path: ${KAFKA_KEYSTORE_PATH:/dev/zero}
-  truststore.path: ${KAFKA_TRUSTSTORE_PATH:/dev/zero}
-  credstore.password: ${KAFKA_CREDSTORE_PASSWORD:pwd}
-  security.protocol: SSL
-  brokers: ${KAFKA_BROKERS:localhost:9092}
+---
+
+spring:
+  flyway:
+    locations: classpath:/db/migration, classpath:/db/privileges
+  config:
+    activate:
+      on-profile: dev-gcp
+
+no.nav.security.jwt:
+  client:
+    registration:
+      altinn-rettigheter-client:
+        token-endpoint-url: https://tokendings.dev-gcp.nais.io/token
+        grant-type: urn:ietf:params:oauth:grant-type:token-exchange
+        authentication:
+          client-id: ${TOKEN_X_CLIENT_ID}
+          client-jwk: ${TOKEN_X_PRIVATE_JWK}
+          client-auth-method: private_key_jwt
+        token-exchange:
+          audience: dev-gcp:arbeidsgiver:altinn-rettigheter-proxy
+  issuer.tokenx:
+    discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
+    accepted_audience: ${TOKEN_X_CLIENT_ID}
+
+altinn:
+  altinnProxyUrl: http://altinn-rettigheter-proxy.arbeidsgiver/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
+
+---
+
+spring:
+  flyway:
+    locations: classpath:/db/migration, classpath:/db/privileges
+  config:
+    activate:
+      on-profile: prod-gcp
+
+no.nav.security.jwt:
+  client:
+    registration:
+      altinn-rettigheter-client:
+        token-endpoint-url: https://tokendings.prod-gcp.nais.io/token
+        grant-type: urn:ietf:params:oauth:grant-type:token-exchange
+        authentication:
+          client-id: ${TOKEN_X_CLIENT_ID}
+          client-jwk: ${TOKEN_X_PRIVATE_JWK}
+          client-auth-method: private_key_jwt
+        token-exchange:
+          audience: prod-gcp:arbeidsgiver:altinn-rettigheter-proxy
+  issuer.tokenx:
+    discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
+    accepted_audience: ${TOKEN_X_CLIENT_ID}
+
+altinn:
+  altinnProxyUrl: http://altinn-rettigheter-proxy.arbeidsgiver/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
+
+---
+
+permittering:
+  arbeidsgiver:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+spring:
+  config:
+    activate:
+      on-profile: test
+  flyway:
+    enabled: true
+  datasource:
+    url: jdbc:postgresql://localhost:3456/permitteringsskjema-api?user=postgres&password=postgres
+
+mock:
+  enabled: true
+  port: 8081
+
+mock-oauth2-server.port: 9000
+no.nav.security.jwt:
+  issuer:
+    tokenx:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
+      cookie_name: localhost-idtoken
+      accepted_audience: tokenx
+  client:
+    registration:
+      altinn-rettigheter-client:
+        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:token-exchange
+        authentication:
+          client-id: 1245
+          client-jwk: src/test/resources/jwk.json
+          client-auth-method: private_key_jwt
+        token-exchange:
+          audience: dev-gcp:arbeidsgiver:altinn-rettigheter-proxy
+
+
+altinn:
+  altinnProxyUrl: "http://localhost:${mock.port}/altinn/"
