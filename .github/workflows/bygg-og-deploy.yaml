@@ -9,21 +9,29 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:12.10
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 3456:5432
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v2
+      - uses: actions/checkout@v3
+      - run: PGPASSWORD=postgres psql -U postgres -h localhost -p 3456 -f ./local-db-init.sql
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: 17
+          cache: maven
 
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Run tests
-        run: mvn test
+      - run: mvn -B -Dsurefire.useFile=false test
 
   build:
     name: Build
@@ -59,7 +67,7 @@ jobs:
     ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
     ### e.g. github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test-branch'
     #########################
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/oppgrader_deps'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/cmdctrlk'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -73,11 +81,7 @@ jobs:
   deploy-to-prod-gcp:
     name: Deploy to prod-gcp
     needs: build
-    #########################
-    ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
-    ### e.g. github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test-branch'
-    #########################
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/flytt-til-gcp'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
