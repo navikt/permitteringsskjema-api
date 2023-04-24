@@ -1,6 +1,5 @@
 package no.nav.permitteringsskjemaapi.permittering
 
-import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException
@@ -12,8 +11,6 @@ import no.nav.security.token.support.core.api.Protected
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
-import java.util.concurrent.atomic.AtomicReference
-import java.util.function.Consumer
 
 @RestController
 @Protected
@@ -29,28 +26,13 @@ class PermitteringsskjemaController(
     @GetMapping("/skjema")
     fun hent(): List<Permitteringsskjema> {
         val fnr = fnrExtractor.autentisertBruker()
-        val alleSkjema: MutableList<Permitteringsskjema> = mutableListOf()
-        val skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet()
-        val listeMedSkjemaBrukerenHarOpprettet = repository.findAllByOpprettetAv(fnr)
-        if (skjemaHentetBasertPåRettighet.isNotEmpty()) {
-            alleSkjema.addAll(skjemaHentetBasertPåRettighet)
-        } else {
-            return listeMedSkjemaBrukerenHarOpprettet
-        }
-        if (listeMedSkjemaBrukerenHarOpprettet.isNotEmpty()) {
-            listeMedSkjemaBrukerenHarOpprettet.forEach(Consumer { skjemaBrukerenHarOpprettet: Permitteringsskjema ->
-                val skjemaAlleredeLagtTil = AtomicReference(false)
-                alleSkjema.forEach(Consumer { skjema: Permitteringsskjema ->
-                    if (skjema.id == skjemaBrukerenHarOpprettet.id && !skjemaAlleredeLagtTil.get()) {
-                        skjemaAlleredeLagtTil.set(true)
-                    }
-                })
-                if (!skjemaAlleredeLagtTil.get()) {
-                    alleSkjema.add(skjemaBrukerenHarOpprettet)
-                }
-            })
-        }
-        return alleSkjema
+
+        val skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet().toSet()
+        val listeMedSkjemaBrukerenHarOpprettet = repository.findAllByOpprettetAv(fnr).toSet()
+
+        return (skjemaHentetBasertPåRettighet + listeMedSkjemaBrukerenHarOpprettet).toList().sortedBy {
+            it.sendtInnTidspunkt ?: it.opprettetTidspunkt
+        }.reversed()
     }
     
     @GetMapping("/skjema/{id}")
@@ -118,20 +100,11 @@ class PermitteringsskjemaController(
         return repository.save(permitteringsskjema)
     }
 
-    private fun hentOrganisasjon(bedriftNr: String): AltinnOrganisasjon? {
-        return altinnService.hentOrganisasjoner().firstOrNull { it.organizationNumber == bedriftNr }
-    }
+    fun hentOrganisasjon(bedriftNr: String) =
+        altinnService.hentOrganisasjoner().firstOrNull { it.organizationNumber == bedriftNr }
 
-    fun hentAlleSkjemaBasertPåRettighet(): List<Permitteringsskjema> {
-        val organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1")
-        val liste: MutableList<Permitteringsskjema> = mutableListOf()
-        if (organisasjonerBasertPåRettighet.isNotEmpty()) {
-            organisasjonerBasertPåRettighet.forEach(Consumer { org: AltinnOrganisasjon ->
-                val listeMedInnsendteSkjema = repository.findAllByBedriftNr(org.organizationNumber!!)
-                    .filter { it.sendtInnTidspunkt != null }
-                liste.addAll(listeMedInnsendteSkjema)
-            })
+    fun hentAlleSkjemaBasertPåRettighet() =
+        altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1").flatMap {
+            repository.findAllByBedriftNr(it.organizationNumber!!)
         }
-        return liste
-    }
 }

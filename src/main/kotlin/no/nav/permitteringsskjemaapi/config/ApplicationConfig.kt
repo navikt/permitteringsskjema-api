@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletResponse
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
-import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -16,6 +15,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.boot.web.client.RestTemplateCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.http.HttpRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.client.ClientHttpRequestExecution
@@ -29,7 +29,7 @@ import java.util.*
 @Configuration
 @ConfigurationPropertiesScan("no.nav.permitteringsskjemaapi")
 @EnableOAuth2Client(cacheEnabled = true)
-@EnableJwtTokenValidation(ignore = ["org.springframework", "org.springdoc"])
+@Import(TokenSupportJwtConfig::class)
 class ApplicationConfig {
 
     private val log = logger()

@@ -10,40 +10,37 @@ import java.util.*
 
 object PermitteringTestData {
     fun enPermitteringMedAltFyltUt(): Permitteringsskjema {
-        val permitteringsskjema = Permitteringsskjema()
-        permitteringsskjema.id = UUID.randomUUID()
-        permitteringsskjema.opprettetTidspunkt = Instant.now()
-        permitteringsskjema.bedriftNr = "999999999"
-        permitteringsskjema.type = PermitteringsskjemaType.PERMITTERING_UTEN_LØNN
-        permitteringsskjema.kontaktNavn = "Tore Toresen"
-        permitteringsskjema.kontaktTlf = "66778899"
-        permitteringsskjema.kontaktEpost = "per@bedrift.no"
-        permitteringsskjema.varsletAnsattDato = LocalDate.of(2020, 3, 16)
-        permitteringsskjema.varsletNavDato = LocalDate.of(2020, 9, 21)
-        permitteringsskjema.startDato = LocalDate.of(2020, 3, 17)
-        permitteringsskjema.sluttDato = LocalDate.of(2020, 9, 18)
-        permitteringsskjema.ukjentSluttDato = false
-        permitteringsskjema.fritekst = "Fritekst"
-        permitteringsskjema.antallBerørt = 1
-        permitteringsskjema.årsakskode = Årsakskode.MANGEL_PÅ_ARBEID
-        val enYrkeskategori = enYrkeskategori()
-        enYrkeskategori.permitteringsskjema = permitteringsskjema
-        permitteringsskjema.yrkeskategorier = mutableListOf(enYrkeskategori)
-        return permitteringsskjema
+        return Permitteringsskjema(
+            id = UUID.randomUUID(),
+            opprettetTidspunkt = Instant.now(),
+            bedriftNr = "999999999",
+            type = PermitteringsskjemaType.PERMITTERING_UTEN_LØNN,
+            kontaktNavn = "Tore Toresen",
+            kontaktTlf = "66778899",
+            kontaktEpost = "per@bedrift.no",
+            varsletAnsattDato = LocalDate.of(2020, 3, 16),
+            varsletNavDato = LocalDate.of(2020, 9, 21),
+            startDato = LocalDate.of(2020, 3, 17),
+            sluttDato = LocalDate.of(2020, 9, 18),
+            ukjentSluttDato = false,
+            fritekst = "Fritekst",
+            antallBerørt = 1,
+            årsakskode = Årsakskode.MANGEL_PÅ_ARBEID,
+        ).apply {
+            val enYrkeskategori = enYrkeskategori()
+            enYrkeskategori.permitteringsskjema = this
+            yrkeskategorier = mutableListOf(enYrkeskategori)
+        }
     }
 
-    fun enPermitteringMedIkkeAltFyltUt(): Permitteringsskjema {
-        val skjema = enPermitteringMedAltFyltUt()
-        skjema.type = null
-        return skjema
+    fun enPermitteringMedIkkeAltFyltUt() = enPermitteringMedAltFyltUt().apply {
+        type = null
     }
 
-    private fun enYrkeskategori(): Yrkeskategori {
-        val yrkeskategori = Yrkeskategori()
-        yrkeskategori.id = UUID.randomUUID()
-        yrkeskategori.konseptId = 1000
-        yrkeskategori.styrk08 = "0001"
-        yrkeskategori.label = "Label"
-        return yrkeskategori
-    }
+    private fun enYrkeskategori() = Yrkeskategori(
+        id = UUID.randomUUID(),
+        konseptId = 1000,
+        styrk08 = "0001",
+        label = "Label",
+    )
 }
