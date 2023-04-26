@@ -18,7 +18,7 @@
     <properties>
         <java.version>17</java.version>
         <kotlin.version>1.8.20</kotlin.version>
-        <nav.security.version>3.0.10</nav.security.version>
+        <nav.security.version>3.0.11</nav.security.version>
     </properties>
 
     <dependencies>
