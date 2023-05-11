@@ -7,7 +7,7 @@ import java.util.*
 @Entity
 @Table(name = "journalforing")
 class Journalføring() {
-    constructor(skjemaid: UUID): this() {
+    constructor(skjemaid: UUID) : this() {
         this.skjemaid = skjemaid
         this.rowInsertedAt = Instant.now().toString()
         this.state = State.NY
@@ -50,6 +50,8 @@ class Journalføring() {
         this === other || (other is Journalføring && this.skjemaid == other.skjemaid)
 
     override fun hashCode() = skjemaid.hashCode()
+    override fun toString() =
+        "Journalføring(skjemaid=$skjemaid, state=$state, rowInsertedAt='$rowInsertedAt', journalført=$journalført, oppgave=$oppgave)"
 }
 
 @Embeddable
@@ -66,6 +68,8 @@ class Oppgave() {
     @field:Column(name = "oppgave_opprettet_at")
     lateinit var oppgaveOpprettetAt: String
         private set
+
+    override fun toString() = "Oppgave(oppgaveId='$oppgaveId', oppgaveOpprettetAt='$oppgaveOpprettetAt')"
 }
 
 @Embeddable
@@ -75,7 +79,7 @@ class Journalført() {
         journalfortAt: String,
         kommunenummer: String,
         behandlendeEnhet: String
-    ): this() {
+    ) : this() {
         this.journalpostId = journalpostId
         this.journalfortAt = journalfortAt
         this.kommunenummer = kommunenummer
@@ -97,4 +101,7 @@ class Journalført() {
     @field:Column(name = "behandlende_enhet")
     lateinit var behandlendeEnhet: String
         private set
+
+    override fun toString() =
+        "Journalført(journalpostId='$journalpostId', journalfortAt='$journalfortAt', kommunenummer='$kommunenummer', behandlendeEnhet='$behandlendeEnhet')"
 }
