@@ -2,13 +2,17 @@ package no.nav.permitteringsskjemaapi.journalføring
 
 import jakarta.transaction.Transactional
 import no.nav.permitteringsskjemaapi.config.logger
+import no.nav.permitteringsskjemaapi.ereg.EregService
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 @Service
-class JournalføringService(val journalføringRepository: JournalføringRepository) {
+class JournalføringService(
+    val journalføringRepository: JournalføringRepository,
+    val eregService: EregService,
+) {
 
     val log = logger()
 
