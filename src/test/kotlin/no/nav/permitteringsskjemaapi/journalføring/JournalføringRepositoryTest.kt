@@ -1,10 +1,7 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
 import org.flywaydb.core.Flyway
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,10 +41,9 @@ class JournalføringRepositoryTest {
     fun initialStateLagreLese() {
         /* Lagre og lese start-state */
         val eksempelId = UUID.randomUUID()!!
-        val nyState = Journalføring().apply {
+        val nyState = Journalføring(
             skjemaid = eksempelId
-            rowInsertedAt = "2023-01-01"
-        }
+        )
 
         journalføringRepository.save(nyState)
         val nyStateReadBack = journalføringRepository.findById(eksempelId).get()
@@ -64,7 +60,7 @@ class JournalføringRepositoryTest {
             kommunenummer = "1234",
             behandlendeEnhet = "4321",
         )
-
+        nyStateReadBack.state = Journalføring.State.JOURNALFORT
         journalføringRepository.save(nyStateReadBack)
 
         val journalførtStateReadBack = journalføringRepository.findById(eksempelId).get()
@@ -81,6 +77,7 @@ class JournalføringRepositoryTest {
             oppgaveId = "1122",
             oppgaveOpprettetAt = "1234-01-01",
         )
+        journalførtStateReadBack.state = Journalføring.State.FERDIG
 
         journalføringRepository.save(journalførtStateReadBack)
         val ferdigStateReadback = journalføringRepository.findById(eksempelId).get()

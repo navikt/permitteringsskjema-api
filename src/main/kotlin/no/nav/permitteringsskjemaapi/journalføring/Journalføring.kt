@@ -1,21 +1,18 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
-import jakarta.persistence.Column
-import jakarta.persistence.Embeddable
-import jakarta.persistence.Embedded
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.Id
-import jakarta.persistence.PostLoad
-import jakarta.persistence.PrePersist
-import jakarta.persistence.PreUpdate
-import jakarta.persistence.Table
+import jakarta.persistence.*
+import java.time.Instant
 import java.util.*
 
 @Entity
 @Table(name = "journalforing")
-class Journalføring {
+class Journalføring() {
+    constructor(skjemaid: UUID): this() {
+        this.skjemaid = skjemaid
+        this.rowInsertedAt = Instant.now().toString()
+        this.state = State.NY
+    }
+
     enum class State {
         NY,
         JOURNALFORT,
@@ -25,13 +22,15 @@ class Journalføring {
     @field:Id
     @field:Column(name = "skjema_id")
     lateinit var skjemaid: UUID
+        private set
 
     @field:Column(name = "state")
     @field:Enumerated(EnumType.STRING)
-    private lateinit var persistedState: State
+    lateinit var state: State
 
     @field:Column(name = "row_inserted_at")
     lateinit var rowInsertedAt: String
+        private set
 
     @field:Embedded
     var journalført: Journalført? = null
@@ -45,25 +44,6 @@ class Journalføring {
         set(newValue) {
             check(oppgave === null)
             field = newValue
-        }
-
-    @PostLoad
-    fun validatePersistedState() {
-        check(persistedState == state)
-    }
-
-    @PrePersist
-    @PreUpdate
-    fun updatePersistedState() {
-        persistedState = state
-    }
-
-    val state: State
-        get() = when {
-            journalført == null && oppgave == null -> State.NY
-            journalført != null && oppgave == null -> State.JOURNALFORT
-            journalført != null && oppgave != null -> State.FERDIG
-            else -> error("oppgave opprettet, men journalføring ikke registrert")
         }
 
     override fun equals(other: Any?) =
