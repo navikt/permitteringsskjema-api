@@ -8,9 +8,11 @@ import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.hendelseregistrering.HendelseRegistrering
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.PermitteringsskjemaProdusent
+import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.util.TokenUtil
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -18,10 +20,12 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.*
 
 @MockBean(
     PermitteringsskjemaProdusent::class,
@@ -47,6 +51,9 @@ class PermitteringsskjemaControllerTest {
 
     @MockBean
     lateinit var repository: PermitteringsskjemaRepository
+
+    @MockBean
+    lateinit var journalføringService: JournalføringService
 
     val now = Instant.now()
 
@@ -110,5 +117,20 @@ class PermitteringsskjemaControllerTest {
             "ikke sendt inn opprettet 5 min siden",
             "ikke sendt inn opprettet 10 min siden",
         )
+    }
+
+    @Test
+    fun sendInnStarterJournalføring() {
+        Mockito.`when`(tokenUtil.autentisertBruker()).thenReturn("42")
+        val skjema = PermitteringTestData.enPermitteringMedAltFyltUt()
+        val skjemaid = skjema.id!!
+        Mockito.`when`(repository.findByIdAndOpprettetAv(skjemaid, "42")).thenReturn(Optional.of(skjema))
+        Mockito.`when`(repository.save(any())).thenReturn(skjema)
+
+        mockMvc
+            .perform(post("/skjema/{id}/send-inn", skjemaid).accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+
+        Mockito.verify(journalføringService).startJournalføring(skjemaid = skjemaid)
     }
 }
