@@ -1,6 +1,7 @@
 package no.nav.permitteringsskjemaapi
 
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
+import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.assertj.core.api.Assertions
 import org.flywaydb.core.Flyway
 import org.junit.Before
@@ -8,6 +9,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.mock.mockito.MockBeans
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import java.time.Instant
@@ -15,6 +18,7 @@ import java.time.temporal.ChronoUnit.MINUTES
 
 
 @RunWith(SpringRunner::class)
+@MockBean(MultiIssuerConfiguration::class)
 @SpringBootTest(properties = ["spring.flyway.cleanDisabled=false"])
 @ActiveProfiles("test")
 class PermitteringsskjemaRepositoryTest {

@@ -7,12 +7,15 @@ import no.nav.security.mock.oauth2.OAuth2Config
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.mock.oauth2.token.OAuth2TokenProvider
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.Primary
+import org.springframework.context.annotation.Profile
 
 @Configuration
+@Profile("mockoauth")
 class LocalOauthConfig {
     private val mockOAuth2Server: MockOAuth2Server = MockOAuth2Server(
         OAuth2Config(

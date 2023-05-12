@@ -6,6 +6,7 @@ import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException
 import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException
 import no.nav.permitteringsskjemaapi.hendelseregistrering.HendelseRegistrering
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.PermitteringsskjemaProdusent
+import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.util.TokenUtil
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.http.HttpStatus
@@ -18,8 +19,9 @@ class PermitteringsskjemaController(
     private val fnrExtractor: TokenUtil,
     private val altinnService: AltinnService,
     private val repository: PermitteringsskjemaRepository,
-    private val produsent: PermitteringsskjemaProdusent,
+    private val journalføringService: JournalføringService,
     private val hendelseRegistrering: HendelseRegistrering,
+    private val permitteringsskjemaProdusent: PermitteringsskjemaProdusent,
 ) {
     private val log = logger()
 
@@ -86,7 +88,20 @@ class PermitteringsskjemaController(
         permitteringsskjema.sendInn()
 
         hendelseRegistrering.sendtInn(permitteringsskjema, fnrExtractor.autentisertBruker())
-        produsent.sendInn(permitteringsskjema)
+
+        /**
+         * TODO:
+         * - fjern kall til kafka
+         * - slett alle journalføring rader
+         */
+        permitteringsskjemaProdusent.sendInn(permitteringsskjema)
+
+        try {
+            journalføringService.startJournalføring(permitteringsskjema.id!!)
+        } catch (e: Exception) {
+            // TODO: remove try catch
+            log.error("journalføring feilet", e)
+        }
         return repository.save(permitteringsskjema)
     }
 

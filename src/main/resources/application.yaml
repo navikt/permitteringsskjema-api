@@ -70,6 +70,9 @@ no.nav.security.jwt:
 altinn:
   altinnProxyUrl: http://altinn-rettigheter-proxy.arbeidsgiver/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
 
+ereg-services.baseUrl: "https://ereg-services.dev-fss-pub.nais.io"
+norg2.baseUrl: "https://norg2.dev-fss-pub.nais.io"
+
 ---
 
 spring:
@@ -98,7 +101,19 @@ no.nav.security.jwt:
 altinn:
   altinnProxyUrl: http://altinn-rettigheter-proxy.arbeidsgiver/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
 
+ereg-services.baseUrl: "https://ereg-services.prod-fss-pub.nais.io"
+norg2.baseUrl: "https://norg2.prod-fss-pub.nais.io"
+
 ---
+
+spring:
+  config:
+    activate:
+      on-profile: test
+  flyway:
+    enabled: true
+  datasource:
+    url: jdbc:postgresql://localhost:3456/permitteringsskjema-api?user=postgres&password=postgres
 
 permittering:
   arbeidsgiver:
@@ -112,14 +127,6 @@ management:
   endpoint:
     health:
       show-details: always
-spring:
-  config:
-    activate:
-      on-profile: test
-  flyway:
-    enabled: true
-  datasource:
-    url: jdbc:postgresql://localhost:3456/permitteringsskjema-api?user=postgres&password=postgres
 
 mock:
   enabled: true
@@ -147,3 +154,6 @@ no.nav.security.jwt:
 
 altinn:
   altinnProxyUrl: "http://localhost:${mock.port}/altinn/"
+
+ereg-services.baseUrl: "https://ereg-services.dev-fss-pub.nais.io"
+norg2.baseUrl: "https://norg2.dev-fss-pub.nais.io"
