@@ -1,6 +1,5 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
-import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -15,7 +14,6 @@ class NorgService(
     @Value("\${norg2.baseUrl}") norg2BaseUrl: String,
     restTemplateBuilder: RestTemplateBuilder
 ) {
-    private val log = logger()
 
     private val restTemplate = restTemplateBuilder
         .rootUri(norg2BaseUrl)
@@ -30,11 +28,7 @@ class NorgService(
         .build()
 
 
-    fun hentBehandlendeEnhet(kommuneNummer: String?): String? {
-        if (kommuneNummer == null) {
-            return OSLO_ARBEIDSLIVSENTER_KODE
-        }
-
+    fun hentBehandlendeEnhet(kommuneNummer: String): String? {
         val norg2ResponseListe = try {
             restTemplate.exchange(
                 "/norg2/api/v1/arbeidsfordeling/enheter/bestmatch",

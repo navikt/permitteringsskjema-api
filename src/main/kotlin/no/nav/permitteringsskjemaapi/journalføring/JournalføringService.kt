@@ -2,6 +2,7 @@ package no.nav.permitteringsskjemaapi.journalføring
 
 import jakarta.transaction.Transactional
 import no.nav.permitteringsskjemaapi.config.logger
+import no.nav.permitteringsskjemaapi.journalføring.NorgService.Companion.OSLO_ARBEIDSLIVSENTER_KODE
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -22,8 +23,11 @@ class JournalføringService(
         journalføringRepository.save(Journalføring(skjemaid = skjemaid))
     }
 
-    @Transactional
-    @Scheduled(fixedRateString = "PT5S")
+    @Transactional // TODO endre til en tx per work item, men schedule hent flere utenfor tx
+    @Scheduled(
+    //    fixedRateString = "PT5S"
+        fixedRateString = "PT5M"
+    )
     fun processingLoop() {
         val journalføring = journalføringRepository.findWork().getOrNull() ?: return
 
@@ -37,15 +41,22 @@ class JournalføringService(
 
 
     private fun journalfør(journalføring: Journalføring) {
-
         val skjema = permitteringsskjemaRepository.findById(journalføring.skjemaid)
             .orElseThrow { RuntimeException("journalføring finner ikke skjema med id ${journalføring.skjemaid}") }
 
-        // hent fra ereg (navn. kommunenummer)
-        val organisasjon = eregService.hentUnderenhet(skjema.bedriftNr)
-            ?: throw RuntimeException("Fant ")
+        val kommunenummer = eregService.hentKommunenummer(skjema.bedriftNr)
+        log.info("fant kommunenummer {} for bedrift {}", kommunenummer, skjema.bedriftNr)
 
-        // hent fra norg (behandlingsenhet eller oslo hvis null)
+        val behandlendeEnhet = if (kommunenummer == null)
+            OSLO_ARBEIDSLIVSENTER_KODE
+         else
+             norgService.hentBehandlendeEnhet(kommunenummer)
+
+        log.info("fant behandlendeEnhet {} for kommunenummer {}", behandlendeEnhet, kommunenummer)
+
+        if (behandlendeEnhet == null) {
+            throw RuntimeException("Behandlende enhet ble ikke funnet. Behandling av melding er avbrutt for Bedrift ${skjema.bedriftNr}")
+        }
 
         // lag pdf
 
