@@ -54,6 +54,7 @@ class NorgService(
     data class Norg2Request(
         val geografiskOmraade: String,
     ) {
+        @Suppress("unused")
         val tema: String = "PER"
     }
 }
