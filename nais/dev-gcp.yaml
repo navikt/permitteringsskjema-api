@@ -45,6 +45,9 @@ spec:
           namespace: permittering-og-nedbemanning
           cluster: dev-gcp
     outbound:
+      external:
+        - host: ereg-services.dev-fss-pub.nais.io
+        - host: norg2.dev-fss-pub.nais.io
       rules:
         - application: altinn-rettigheter-proxy
           namespace: arbeidsgiver
