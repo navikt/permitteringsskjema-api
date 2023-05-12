@@ -10,6 +10,7 @@ import no.nav.permitteringsskjemaapi.hendelseregistrering.HendelseRegistrering
 import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.PermitteringsskjemaProdusent
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.util.TokenUtil
+import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any

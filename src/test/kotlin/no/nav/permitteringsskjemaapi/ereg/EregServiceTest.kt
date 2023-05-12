@@ -1,7 +1,9 @@
 package no.nav.permitteringsskjemaapi.ereg
 
+import no.nav.permitteringsskjemaapi.journalføring.EregService
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest
@@ -14,6 +16,7 @@ import org.springframework.test.web.client.match.MockRestRequestMatchers.method
 import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
 import org.springframework.test.web.client.response.MockRestResponseCreators.withStatus
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
+import org.springframework.web.client.HttpClientErrorException
 
 @MockBean(MultiIssuerConfiguration::class)
 @RestClientTest(
@@ -68,55 +71,10 @@ class EregServiceTest {
             .andExpect(method(HttpMethod.GET))
             .andRespond(withStatus(HttpStatus.NOT_FOUND).body(underenhetIkkeFunnetRespons).contentType(APPLICATION_JSON))
 
-        val result = eregService.hentUnderenhet(virksomhetsnummer)
 
-        assertEquals(null, result)
-    }
-
-    @Test
-    fun `henter overenhet fra ereg`() {
-        val orgnr = "314"
-        server.expect(requestTo("/v1/organisasjon/$orgnr"))
-            .andExpect(method(HttpMethod.GET))
-            .andRespond(withSuccess(overenhetRespons, APPLICATION_JSON))
-
-        val result = eregService.hentOverenhet(orgnr)!!
-
-        assertEquals("810825472", result.organizationNumber)
-        assertEquals("MALMEFJORD OG RIDABU REGNSKAP", result.name)
-        assertEquals(null, result.parentOrganizationNumber)
-        assertEquals("AS", result.organizationForm)
-        assertEquals("Enterprise", result.type)
-        assertEquals("Active", result.status)
-    }
-
-    @Test
-    fun `henter orgledd fra ereg`() {
-        val orgnr = "314"
-        server.expect(requestTo("/v1/organisasjon/$orgnr"))
-            .andExpect(method(HttpMethod.GET))
-            .andRespond(withSuccess(orgleddRespons, APPLICATION_JSON))
-
-        val result = eregService.hentOverenhet(orgnr)!!
-
-        assertEquals("889640782", result.organizationNumber)
-        assertEquals("ARBEIDS- OG VELFERDSETATEN", result.name)
-        assertEquals(null, result.parentOrganizationNumber)
-        assertEquals("ORGL", result.organizationForm)
-        assertEquals("Enterprise", result.type)
-        assertEquals("Active", result.status)
-    }
-
-    @Test
-    fun `overenhet er null fra ereg`() {
-        val orgnr = "314"
-        server.expect(requestTo("/v1/organisasjon/$orgnr"))
-            .andExpect(method(HttpMethod.GET))
-            .andRespond(withStatus(HttpStatus.NOT_FOUND).body(overenhetIkkeFunnetRespons).contentType(APPLICATION_JSON))
-
-        val result = eregService.hentOverenhet(orgnr)
-
-        assertEquals(null, result)
+        assertThrows(HttpClientErrorException.NotFound::class.java) {
+            eregService.hentUnderenhet(virksomhetsnummer)
+        }
     }
 }
 

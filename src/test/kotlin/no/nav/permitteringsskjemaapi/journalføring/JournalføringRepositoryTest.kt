@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
+import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.flywaydb.core.Flyway
 import org.junit.Assert.*
 import org.junit.Before
@@ -7,6 +8,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
@@ -17,6 +19,7 @@ import java.util.*
     "spring.flyway.cleanDisabled=false",
     "spring.flyway.validateOnMigrate=false"
 ])
+@MockBean(MultiIssuerConfiguration::class)
 //@DataJpaTest(properties = [
 //    "spring.flyway.cleanDisabled=false",
 //    "spring.flyway.validateOnMigrate=false"

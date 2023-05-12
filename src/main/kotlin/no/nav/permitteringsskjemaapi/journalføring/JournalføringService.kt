@@ -2,7 +2,7 @@ package no.nav.permitteringsskjemaapi.journalføring
 
 import jakarta.transaction.Transactional
 import no.nav.permitteringsskjemaapi.config.logger
-import no.nav.permitteringsskjemaapi.ereg.EregService
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.util.*
@@ -10,8 +10,10 @@ import kotlin.jvm.optionals.getOrNull
 
 @Service
 class JournalføringService(
+    val permitteringsskjemaRepository: PermitteringsskjemaRepository,
     val journalføringRepository: JournalføringRepository,
     val eregService: EregService,
+    val norgService: NorgService,
 ) {
 
     val log = logger()
@@ -35,7 +37,13 @@ class JournalføringService(
 
 
     private fun journalfør(journalføring: Journalføring) {
+
+        val skjema = permitteringsskjemaRepository.findById(journalføring.skjemaid)
+            .orElseThrow { RuntimeException("journalføring finner ikke skjema med id ${journalføring.skjemaid}") }
+
         // hent fra ereg (navn. kommunenummer)
+        val organisasjon = eregService.hentUnderenhet(skjema.bedriftNr)
+            ?: throw RuntimeException("Fant ")
 
         // hent fra norg (behandlingsenhet eller oslo hvis null)
 
