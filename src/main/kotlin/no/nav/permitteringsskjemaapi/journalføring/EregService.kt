@@ -1,11 +1,11 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
-import com.fasterxml.jackson.databind.JsonNode
-import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 import java.util.*
 
 @Component
@@ -25,38 +25,43 @@ class EregService(
         )
         .build()
 
-    fun hentUnderenhet(virksomhetsnummer: String?): AltinnOrganisasjon {
-        val json = restTemplate.getForEntity(
+    fun hentKommunenummer(virksomhetsnummer: String?): String? {
+        val eregEnhet = restTemplate.getForEntity(
             "/v1/organisasjon/{virksomhetsnummer}?inkluderHierarki=true",
-            JsonNode::class.java,
+            EregEnhet::class.java,
             mapOf("virksomhetsnummer" to virksomhetsnummer)
-        ).body
+        ).body ?: throw RuntimeException("null response for underenhet $virksomhetsnummer")
 
-        if (json == null || json.isEmpty) {
-            throw RuntimeException("null/empty json response for underenhet $virksomhetsnummer")
-        }
-        val juridiskOrgnummer = json.at("/inngaarIJuridiskEnheter/0/organisasjonsnummer").asText()
-        val orgleddOrgnummer = json.at("/bestaarAvOrganisasjonsledd/0/organisasjonsledd/organisasjonsnummer").asText()
-        val orgnummerTilOverenhet = orgleddOrgnummer.ifBlank { juridiskOrgnummer }
-        return AltinnOrganisasjon(
-            samletNavn(json),
-            "Business",
-            orgnummerTilOverenhet,
-            json.at("/organisasjonsnummer").asText(),
-            json.at("/organisasjonDetaljer/enhetstyper/0/enhetstype").asText(),
-            "Active"
-        )
+        return eregEnhet.kommuneNummer
     }
 
-    companion object {
-        private fun samletNavn(json: JsonNode) = listOf(
-            json.at("/navn/navnelinje1").asText(null),
-            json.at("/navn/navnelinje2").asText(null),
-            json.at("/navn/navnelinje3").asText(null),
-            json.at("/navn/navnelinje4").asText(null),
-            json.at("/navn/navnelinje5").asText(null)
-        )
-            .filter(Objects::nonNull)
-            .joinToString(" ")
-    }
 }
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+private data class EregEnhet(
+       val organisasjonDetaljer: OrganisasjonDetaljer
+) {
+    private val adresser = organisasjonDetaljer.forretningsadresser + organisasjonDetaljer.postadresser
+
+    val kommuneNummer: String?
+        get() = adresser
+            .filter { it.gyldighetsperiode.tom == null }
+            .firstNotNullOfOrNull { it.kommunenummer }
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+private data class OrganisasjonDetaljer(
+    val forretningsadresser: List<Adresse> = listOf(),
+    val postadresser: List<Adresse> = listOf(),
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+private class Adresse(
+    val kommunenummer: String? = null,
+    val gyldighetsperiode: Gyldighetsperiode,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+private class Gyldighetsperiode(
+    val tom: LocalDate? = null,
+)

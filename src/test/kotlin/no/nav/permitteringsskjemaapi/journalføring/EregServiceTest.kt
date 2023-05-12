@@ -1,6 +1,5 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
-import no.nav.permitteringsskjemaapi.journalføring.EregService
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -31,41 +30,19 @@ class EregServiceTest {
     lateinit var server: MockRestServiceServer
 
     @Test
-    fun `henter underenhet fra ereg`() {
+    fun `henter kommunenummer fra ereg`() {
         val virksomhetsnummer = "42"
         server.expect(requestTo("/v1/organisasjon/$virksomhetsnummer?inkluderHierarki=true"))
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess(underenhetRespons, APPLICATION_JSON))
 
-        val result = eregService.hentUnderenhet(virksomhetsnummer)
+        val result = eregService.hentKommunenummer(virksomhetsnummer)
 
-        assertEquals("910825526", result.organizationNumber)
-        assertEquals("GAMLE FREDRIKSTAD OG RAMNES REGNSKA P", result.name)
-        assertEquals("810825472", result.parentOrganizationNumber)
-        assertEquals("BEDR", result.organizationForm)
-        assertEquals("Business", result.type)
-        assertEquals("Active", result.status)
+        assertEquals("3801", result)
     }
 
     @Test
-    fun `henter underenhet med orgledd fra ereg`() {
-        val virksomhetsnummer = "42"
-        server.expect(requestTo("/v1/organisasjon/$virksomhetsnummer?inkluderHierarki=true"))
-            .andExpect(method(HttpMethod.GET))
-            .andRespond(withSuccess(underenhetMedOrgleddRespons, APPLICATION_JSON))
-
-        val result = eregService.hentUnderenhet(virksomhetsnummer)!!
-
-        assertEquals("912998827", result.organizationNumber)
-        assertEquals("ARBEIDS- OG VELFERDSDIREKTORATET AVD FYRSTIKKALLÉEN", result.name)
-        assertEquals("889640782", result.parentOrganizationNumber)
-        assertEquals("BEDR", result.organizationForm)
-        assertEquals("Business", result.type)
-        assertEquals("Active", result.status)
-    }
-
-    @Test
-    fun `underenhet er null fra ereg`() {
+    fun `throws når underenhet er null fra ereg`() {
         val virksomhetsnummer = "42"
         server.expect(requestTo("/v1/organisasjon/$virksomhetsnummer?inkluderHierarki=true"))
             .andExpect(method(HttpMethod.GET))
@@ -73,7 +50,7 @@ class EregServiceTest {
 
 
         assertThrows(HttpClientErrorException.NotFound::class.java) {
-            eregService.hentUnderenhet(virksomhetsnummer)
+            eregService.hentKommunenummer(virksomhetsnummer)
         }
     }
 }
