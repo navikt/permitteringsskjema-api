@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.ereg
+package no.nav.permitteringsskjemaapi.journalføring
 
 import no.nav.permitteringsskjemaapi.journalføring.EregService
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
@@ -37,7 +37,7 @@ class EregServiceTest {
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess(underenhetRespons, APPLICATION_JSON))
 
-        val result = eregService.hentUnderenhet(virksomhetsnummer)!!
+        val result = eregService.hentUnderenhet(virksomhetsnummer)
 
         assertEquals("910825526", result.organizationNumber)
         assertEquals("GAMLE FREDRIKSTAD OG RAMNES REGNSKA P", result.name)
