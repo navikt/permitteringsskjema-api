@@ -44,7 +44,7 @@ class JournalføringService(
         val skjema = permitteringsskjemaRepository.findById(journalføring.skjemaid)
             .orElseThrow { RuntimeException("journalføring finner ikke skjema med id ${journalføring.skjemaid}") }
 
-        val kommunenummer = eregService.hentKommunenummer(skjema.bedriftNr)
+        val kommunenummer = eregService.hentKommunenummer(skjema.bedriftNr!!)
         log.info("fant kommunenummer {} for bedrift {}", kommunenummer, skjema.bedriftNr)
 
         val behandlendeEnhet = if (kommunenummer == null)

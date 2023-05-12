@@ -59,7 +59,9 @@ class ApplicationConfig {
         return RestTemplateCustomizer { restTemplate: RestTemplate ->
             restTemplate.interceptors.add(
                 ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
-                    request.headers.addIfAbsent(CALL_ID, MDC.get(CALL_ID))
+                    MDC.get(CALL_ID)?.let {
+                        request.headers.addIfAbsent(CALL_ID, it)
+                    }
                     execution.execute(request, body!!)
                 })
         }

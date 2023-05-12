@@ -25,7 +25,7 @@ class EregService(
         )
         .build()
 
-    fun hentKommunenummer(virksomhetsnummer: String?): String? {
+    fun hentKommunenummer(virksomhetsnummer: String): String? {
         val eregEnhet = restTemplate.getForEntity(
             "/v1/organisasjon/{virksomhetsnummer}?inkluderHierarki=true",
             EregEnhet::class.java,
