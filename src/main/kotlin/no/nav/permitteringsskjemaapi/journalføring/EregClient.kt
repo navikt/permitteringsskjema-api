@@ -6,10 +6,9 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.util.*
 
 @Component
-class EregService(
+class EregClient(
     @Value("\${ereg-services.baseUrl}") eregBaseUrl: String?,
     restTemplateBuilder: RestTemplateBuilder
 ) {
