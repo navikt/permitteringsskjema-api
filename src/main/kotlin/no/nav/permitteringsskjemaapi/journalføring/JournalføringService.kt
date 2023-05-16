@@ -61,6 +61,7 @@ class JournalføringService(
 
         // lag pdf
         val dokumentPdfAsBytes: ByteArray = dokgenClient.genererPdf(skjema)
+        log.info("Genererte pdf: {} bytes", dokumentPdfAsBytes.size)
 
         // kall dokarkiv med journalpost og hent id
 
