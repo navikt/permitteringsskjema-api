@@ -42,6 +42,8 @@ permittering:
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
 
+permittering-dokgen.baseUrl: "http://permittering-dokgen"
+
 ---
 
 spring:

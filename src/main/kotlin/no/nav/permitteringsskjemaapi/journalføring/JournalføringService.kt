@@ -15,6 +15,7 @@ class JournalføringService(
     val journalføringRepository: JournalføringRepository,
     val eregService: EregService,
     val norgService: NorgService,
+    val dokgenClient: DokgenClient,
 ) {
 
     val log = logger()
@@ -59,6 +60,7 @@ class JournalføringService(
         }
 
         // lag pdf
+        val dokumentPdfAsBytes: ByteArray = dokgenClient.genererPdf(skjema)
 
         // kall dokarkiv med journalpost og hent id
 
