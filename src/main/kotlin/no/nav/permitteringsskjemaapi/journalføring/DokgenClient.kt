@@ -45,7 +45,7 @@ class DokgenClient(
             antallBerorte = skjema.antallBerørt!!
         )
         val bytes = restTemplate.postForObject("/template/permittering/create-pdf", templateVariables, ByteArray::class.java)!!
-        check(bytes.sliceArray(0..4).contentEquals("%PDF".toByteArray())) {
+        check(bytes.sliceArray(0..3).contentEquals("%PDF".toByteArray())) {
             "Body fra dokgen mangler PDF-header '%PDF'. Html feilmelding?"
         }
         return bytes
