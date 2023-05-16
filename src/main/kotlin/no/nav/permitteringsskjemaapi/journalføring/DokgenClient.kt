@@ -44,7 +44,11 @@ class DokgenClient(
             fritekst = skjema.fritekst!!,
             antallBerorte = skjema.antallBerørt!!
         )
-        return restTemplate.postForObject("/template/permittering/create-pdf", templateVariables, ByteArray::class.java)!!
+        val bytes = restTemplate.postForObject("/template/permittering/create-pdf", templateVariables, ByteArray::class.java)!!
+        check(bytes.sliceArray(0..4).contentEquals("%PDF".toByteArray())) {
+            "Body fra dokgen mangler PDF-header '%PDF'. Html feilmelding?"
+        }
+        return bytes
     }
 
     private data class TemplateVariables(

@@ -6,6 +6,7 @@ import no.nav.permitteringsskjemaapi.journalføring.NorgService.Companion.OSLO_A
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import sun.security.util.ByteArrays
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
