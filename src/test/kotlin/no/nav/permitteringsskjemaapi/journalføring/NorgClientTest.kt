@@ -14,12 +14,12 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 
 @MockBean(MultiIssuerConfiguration::class)
 @RestClientTest(
-    components = [NorgService::class],
+    components = [NorgClient::class],
 )
-class NorgServiceTest {
+class NorgClientTest {
 
     @Autowired
-    lateinit var norgService: NorgService
+    lateinit var norgClient: NorgClient
 
     @Autowired
     lateinit var server: MockRestServiceServer
@@ -33,7 +33,7 @@ class NorgServiceTest {
             .andExpect(method(HttpMethod.POST))
             .andRespond(withSuccess(norgRespons, APPLICATION_JSON))
 
-        val result = norgService.hentBehandlendeEnhet(kommuneNummer)
+        val result = norgClient.hentBehandlendeEnhet(kommuneNummer)
 
         assertEquals("1337", result)
     }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 
 /* Dokumentasjon: https://navikt.github.io/norg2/ */
 @Service
-class NorgService(
+class NorgClient(
     @Value("\${norg2.baseUrl}") norg2BaseUrl: String,
     restTemplateBuilder: RestTemplateBuilder
 ) {

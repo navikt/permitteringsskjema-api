@@ -51,3 +51,4 @@ spec:
       rules:
         - application: altinn-rettigheter-proxy
           namespace: arbeidsgiver
+        - application: permittering-dokgen

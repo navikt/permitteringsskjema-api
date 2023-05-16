@@ -19,12 +19,12 @@ import org.springframework.web.client.HttpClientErrorException
 
 @MockBean(MultiIssuerConfiguration::class)
 @RestClientTest(
-    components = [EregService::class],
+    components = [EregClient::class],
 )
-class EregServiceTest {
+class EregClientTest {
 
     @Autowired
-    lateinit var eregService: EregService
+    lateinit var eregClient: EregClient
 
     @Autowired
     lateinit var server: MockRestServiceServer
@@ -36,7 +36,7 @@ class EregServiceTest {
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess(underenhetRespons, APPLICATION_JSON))
 
-        val result = eregService.hentKommunenummer(virksomhetsnummer)
+        val result = eregClient.hentKommunenummer(virksomhetsnummer)
 
         assertEquals("3801", result)
     }
@@ -50,7 +50,7 @@ class EregServiceTest {
 
 
         assertThrows(HttpClientErrorException.NotFound::class.java) {
-            eregService.hentKommunenummer(virksomhetsnummer)
+            eregClient.hentKommunenummer(virksomhetsnummer)
         }
     }
 }
