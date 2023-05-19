@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.journalføring.NorgClient.Companion.OSLO_ARBEIDSLIVSENTER_KODE
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
-import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.util.*
@@ -42,19 +41,6 @@ class JournalføringService(
             Journalføring.State.FERDIG -> log.error("uventet state i workitem {}", journalføring)
         }
     }
-
-    @Transactional
-    @Scheduled(
-        initialDelayString = "PT1M",
-        fixedRateString = "PT5S",
-    )
-    fun debugTxLockRowVisibility() {
-        val works = journalføringRepository.findWorks(Pageable.ofSize(10))
-        log.info("debugTxLockRowVisibility rows={}", works)
-        Thread.sleep(10000)
-        log.info("debugTxLockRowVisibility done sleep")
-    }
-
 
     private fun journalfør(journalføring: Journalføring) {
         val skjema = permitteringsskjemaRepository.findById(journalføring.skjemaid)
