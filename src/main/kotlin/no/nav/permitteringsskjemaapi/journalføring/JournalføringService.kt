@@ -46,8 +46,7 @@ class JournalføringService(
     @Transactional
     @Scheduled(
         initialDelayString = "PT1M",
-        //fixedRateString = "PT5S",
-        fixedRateString = "PT5M",
+        fixedRateString = "PT5S",
     )
     fun debugTxLockRowVisibility() {
         val works = journalføringRepository.findWorks(Pageable.ofSize(10))
