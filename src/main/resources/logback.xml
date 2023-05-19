@@ -1,9 +1,9 @@
 <configuration scan="true">
     <appender name="consoleJsonAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+            <!--jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
                 <valueMasker class="no.nav.permitteringsskjemaapi.config.LogMasker"/>
-            </jsonGeneratorDecorator>
+            </jsonGeneratorDecorator-->
         </encoder>
     </appender>
     <root level="INFO">
