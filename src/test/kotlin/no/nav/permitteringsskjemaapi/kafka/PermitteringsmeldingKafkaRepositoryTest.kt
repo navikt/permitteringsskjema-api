@@ -48,7 +48,7 @@ class PermitteringsmeldingKafkaRepositoryTest {
         permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(id2))
         permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(id3))
 
-        val result = permitteringsmeldingKafkaRepository.fetchReplayQueueItems(Pageable.ofSize(10))
+        val result = permitteringsmeldingKafkaRepository.fetchQueueItems(Pageable.ofSize(10))
         assertEquals(listOf(id1, id2, id3), result.map { it.skjemaId } )
     }
 }
