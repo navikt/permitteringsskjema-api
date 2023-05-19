@@ -50,8 +50,9 @@ class JournalføringService(
     )
     fun debugTxLockRowVisibility() {
         val works = journalføringRepository.findWorks(Pageable.ofSize(10))
-
         log.info("debugTxLockRowVisibility rows={}", works)
+        Thread.sleep(10000)
+        log.info("debugTxLockRowVisibility done sleep")
     }
 
 
