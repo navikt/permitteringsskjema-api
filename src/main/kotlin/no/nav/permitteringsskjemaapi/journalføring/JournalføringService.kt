@@ -21,6 +21,7 @@ class JournalføringService(
     val log = logger()
 
     fun startJournalføring(skjemaid: UUID) {
+        log.info("startJournalføring skjemaid=$skjemaid")
         journalføringRepository.save(Journalføring(skjemaid = skjemaid))
     }
 
@@ -31,6 +32,7 @@ class JournalføringService(
         fixedRateString = "PT5M",
     )
     fun processingLoop() {
+        log.info("journalføring loop")
         val journalføring = journalføringRepository.findWork().getOrNull() ?: return
 
         // SM
