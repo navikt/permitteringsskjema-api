@@ -20,11 +20,6 @@ import java.util.*
     "spring.flyway.validateOnMigrate=false"
 ])
 @MockBean(MultiIssuerConfiguration::class)
-//@DataJpaTest(properties = [
-//    "spring.flyway.cleanDisabled=false",
-//    "spring.flyway.validateOnMigrate=false"
-//])
-//@AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 @DirtiesContext
 class JournalføringRepositoryTest {

@@ -32,7 +32,6 @@ class JournalføringService(
         fixedRateString = "PT5M",
     )
     fun processingLoop() {
-        log.info("journalføring loop")
         val journalføring = journalføringRepository.findWork().getOrNull() ?: return
 
         // SM
