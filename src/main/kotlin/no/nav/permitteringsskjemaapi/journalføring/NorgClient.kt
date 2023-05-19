@@ -51,7 +51,7 @@ class NorgClient(
         const val OSLO_ARBEIDSLIVSENTER_KODE = "0391"
     }
 
-    data class Norg2Request(
+    private data class Norg2Request(
         val geografiskOmraade: String,
     ) {
         @Suppress("unused")

@@ -15,7 +15,7 @@ import javax.net.ssl.SSLHandshakeException
 
 @Component
 class DokgenClient(
-    @Value("\${permittering-dokgen.baseUrl}") dokgenBaseUrl: String?,
+    @Value("\${permittering-dokgen.baseUrl}") dokgenBaseUrl: String,
     restTemplateBuilder: RestTemplateBuilder
 ) {
     private val restTemplate = restTemplateBuilder

@@ -16,6 +16,7 @@ class JournalføringService(
     val eregClient: EregClient,
     val norgClient: NorgClient,
     val dokgenClient: DokgenClient,
+    val dokarkivClient: DokarkivClient,
 ) {
 
     val log = logger()
@@ -64,6 +65,12 @@ class JournalføringService(
         log.info("Genererte pdf: {} bytes", dokumentPdfAsBytes.size)
 
         // kall dokarkiv med journalpost og hent id
+        val journalpostid: String = dokarkivClient.opprettjournalPost(
+            skjema = skjema,
+            behandlendeEnhet = behandlendeEnhet,
+            dokumentPdfAsBytes = dokumentPdfAsBytes,
+        )
+        log.info("Opprettet journalpost med id: {}", journalpostid)
 
         // sett tilstand på journalføring
     }
