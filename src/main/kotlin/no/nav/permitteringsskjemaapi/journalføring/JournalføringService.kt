@@ -27,7 +27,8 @@ class JournalføringService(
     @Transactional // TODO endre til en tx per work item, men schedule hent flere utenfor tx
     @Scheduled(
         initialDelayString = "PT1M",
-        fixedRateString = "PT5S",
+        //fixedRateString = "PT5S",
+        fixedRateString = "PT5M",
     )
     fun processingLoop() {
         val journalføring = journalføringRepository.findWork().getOrNull() ?: return
