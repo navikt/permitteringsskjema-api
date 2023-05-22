@@ -25,7 +25,7 @@ class PermitteringsskjemaProdusent(
         val rapport = PermitteringsskjemaKafkaMelding(
             antallBerorte = permitteringsskjema.antallBerørt!!,
             bedriftsnummer = permitteringsskjema.bedriftNr!!,
-            fritekst = permitteringsskjema.fritekst,
+            fritekst = permitteringsskjema.fritekst!!,
             id = permitteringsskjema.id!!,
             kontaktEpost = permitteringsskjema.kontaktEpost!!,
             kontaktNavn = permitteringsskjema.kontaktNavn!!,
@@ -63,7 +63,7 @@ class PermitteringsskjemaProdusent(
         var varsletNavDato: LocalDate,
         var startDato: LocalDate,
         var sluttDato: LocalDate?,
-        var fritekst: String?,
+        var fritekst: String,
         var antallBerorte: Int,
         var årsakskode: Årsakskode,
         var årsakstekst: String?,
