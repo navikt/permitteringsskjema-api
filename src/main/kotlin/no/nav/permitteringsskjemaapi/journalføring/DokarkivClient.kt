@@ -1,29 +1,41 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.context.annotation.Profile
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.stereotype.Component
 import java.net.SocketException
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.*
 import javax.net.ssl.SSLHandshakeException
+
+interface DokarkivClient {
+    fun opprettjournalPost(
+        skjema: Permitteringsskjema,
+        behandlendeEnhet: String,
+        dokumentPdfAsBytes: ByteArray,
+    ): String
+}
 
 /**
  * - https://confluence.adeo.no/pages/viewpage.action?pageId=371033358
  * - https://confluence.adeo.no/display/BOA/Arkivering+i+fagarkivet
  */
 @Component
-class DokarkivClient(
+@Profile("dev-gcp")
+class DokarkivClientImpl(
     @Value("\${dokarkiv.scope}") dokarkivScope: String,
     @Value("\${dokarkiv.baseUrl}") dokarkivBaseUrl: String,
     val azureADClient: AzureADClient,
     restTemplateBuilder: RestTemplateBuilder,
-) {
+) : DokarkivClient {
 
     private val restTemplate = restTemplateBuilder
         .rootUri(dokarkivBaseUrl)
@@ -44,7 +56,7 @@ class DokarkivClient(
     /**
      * https://confluence.adeo.no/display/BOA/opprettJournalpost
      */
-    fun opprettjournalPost(
+    override fun opprettjournalPost(
         skjema: Permitteringsskjema,
         behandlendeEnhet: String,
         dokumentPdfAsBytes: ByteArray,
@@ -52,7 +64,7 @@ class DokarkivClient(
         "/journalpost?forsoekFerdigstill=true",
         Journalpost(
             bruker = Bruker(skjema.bedriftNr!!),
-            datoMottatt = LocalDate.ofInstant(skjema.sendtInnTidspunkt!!, ZoneOffset.systemDefault()),
+            datoMottatt = LocalDate.ofInstant(skjema.sendtInnTidspunkt!!, ZoneId.of("Europe/Oslo")),
             avsenderMottaker = Avsender(skjema.bedriftNr!!, skjema.bedriftNavn!!),
             eksternReferanseId = "PRM-${skjema.id!!}",
             journalfoerendeEnhet = behandlendeEnhet,
@@ -122,5 +134,18 @@ class DokarkivClient(
     }
 
     private data class DokarkivResponse(val journalpostId: String)
+}
 
+@Component
+@Profile("prod-gcp")
+class DokarkivClientStub : DokarkivClient {
+    private val log = logger()
+    override fun opprettjournalPost(
+        skjema: Permitteringsskjema,
+        behandlendeEnhet: String,
+        dokumentPdfAsBytes: ByteArray
+    ): String {
+        log.info("dokarkiv-integration disabled. would have created journalpost for schema {}", skjema.id)
+        return "stub-dokarkiv-id"
+    }
 }
