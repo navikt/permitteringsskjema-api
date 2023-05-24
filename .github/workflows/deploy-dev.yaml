@@ -1,0 +1,20 @@
+name: Deploy dev
+
+on: [workflow_dispatch]
+
+env:
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/permitteringsskjema-api:${{ github.sha }}
+
+jobs:
+  deploy-to-dev-gcp:
+    name: Deploy to dev-gcp
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
+          CLUSTER: dev-gcp
+          VAR: version=${{ env.IMAGE }}
+          RESOURCE: nais/dev-gcp.yaml
