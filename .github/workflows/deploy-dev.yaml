@@ -8,7 +8,6 @@ env:
 jobs:
   deploy-to-dev-gcp:
     name: Deploy to dev-gcp
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
