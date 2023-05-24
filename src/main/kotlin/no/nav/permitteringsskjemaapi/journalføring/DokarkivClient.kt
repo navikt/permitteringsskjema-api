@@ -7,6 +7,9 @@ import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Profile
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.stereotype.Component
 import java.net.SocketException
@@ -39,6 +42,8 @@ class DokarkivClientImpl(
 
     private val restTemplate = restTemplateBuilder
         .rootUri(dokarkivBaseUrl)
+        .defaultHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+        .defaultHeader(HttpHeaders.ACCEPT, APPLICATION_JSON_VALUE)
         .additionalInterceptors(
             ClientHttpRequestInterceptor { request, body, execution ->
                 request.headers.setBearerAuth(azureADClient.getToken(dokarkivScope))
