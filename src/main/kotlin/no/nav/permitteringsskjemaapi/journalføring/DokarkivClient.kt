@@ -1,7 +1,6 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import no.nav.permitteringsskjemaapi.journalføring.DokarkivClient.*
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
