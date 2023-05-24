@@ -6,6 +6,7 @@ import no.nav.permitteringsskjemaapi.journalføring.NorgClient.Companion.OSLO_AR
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import java.time.Instant
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
@@ -48,21 +49,21 @@ class JournalføringService(
             .orElseThrow { RuntimeException("journalføring finner ikke skjema med id ${journalføring.skjemaid}") }
 
         val kommunenummer = eregClient.hentKommunenummer(skjema.bedriftNr!!)
-        log.info("fant kommunenummer {} for bedrift {}", kommunenummer, skjema.bedriftNr)
+        log.info("fant kommunenummer {} for skjema {}", kommunenummer, skjema.id)
 
         val behandlendeEnhet = if (kommunenummer == null)
             OSLO_ARBEIDSLIVSENTER_KODE
          else
              norgClient.hentBehandlendeEnhet(kommunenummer)
 
-        log.info("fant behandlendeEnhet {} for kommunenummer {}", behandlendeEnhet, kommunenummer)
+        log.info("fant behandlendeEnhet {} for kommunenummer {} for skjema {}", behandlendeEnhet, kommunenummer, skjema.id)
 
         if (behandlendeEnhet == null) {
-            throw RuntimeException("Behandlende enhet ble ikke funnet. Behandling av melding er avbrutt for Bedrift ${skjema.bedriftNr}")
+            throw RuntimeException("Behandlende enhet ble ikke funnet. Behandling av melding er avbrutt for Bedrift ${skjema.bedriftNr} for skjema ${skjema.id}")
         }
 
         val dokumentPdfAsBytes = dokgenClient.genererPdf(skjema)
-        log.info("Genererte pdf: {} bytes", dokumentPdfAsBytes.size)
+        log.info("Genererte pdf ({} bytes) for skjema {}", dokumentPdfAsBytes.size, skjema.id)
 
         // kall dokarkiv med journalpost og hent id
         val journalpostid: String = dokarkivClient.opprettjournalPost(
@@ -70,9 +71,16 @@ class JournalføringService(
             behandlendeEnhet = behandlendeEnhet,
             dokumentPdfAsBytes = dokumentPdfAsBytes,
         )
-        log.info("Opprettet journalpost med id: {}", journalpostid)
+        log.info("Opprettet journalpost med id {} for skjema {}", journalpostid, skjema.id)
 
-        // sett tilstand på journalføring
+        journalføring.journalført = Journalført(
+            journalpostId = journalpostid,
+            journalfortAt = Instant.now().toString(),
+            kommunenummer = kommunenummer,
+            behandlendeEnhet = behandlendeEnhet,
+        )
+
+        journalføringRepository.save(journalføring)
     }
 
     private fun opprettoppgave(journalføring: Journalføring) {
