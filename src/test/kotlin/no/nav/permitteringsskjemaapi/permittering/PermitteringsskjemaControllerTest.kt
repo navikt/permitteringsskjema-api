@@ -7,10 +7,9 @@ import no.nav.permitteringsskjemaapi.PermitteringTestData
 import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.hendelseregistrering.HendelseRegistrering
-import no.nav.permitteringsskjemaapi.integrasjon.arbeidsgiver.PermitteringsskjemaProdusent
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
+import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
 import no.nav.permitteringsskjemaapi.util.TokenUtil
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
@@ -28,10 +27,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-@MockBean(
-    PermitteringsskjemaProdusent::class,
-    HendelseRegistrering::class,
-)
+@MockBean(HendelseRegistrering::class)
 @WebMvcTest(
     value = [PermitteringsskjemaController::class],
     properties = ["server.servlet.context-path=/", "tokensupport.enabled=false"]
@@ -55,6 +51,9 @@ class PermitteringsskjemaControllerTest {
 
     @MockBean
     lateinit var journalføringService: JournalføringService
+
+    @MockBean
+    lateinit var permitteringsmeldingKafkaService: PermitteringsmeldingKafkaService
 
     val now = Instant.now()
 
@@ -121,7 +120,7 @@ class PermitteringsskjemaControllerTest {
     }
 
     @Test
-    fun sendInnStarterJournalføring() {
+    fun sendInnStarterJournalføringOgSkedulererKafkaSend() {
         Mockito.`when`(tokenUtil.autentisertBruker()).thenReturn("42")
         val skjema = PermitteringTestData.enPermitteringMedAltFyltUt()
         val skjemaid = skjema.id!!
@@ -133,5 +132,6 @@ class PermitteringsskjemaControllerTest {
             .andExpect(MockMvcResultMatchers.status().isOk)
 
         Mockito.verify(journalføringService).startJournalføring(skjemaid = skjemaid)
+        Mockito.verify(permitteringsmeldingKafkaService).scheduleSend(skjemaid = skjemaid)
     }
 }

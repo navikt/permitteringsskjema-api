@@ -17,6 +17,7 @@ management:
     health:
       show-details: never
 spring:
+  main.banner-mode: "off"
   profiles.active: test
   jackson:
     default-property-inclusion: non-absent
