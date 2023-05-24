@@ -21,13 +21,15 @@ class JournalføringService(
     val log = logger()
 
     fun startJournalføring(skjemaid: UUID) {
+        log.info("startJournalføring skjemaid=$skjemaid")
         journalføringRepository.save(Journalføring(skjemaid = skjemaid))
     }
 
     @Transactional // TODO endre til en tx per work item, men schedule hent flere utenfor tx
     @Scheduled(
-    //    fixedRateString = "PT5S"
-        fixedRateString = "PT5M"
+        initialDelayString = "PT1M",
+        //fixedRateString = "PT5S",
+        fixedRateString = "PT5M",
     )
     fun processingLoop() {
         val journalføring = journalføringRepository.findWork().getOrNull() ?: return
@@ -39,7 +41,6 @@ class JournalføringService(
             Journalføring.State.FERDIG -> log.error("uventet state i workitem {}", journalføring)
         }
     }
-
 
     private fun journalfør(journalføring: Journalføring) {
         val skjema = permitteringsskjemaRepository.findById(journalføring.skjemaid)
