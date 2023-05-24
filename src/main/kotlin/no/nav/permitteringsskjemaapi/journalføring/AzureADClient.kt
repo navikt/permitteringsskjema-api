@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
+import no.nav.permitteringsskjemaapi.util.multiValueMapOf
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -9,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.net.SocketException
 import java.time.Instant
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.net.ssl.SSLHandshakeException
 
@@ -46,17 +46,20 @@ class AzureADClient(
     }
 
     private fun hentAccessToken(scope: String): AccessTokenHolder {
-            val response: ResponseEntity<TokenResponse> = restTemplate.postForEntity(
-                azureADProperties.aadAccessTokenURL,
-                HttpEntity(mapOf(
+        val response: ResponseEntity<TokenResponse> = restTemplate.postForEntity(
+            azureADProperties.aadAccessTokenURL,
+            HttpEntity(
+                multiValueMapOf(
                     "grant_type" to "client_credentials",
                     "client_id" to azureADProperties.clientid,
                     "client_secret" to azureADProperties.azureClientSecret,
                     "resource" to scope,
-                ), HttpHeaders().apply { contentType = MediaType.APPLICATION_FORM_URLENCODED }),
-                TokenResponse::class.java
-            )
-            return AccessTokenHolder(response.body!!)
+                ),
+                HttpHeaders().apply { contentType = MediaType.APPLICATION_FORM_URLENCODED }
+            ),
+            TokenResponse::class.java
+        )
+        return AccessTokenHolder(response.body!!)
     }
 
 }
