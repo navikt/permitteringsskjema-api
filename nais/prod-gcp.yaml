@@ -1,5 +1,5 @@
 apiVersion: nais.io/v1alpha1
-kind: "Application"
+kind: Application
 metadata:
   name: permitteringsskjema-api
   namespace: permittering-og-nedbemanning
@@ -7,8 +7,6 @@ metadata:
     team: permittering-og-nedbemanning
 spec:
   image: {{image}}
-  team: permittering-og-nedbemanning
-  port: 8080
   liveness:
     path: /permitteringsskjema-api/internal/actuator/info
     initialDelay: 60
@@ -38,6 +36,9 @@ spec:
       value: prod-gcp
   tokenx:
     enabled: true
+  azure:
+    application:
+      enabled: true
   accessPolicy:
     inbound:
       rules:
