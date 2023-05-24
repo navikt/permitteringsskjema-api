@@ -29,7 +29,7 @@ interface DokarkivClient {
  * - https://confluence.adeo.no/display/BOA/Arkivering+i+fagarkivet
  */
 @Component
-@Profile("dev-gcp")
+@Profile("!prod-gcp")
 class DokarkivClientImpl(
     @Value("\${dokarkiv.scope}") dokarkivScope: String,
     @Value("\${dokarkiv.baseUrl}") dokarkivBaseUrl: String,
