@@ -45,6 +45,11 @@ permittering:
 
 permittering-dokgen.baseUrl: "http://permittering-dokgen"
 
+azure:
+    aadAccessTokenURL: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
+    clientid: ${AZURE_APP_CLIENT_ID}
+    azureClientSecret: ${AZURE_APP_CLIENT_SECRET}
+
 ---
 
 spring:
