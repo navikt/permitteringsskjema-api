@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
+import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.util.multiValueMapOf
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -19,6 +20,7 @@ class AzureADClient(
     private val azureADProperties: AzureADProperties,
     restTemplateBuilder: RestTemplateBuilder
 ) {
+    private val log = logger()
 
     private val restTemplate = restTemplateBuilder.additionalInterceptors(
         retryInterceptor(
@@ -46,6 +48,7 @@ class AzureADClient(
     }
 
     private fun hentAccessToken(scope: String): AccessTokenHolder {
+        log.info("henterAccessToken: url={}", azureADProperties.aadAccessTokenURL)
         val response: ResponseEntity<TokenResponse> = restTemplate.postForEntity(
             azureADProperties.aadAccessTokenURL,
             HttpEntity(

@@ -35,6 +35,11 @@ class DokarkivClientImpl(
     val azureADClient: AzureADClient,
     restTemplateBuilder: RestTemplateBuilder,
 ) : DokarkivClient {
+    private val log = logger()
+
+    init {
+        log.info("Dokarkiv url: {}", dokarkivBaseUrl)
+    }
 
     private val restTemplate = restTemplateBuilder
         .rootUri(dokarkivBaseUrl)
