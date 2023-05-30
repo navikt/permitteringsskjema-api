@@ -79,6 +79,7 @@ class JournalføringService(
             kommunenummer = kommunenummer,
             behandlendeEnhet = behandlendeEnhet,
         )
+        journalføring.state = Journalføring.State.JOURNALFORT
 
         journalføringRepository.save(journalføring)
     }
