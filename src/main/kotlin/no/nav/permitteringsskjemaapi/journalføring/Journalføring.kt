@@ -35,14 +35,14 @@ class Journalføring() {
     @field:Embedded
     var journalført: Journalført? = null
         set(newValue) {
-            check(journalført === null)
+            check(field === null)
             field = newValue
         }
 
     @field:Embedded
     var oppgave: Oppgave? = null
         set(newValue) {
-            check(oppgave === null)
+            check(field === null)
             field = newValue
         }
 
