@@ -1,14 +1,18 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Profile
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.client.ClientHttpRequestInterceptor
+import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
+import org.springframework.web.client.DefaultResponseErrorHandler
 import java.net.SocketException
 import java.time.LocalDate
 import java.time.ZoneId
@@ -43,6 +47,14 @@ class DokarkivClientImpl(
 
     private val restTemplate = restTemplateBuilder
         .rootUri(dokarkivBaseUrl)
+        .errorHandler(object: DefaultResponseErrorHandler() {
+            override fun hasError(response: ClientHttpResponse): Boolean {
+                val statusCode = response.statusCode
+                val isValidStatusCode = statusCode.is2xxSuccessful
+                        || statusCode.isSameCodeAs(HttpStatusCode.valueOf(409))
+                return !isValidStatusCode
+            }
+        })
         .additionalInterceptors(
             ClientHttpRequestInterceptor { request, body, execution ->
                 request.headers.setBearerAuth(azureADClient.getToken(dokarkivScope))
@@ -137,6 +149,7 @@ class DokarkivClientImpl(
         val idType = "ORGNR"
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private data class DokarkivResponse(val journalpostId: String)
 }
 
