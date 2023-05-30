@@ -57,7 +57,7 @@ class AzureADClientTest {
                 "grant_type" to "client_credentials",
                 "client_secret" to "fake-client-secret",
                 "client_id" to "fake-client-id",
-                "resource" to "some_scope",
+                "scope" to "some_scope",
             )))
             .andRespond(withSuccess(exampleResponse, MediaType.APPLICATION_JSON))
 
