@@ -56,7 +56,7 @@ class AzureADClient(
                     "grant_type" to "client_credentials",
                     "client_id" to azureADProperties.clientid,
                     "client_secret" to azureADProperties.azureClientSecret,
-                    "resource" to scope,
+                    "scope" to scope,
                 ),
                 HttpHeaders().apply { contentType = MediaType.APPLICATION_FORM_URLENCODED }
             ),
