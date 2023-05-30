@@ -85,8 +85,10 @@ class JournalføringService(
     }
 
     private fun opprettoppgave(journalføring: Journalføring) {
-        // opprett oppgave
+        // TODO
+        log.info("skulle ha opprettet oppgave for {}", journalføring.skjemaid)
 
-        // lagre oppgave id på journaføring
+        journalføring.state = Journalføring.State.FERDIG
+        journalføringRepository.save(journalføring)
     }
 }
