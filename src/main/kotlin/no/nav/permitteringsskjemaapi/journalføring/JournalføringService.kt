@@ -5,6 +5,7 @@ import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.journalføring.NorgClient.Companion.OSLO_ARBEIDSLIVSENTER_KODE
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.*
@@ -27,21 +28,17 @@ class JournalføringService(
         journalføringRepository.save(Journalføring(skjemaid = skjemaid))
     }
 
-    @Transactional // TODO endre til en tx per work item, men schedule hent flere utenfor tx
-    @Scheduled(
-        initialDelayString = "PT1M",
-        //fixedRateString = "PT5S",
-        fixedRateString = "PT5M",
-    )
-    fun processingLoop() {
-        val journalføring = journalføringRepository.findWork().getOrNull() ?: return
 
+    @Transactional
+    fun utførJournalføring(): Boolean {
+        val journalføring = journalføringRepository.findWork().getOrNull() ?: return false
         // SM
         when (journalføring.state) {
             Journalføring.State.NY -> journalfør(journalføring)
             Journalføring.State.JOURNALFORT -> opprettoppgave(journalføring)
             Journalføring.State.FERDIG -> log.error("uventet state i workitem {}", journalføring)
         }
+        return true
     }
 
     private fun journalfør(journalføring: Journalføring) {
@@ -90,5 +87,24 @@ class JournalføringService(
 
         journalføring.state = Journalføring.State.FERDIG
         journalføringRepository.save(journalføring)
+    }
+}
+
+@Component
+class JournalføringScheduledWorker(
+    private val journalføringService: JournalføringService,
+) {
+    /** Flyttet metoden ut av `JournalføringService`, siden `utførJournalføring()`
+     * er markert med @Transactional, og trenger å gå gjennom proxy-objektet.
+     */
+    @Scheduled(
+        initialDelayString = "PT1M",
+        //fixedRateString = "PT5S",
+        fixedRateString = "PT5M",
+    )
+    fun processingLoop() {
+        while (journalføringService.utførJournalføring()) {
+            // work happens in while-condition
+        }
     }
 }
