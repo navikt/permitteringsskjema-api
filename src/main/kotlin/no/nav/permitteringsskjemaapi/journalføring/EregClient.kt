@@ -34,33 +34,32 @@ class EregClient(
         return eregEnhet.kommuneNummer
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private data class EregEnhet(
+        val organisasjonDetaljer: OrganisasjonDetaljer
+    ) {
+        private val adresser = organisasjonDetaljer.forretningsadresser + organisasjonDetaljer.postadresser
+
+        val kommuneNummer: String?
+            get() = adresser
+                .filter { it.gyldighetsperiode.tom == null }
+                .firstNotNullOfOrNull { it.kommunenummer }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private data class OrganisasjonDetaljer(
+        val forretningsadresser: List<Adresse> = listOf(),
+        val postadresser: List<Adresse> = listOf(),
+    )
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private class Adresse(
+        val kommunenummer: String? = null,
+        val gyldighetsperiode: Gyldighetsperiode,
+    )
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private class Gyldighetsperiode(
+        val tom: LocalDate? = null,
+    )
 }
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-private data class EregEnhet(
-       val organisasjonDetaljer: OrganisasjonDetaljer
-) {
-    private val adresser = organisasjonDetaljer.forretningsadresser + organisasjonDetaljer.postadresser
-
-    val kommuneNummer: String?
-        get() = adresser
-            .filter { it.gyldighetsperiode.tom == null }
-            .firstNotNullOfOrNull { it.kommunenummer }
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-private data class OrganisasjonDetaljer(
-    val forretningsadresser: List<Adresse> = listOf(),
-    val postadresser: List<Adresse> = listOf(),
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-private class Adresse(
-    val kommunenummer: String? = null,
-    val gyldighetsperiode: Gyldighetsperiode,
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-private class Gyldighetsperiode(
-    val tom: LocalDate? = null,
-)

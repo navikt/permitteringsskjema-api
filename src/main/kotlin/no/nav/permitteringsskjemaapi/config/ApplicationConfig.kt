@@ -61,6 +61,7 @@ class ApplicationConfig {
                 ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
                     MDC.get(CALL_ID)?.let {
                         request.headers.addIfAbsent(CALL_ID, it)
+                        request.headers.addIfAbsent(NAV_CALL_ID, it)
                     }
                     execution.execute(request, body!!)
                 })

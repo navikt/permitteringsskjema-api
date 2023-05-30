@@ -35,14 +35,14 @@ class Journalføring() {
     @field:Embedded
     var journalført: Journalført? = null
         set(newValue) {
-            check(journalført === null)
+            check(field === null)
             field = newValue
         }
 
     @field:Embedded
     var oppgave: Oppgave? = null
         set(newValue) {
-            check(oppgave === null)
+            check(field === null)
             field = newValue
         }
 
@@ -77,7 +77,7 @@ class Journalført() {
     constructor(
         journalpostId: String,
         journalfortAt: String,
-        kommunenummer: String,
+        kommunenummer: String?,
         behandlendeEnhet: String
     ) : this() {
         this.journalpostId = journalpostId
@@ -95,7 +95,7 @@ class Journalført() {
         private set
 
     @field:Column(name = "kommunenummer")
-    lateinit var kommunenummer: String
+    var kommunenummer: String? = null
         private set
 
     @field:Column(name = "behandlende_enhet")
