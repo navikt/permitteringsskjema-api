@@ -185,5 +185,5 @@ dokarkiv:
   baseUrl: "https://dokarkiv.dev-fss-pub.nais.io/rest/journalpostapi/v1"
 
 oppgave:
-  baseUrl: "test"
+  baseUrl: "https://oppgavetests.no"
   scope: "test"

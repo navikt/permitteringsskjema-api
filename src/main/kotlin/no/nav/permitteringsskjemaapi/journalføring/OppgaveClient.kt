@@ -2,10 +2,12 @@ package no.nav.permitteringsskjemaapi.journalføring
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.context.annotation.Profile
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.stereotype.Component
 import java.net.SocketException
@@ -15,13 +17,19 @@ import javax.net.ssl.SSLHandshakeException
 /** Repo: https://github.com/navikt/oppgave
  * Swagger: https://oppgave.dev.intern.nav.no/
  */
+
+interface OppgaveClient {
+    fun lagOppgave(skjema: Permitteringsskjema, journalført: Journalført): String
+}
+
+@Profile("!prod-gcp")
 @Component
-class OppgaveClient(
+class OppgaveClientImpl(
     restTemplateBuilder: RestTemplateBuilder,
     azureADClient: AzureADClient,
     @Value("\${oppgave.baseUrl}") oppgaveBaseUrl: String,
     @Value("\${oppgave.scope}") oppgaveScope: String,
-) {
+) : OppgaveClient {
     private val restTemplate = restTemplateBuilder
         .rootUri(oppgaveBaseUrl)
         .additionalInterceptors(
@@ -38,7 +46,7 @@ class OppgaveClient(
         )
         .build()
 
-    fun lagOppgave(skjema: Permitteringsskjema, journalført: Journalført): String {
+    override fun lagOppgave(skjema: Permitteringsskjema, journalført: Journalført): String {
         val oppgaveRequest = OppgaveRequest.opprett(skjema, journalført)
 
         val response = restTemplate.postForObject("/api/v1/oppgaver", oppgaveRequest, OppgaveResponse::class.java)
@@ -53,6 +61,7 @@ private class OppgaveResponse(
     val id: String,
 )
 
+@Suppress("unused")
 private class OppgaveRequest(
     val journalpostId: String,
     val orgnr: String,
@@ -72,5 +81,15 @@ private class OppgaveRequest(
             aktivDato = skjema.varsletNavDato!!,
             tildeltEnhetsnr = journalført.behandlendeEnhet,
         )
+    }
+}
+
+@Profile("prod-gcp")
+@Component
+class OppgaveClientStub : OppgaveClient {
+    private val log = logger()
+    override fun lagOppgave(skjema: Permitteringsskjema, journalført: Journalført): String {
+        log.info("Oppgave-integration disabled. Would have created oppgave for journalpost {}", journalført.journalpostId)
+        return "stub-Oppgave-id"
     }
 }
