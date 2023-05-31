@@ -50,6 +50,7 @@ spec:
         - host: ereg-services.prod-fss-pub.nais.io
         - host: norg2.prod-fss-pub.nais.io
         - host: dokarkiv.prod-fss-pub.nais.io
+        - host: oppgave.prod-fss-pub.nais.io
       rules:
         - application: altinn-rettigheter-proxy
           namespace: arbeidsgiver

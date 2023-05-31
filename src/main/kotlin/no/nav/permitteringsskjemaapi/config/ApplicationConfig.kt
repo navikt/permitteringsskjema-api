@@ -61,7 +61,8 @@ class ApplicationConfig {
                 ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray?, execution: ClientHttpRequestExecution ->
                     MDC.get(CALL_ID)?.let {
                         request.headers.addIfAbsent(CALL_ID, it)
-                        request.headers.addIfAbsent(NAV_CALL_ID, it)
+                        request.headers.addIfAbsent(NAV_CALL_ID, it) // brukes av dokarkiv
+                        request.headers.addIfAbsent(X_CORRELATION_ID, it) // brukes av oppgave
                     }
                     execution.execute(request, body!!)
                 })
