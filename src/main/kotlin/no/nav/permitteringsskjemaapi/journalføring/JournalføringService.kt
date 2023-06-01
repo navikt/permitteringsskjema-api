@@ -37,6 +37,8 @@ class JournalføringService(
         val journalføring = journalføringRepository.findWork().getOrNull() ?: return false
         try {
             MDC.put(X_CORRELATION_ID, UUID.randomUUID().toString())
+
+            log.info("Plukket ut skjema {} i tilstandsmaskinen for journalføring", journalføring.skjemaid)
             // State machine
             when (journalføring.state) {
                 Journalføring.State.NY -> journalfør(journalføring)
