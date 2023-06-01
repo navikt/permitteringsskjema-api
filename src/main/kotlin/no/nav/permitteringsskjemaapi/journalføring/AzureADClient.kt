@@ -48,23 +48,26 @@ class AzureADClient(
     }
 
     private fun hentAccessToken(scope: String): AccessTokenHolder {
-        log.info("henterAccessToken: url={}", azureADProperties.aadAccessTokenURL)
-        val response: ResponseEntity<TokenResponse> = restTemplate.postForEntity(
-            azureADProperties.aadAccessTokenURL,
-            HttpEntity(
-                multiValueMapOf(
-                    "grant_type" to "client_credentials",
-                    "client_id" to azureADProperties.clientid,
-                    "client_secret" to azureADProperties.azureClientSecret,
-                    "scope" to scope,
+        try {
+            val response: ResponseEntity<TokenResponse> = restTemplate.postForEntity(
+                azureADProperties.aadAccessTokenURL,
+                HttpEntity(
+                    multiValueMapOf(
+                        "grant_type" to "client_credentials",
+                        "client_id" to azureADProperties.clientid,
+                        "client_secret" to azureADProperties.azureClientSecret,
+                        "scope" to scope,
+                    ),
+                    HttpHeaders().apply { contentType = MediaType.APPLICATION_FORM_URLENCODED }
                 ),
-                HttpHeaders().apply { contentType = MediaType.APPLICATION_FORM_URLENCODED }
-            ),
-            TokenResponse::class.java
-        )
-        return AccessTokenHolder(response.body!!)
+                TokenResponse::class.java
+            )
+            return AccessTokenHolder(response.body!!)
+        } catch (e: Exception) {
+            log.error("feil ved henting av Azure AD maskin-maskin access token", e)
+            throw e
+        }
     }
-
 }
 
 @Configuration
