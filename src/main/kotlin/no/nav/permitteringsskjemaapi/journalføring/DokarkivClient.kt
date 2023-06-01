@@ -7,7 +7,6 @@ import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
@@ -32,7 +31,6 @@ interface DokarkivClient {
  * - https://confluence.adeo.no/display/BOA/Arkivering+i+fagarkivet
  */
 @Component
-@Profile("!prod-gcp")
 class DokarkivClientImpl(
     @Value("\${dokarkiv.scope}") dokarkivScope: String,
     @Value("\${dokarkiv.baseUrl}") dokarkivBaseUrl: String,
@@ -151,18 +149,4 @@ class DokarkivClientImpl(
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private data class DokarkivResponse(val journalpostId: String)
-}
-
-@Component
-@Profile("prod-gcp")
-class DokarkivClientStub : DokarkivClient {
-    private val log = logger()
-    override fun opprettjournalPost(
-        skjema: Permitteringsskjema,
-        behandlendeEnhet: String,
-        dokumentPdfAsBytes: ByteArray
-    ): String {
-        log.info("dokarkiv-integration disabled. would have created journalpost for schema {}", skjema.id)
-        return "stub-dokarkiv-id"
-    }
 }

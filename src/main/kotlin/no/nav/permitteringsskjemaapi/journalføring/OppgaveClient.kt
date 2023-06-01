@@ -2,12 +2,10 @@ package no.nav.permitteringsskjemaapi.journalføring
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.context.annotation.Profile
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.stereotype.Component
 import java.net.SocketException
@@ -22,7 +20,6 @@ interface OppgaveClient {
     fun lagOppgave(skjema: Permitteringsskjema, journalført: Journalført): String
 }
 
-@Profile("!prod-gcp")
 @Component
 class OppgaveClientImpl(
     restTemplateBuilder: RestTemplateBuilder,
@@ -81,15 +78,5 @@ private class OppgaveRequest(
             aktivDato = skjema.varsletNavDato!!,
             tildeltEnhetsnr = journalført.behandlendeEnhet,
         )
-    }
-}
-
-@Profile("prod-gcp")
-@Component
-class OppgaveClientStub : OppgaveClient {
-    private val log = logger()
-    override fun lagOppgave(skjema: Permitteringsskjema, journalført: Journalført): String {
-        log.info("Oppgave-integration disabled. Would have created oppgave for journalpost {}", journalført.journalpostId)
-        return "stub-Oppgave-id"
     }
 }

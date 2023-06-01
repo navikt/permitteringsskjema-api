@@ -12,8 +12,6 @@ import java.time.Instant
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 import org.slf4j.MDC
-import org.springframework.context.annotation.Profile
-
 
 @Service
 class JournalføringService(
@@ -117,7 +115,6 @@ class JournalføringService(
 }
 
 @Component
-@Profile("!prod-gcp")
 class JournalføringScheduledWorker(
     private val journalføringService: JournalføringService,
 ) {
