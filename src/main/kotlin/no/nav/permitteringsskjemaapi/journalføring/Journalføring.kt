@@ -16,7 +16,8 @@ class Journalføring() {
     enum class State {
         NY,
         JOURNALFORT,
-        FERDIG;
+        FERDIG,
+        NEEDS_JOURNALFORING_ONLY;
     }
 
     @field:Id

@@ -3,6 +3,7 @@ package no.nav.permitteringsskjemaapi.journalføring
 import jakarta.transaction.Transactional
 import no.nav.permitteringsskjemaapi.config.X_CORRELATION_ID
 import no.nav.permitteringsskjemaapi.config.logger
+import no.nav.permitteringsskjemaapi.journalføring.Journalføring.State
 import no.nav.permitteringsskjemaapi.journalføring.NorgClient.Companion.OSLO_ARBEIDSLIVSENTER_KODE
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import org.springframework.scheduling.annotation.Scheduled
@@ -41,9 +42,10 @@ class JournalføringService(
             log.info("Plukket ut skjema {} i tilstandsmaskinen for journalføring", journalføring.skjemaid)
             // State machine
             when (journalføring.state) {
-                Journalføring.State.NY -> journalfør(journalføring)
-                Journalføring.State.JOURNALFORT -> opprettoppgave(journalføring)
-                Journalføring.State.FERDIG -> log.error("uventet state i workitem {}", journalføring)
+                State.NY -> journalfør(journalføring, nesteState = State.JOURNALFORT)
+                State.JOURNALFORT -> opprettoppgave(journalføring)
+                State.NEEDS_JOURNALFORING_ONLY -> journalfør(journalføring, nesteState = State.FERDIG)
+                State.FERDIG -> log.error("uventet state i workitem {}", journalføring)
             }
         } finally {
             MDC.remove(X_CORRELATION_ID)
@@ -51,7 +53,7 @@ class JournalføringService(
         return true
     }
 
-    private fun journalfør(journalføring: Journalføring) {
+    private fun journalfør(journalføring: Journalføring, nesteState: State) {
         val skjema = permitteringsskjemaRepository.findById(journalføring.skjemaid)
             .orElseThrow { RuntimeException("journalføring finner ikke skjema med id ${journalføring.skjemaid}") }
 
@@ -91,12 +93,20 @@ class JournalføringService(
             kommunenummer = kommunenummer,
             behandlendeEnhet = behandlendeEnhet,
         )
-        journalføring.state = Journalføring.State.JOURNALFORT
+        journalføring.state = nesteState
 
         journalføringRepository.save(journalføring)
     }
 
     private fun opprettoppgave(journalføring: Journalføring) {
+        if (journalføring.oppgave != null) {
+            log.info("Oppretter ikke oppgave for skjema {}, da det ser ut til å allerede eksistere", journalføring.skjemaid)
+            journalføring.state = State.FERDIG
+            journalføringRepository.save(journalføring)
+            return
+        }
+
+
         val skjema = permitteringsskjemaRepository.findById(journalføring.skjemaid)
             .orElseThrow { RuntimeException("journalføring finner ikke skjema med id ${journalføring.skjemaid}") }
 
@@ -110,7 +120,7 @@ class JournalføringService(
             oppgaveOpprettetAt = Instant.now().toString(),
         )
 
-        journalføring.state = Journalføring.State.FERDIG
+        journalføring.state = State.FERDIG
         journalføringRepository.save(journalføring)
         log.info("Opprettet oppgave {} for skjema {}", oppgaveId, skjema.id)
     }
