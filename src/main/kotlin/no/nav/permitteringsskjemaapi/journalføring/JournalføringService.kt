@@ -1,6 +1,5 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
-import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import jakarta.transaction.Transactional
 import no.nav.permitteringsskjemaapi.config.X_CORRELATION_ID
@@ -25,36 +24,13 @@ class JournalføringService(
     val dokgenClient: DokgenClient,
     val dokarkivClient: DokarkivClient,
     val oppgaveClient: OppgaveClient,
-    val meterRegistry: MeterRegistry,
 ) {
 
     private val log = logger()
 
-    private fun createCounter(part: String) = Pair(
-        meterRegistry.counter("permitteringsskjema.journalforing.$part", "outcome", "success"),
-        meterRegistry.counter("permitteringsskjema.journalforing.$part", "outcome", "failure"),
-    )
-
-    private val jobCreated = createCounter("scheduled.journalforing")
-    private val journalpostCreated = createCounter("journalpost")
-    private val oppgaveCreated = createCounter("oppgave")
-
-    private fun recordOutcome(counters: Pair<Counter, Counter>, action: () -> Unit) {
-        val (success, failure) = counters
-        try {
-            action()
-            success.increment()
-        } catch (e: Exception) {
-            failure.increment()
-            throw e
-        }
-    }
-
     fun startJournalføring(skjemaid: UUID) {
         log.info("startJournalføring skjemaid=$skjemaid")
-        recordOutcome(jobCreated) {
-            journalføringRepository.save(Journalføring(skjemaid = skjemaid))
-        }
+        journalføringRepository.save(Journalføring(skjemaid = skjemaid))
     }
 
     @Transactional
@@ -66,15 +42,9 @@ class JournalføringService(
             log.info("Plukket ut skjema {} i tilstandsmaskinen for journalføring", journalføring.skjemaid)
             // State machine
             when (journalføring.state) {
-                State.NY -> recordOutcome(journalpostCreated) {
-                    journalfør(journalføring, nesteState = State.JOURNALFORT)
-                }
-                State.JOURNALFORT -> recordOutcome(oppgaveCreated) {
-                    opprettoppgave(journalføring)
-                }
-                State.NEEDS_JOURNALFORING_ONLY -> recordOutcome(journalpostCreated) {
-                    journalfør(journalføring, nesteState = State.FERDIG)
-                }
+                State.NY -> journalfør(journalføring, nesteState = State.JOURNALFORT)
+                State.JOURNALFORT -> opprettoppgave(journalføring)
+                State.NEEDS_JOURNALFORING_ONLY -> journalfør(journalføring, nesteState = State.FERDIG)
                 State.FERDIG -> log.error("uventet state i workitem {}", journalføring)
             }
         } finally {
