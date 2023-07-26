@@ -25,4 +25,13 @@ interface JournalføringRepository : JpaRepository<Journalføring, UUID> {
             order by jf.rowInsertedAt
     """)
     fun findWorks(pageable: Pageable) : List<Journalføring>
+
+    @Query("""
+        select jf.rowInsertedAt
+        from Journalføring jf
+        where jf.state != 'FERDIG'
+        order by jf.rowInsertedAt
+        limit 1
+    """)
+    fun oldestInsertionTimeNotCompleted(): Optional<String>
 }
