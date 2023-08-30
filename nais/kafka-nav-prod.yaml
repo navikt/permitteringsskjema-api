@@ -28,6 +28,9 @@ spec:
     - team: dv-a-team
       application: dvh-permittering-konsument
       access: read
+    - team: dv-a-team
+      application: dv-a-team-konsument
+      access: read
     - team: permittering-og-nedbemanning
       application: permitteringsmelding-notifikasjon
       access: read

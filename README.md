@@ -43,15 +43,11 @@ API-et kan sees og testes på `http://localhost:8080/permitteringsskjema-api/swa
 # Henvendelser
 
 ## For Nav-ansatte
-Dette Git-repositoriet eies av [Team Permittering og Nedbemanning](https://teamkatalog.nais.adeo.no/team/9ba027cc-1ee6-4656-9e29-ef6b36349d8e).
+Dette Git-repositoriet eies av [Team Fager](https://teamkatalog.nav.no/team/93233539-ebfc-4b6a-805b-9fe3d2232ed5).
 
 Slack-kanaler:
-* [#permittering-og-nedbemanning-utvikling](https://nav-it.slack.com/archives/C01MCK908M6)
-* [#arbeidsgiver-utvikling](https://nav-it.slack.com/archives/CD4MES6BB)
-* [#arbeidsgiver-general](https://nav-it.slack.com/archives/CCM649PDH)
+* [#team-fager](https://nav-it.slack.com/archives/C01V9FFEHEK)
 
 ## For folk utenfor Nav
-* Opprett gjerne en issue i Github for alle typer spørlsmål
-* IT-utviklerne i Github-teamet https://github.com/orgs/navikt/teams/arbeidsgiver
-* IT-avdelingen i [Arbeids- og velferdsdirektoratet](https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/arbeids-og-velferdsdirektoratet-kontorinformasjon)
+* Opprett gjerne en issue i Github for alle typer spørsmål
 
