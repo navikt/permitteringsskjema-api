@@ -1,9 +1,8 @@
 name: Build & deploy
 
-on: [push]
-
-env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/permitteringsskjema-api:${{ github.sha }}
+on:
+  push:
+  workflow_dispatch:
 
 jobs:
   test:
@@ -37,60 +36,86 @@ jobs:
     name: Build
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
-      - uses: actions/cache@v1
+          java-version: 17
+          cache: maven
+
+      - run: mvn -B -DskipTests package
+
+      - uses: docker/login-action@v1
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Build jar with Maven
-        run: mvn package -DskipTests
-      - name: Build and publish Docker image
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          docker build --tag ${IMAGE} .
-          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
-          echo ${IMAGE}
-          docker push ${IMAGE}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: nais/docker-build-push@v0
+        id: gar-push
+        with:
+          team: permittering-og-nedbemanning
+          tag: ${{ github.sha }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
 
   deploy-to-dev-gcp:
     name: Deploy to dev-gcp
     needs: build
-    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    continue-on-error: true
+    permissions:
+      contents: "read"
+      id-token: "write"
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
+      - uses: nais/login@v0
+        id: login
+        with:
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          team: permittering-og-nedbemanning
       - uses: nais/deploy/actions/deploy@v1
         env:
+          IMAGE: ${{ steps.login.outputs.registry }}/permitteringsskjema-api:${{ github.sha }}
+          RESOURCE: nais/dev-gcp.yaml
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
           CLUSTER: dev-gcp
-          VAR: version=${{ env.IMAGE }}
-          RESOURCE: nais/dev-gcp.yaml
 
   deploy-to-prod-gcp:
     name: Deploy to prod-gcp
     needs: build
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
+      - uses: nais/login@v0
+        id: login
+        with:
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          team: permittering-og-nedbemanning
       - uses: nais/deploy/actions/deploy@v1
         env:
+          IMAGE: ${{ steps.login.outputs.registry }}/permitteringsskjema-api:${{ github.sha }}
+          RESOURCE: nais/prod-gcp.yaml
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
           CLUSTER: prod-gcp
-          VAR: version=${{ env.IMAGE }}
-          RESOURCE: nais/prod-gcp.yaml
 
   deploy-kafka-dev:
     name: Deploy kafka-topic to dev
     runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
     if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v1
@@ -102,6 +127,9 @@ jobs:
           RESOURCE: nais/kafka-nav-dev.yaml
 
   deploy-kafka-prod:
+    permissions:
+      contents: "read"
+      id-token: "write"
     name: Deploy kafka-topic to prod
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'

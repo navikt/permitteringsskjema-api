@@ -9,11 +9,20 @@ jobs:
   deploy-to-dev-gcp:
     name: Deploy to dev-gcp
     runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
+      - uses: nais/login@v0
+        id: login
+        with:
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          team: permittering-og-nedbemanning
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
-          CLUSTER: dev-gcp
-          VAR: version=${{ env.IMAGE }}
           RESOURCE: nais/dev-gcp.yaml
+          IMAGE: ${{ steps.login.outputs.registry }}/permitteringsskjema-api:${{ github.sha }}
+          CLUSTER: dev-gcp
