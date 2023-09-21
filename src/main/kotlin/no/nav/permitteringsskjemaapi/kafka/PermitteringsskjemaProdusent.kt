@@ -1,6 +1,9 @@
 package no.nav.permitteringsskjemaapi.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.networknt.schema.JsonSchemaFactory
+import com.networknt.schema.SpecVersion
+import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
 import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
@@ -20,6 +23,8 @@ class PermitteringsskjemaProdusent(
     private val kafkaTemplate: KafkaTemplate<String, String>,
     private val mapper: ObjectMapper,
 ) {
+
+    private val log = logger()
 
     fun sendTilKafkaTopic(permitteringsskjema: Permitteringsskjema) {
         val rapport = PermitteringsskjemaKafkaMelding(
@@ -41,17 +46,24 @@ class PermitteringsskjemaProdusent(
             yrkeskategorier = permitteringsskjema.yrkeskategorier,
         )
 
+        val jsonEvent = mapper.writeValueAsString(rapport)
+
+        val validationErrors = validateAgainstSchema(jsonEvent)
+        if (validationErrors.isNotEmpty()) {
+            log.error("json validation failed: {}", validationErrors.joinToString())
+        }
+
         kafkaTemplate.send(
             ProducerRecord(
                 TOPIC,
                 rapport.id.toString(),
-                mapper.writeValueAsString(rapport)
+                jsonEvent
             )
         ).get(1, TimeUnit.SECONDS);
     }
 
 
-    private data class PermitteringsskjemaKafkaMelding(
+    data class PermitteringsskjemaKafkaMelding(
         var id: UUID,
         var bedriftsnummer: String,
         var sendtInnTidspunkt: Instant,
@@ -69,4 +81,16 @@ class PermitteringsskjemaProdusent(
         var årsakstekst: String?,
         var yrkeskategorier: List<Yrkeskategori>,
     )
+
+    private val jsonSchema = Thread.currentThread().getContextClassLoader()
+        .getResourceAsStream("kafka-schema.json")
+        .use {
+            JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012).getSchema(it)
+                .apply {
+                    initializeValidators()
+                }
+        }
+
+    fun validateAgainstSchema(json: String) =
+        jsonSchema.validate(mapper.readTree(json))
 }
