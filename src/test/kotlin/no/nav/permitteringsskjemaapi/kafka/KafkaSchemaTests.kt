@@ -49,7 +49,12 @@ class KafkaSchemaTests {
 
     @Test
     fun godtarIkkeHvaSomHelst() {
-        assertNotValid("[]")
+        assertNotValid("$", "[]")
+    }
+
+    @Test
+    fun godtarIkkeFeilDatoFormat() {
+        assertNotValid("\$.startDato", eksempelFeilDatoFormat)
     }
 
     private fun assertValid(json: String) {
@@ -59,10 +64,14 @@ class KafkaSchemaTests {
         }
     }
 
-    private fun assertNotValid(json: String) {
+    private fun assertNotValid(path: String, json: String) {
         val errors = kafkaProdusent.validateAgainstSchema(json)
         if (errors.isEmpty()) {
             fail("schema validation succeeded, but expected it to fail")
+        } else if (errors.all { it.path != path}) {
+            fail("expected schema to fail on path $path, but only errors for ${errors.joinToString { it.path }}")
+        } else {
+            println("got expected validation errors for path $path: ${errors.joinToString()}")
         }
     }
 
@@ -99,4 +108,30 @@ class KafkaSchemaTests {
     )
 
     private val eksempel2 = eksempel1.copy(sluttDato = null)
+
+
+    private val eksempelFeilDatoFormat = """
+        {
+          "id": "785773df-8ec7-43cb-a252-bdcba68ec0bc",
+          "bedriftsnummer": "123412341",
+          "sendtInnTidspunkt": "2023-09-21T12:56:03.840448Z",
+          "type": "PERMITTERING_UTEN_LØNN",
+          "kontaktNavn": "asdfasdf",
+          "kontaktTlf": "12341234",
+          "kontaktEpost": "asdf@asdf.no",
+          "varsletAnsattDato": "2023-09-21",
+          "varsletNavDato": "2023-09-21",
+          "startDato": "2023-19-22",
+          "fritekst": "\n### Årsak\nRåstoffmangel\n### Yrker\nSushikokk\n### Annet\n",
+          "antallBerorte": 3,
+          "årsakskode": "RÅSTOFFMANGEL",
+          "yrkeskategorier": [
+            {
+              "konseptId": 21838,
+              "styrk08": "5120.03",
+              "label": "Sushikokk"
+            }
+          ]
+        }
+    """
 }

@@ -48,9 +48,9 @@ class PermitteringsskjemaProdusent(
 
         val jsonEvent = mapper.writeValueAsString(rapport)
 
-        if (validateAgainstSchema(jsonEvent).isNotEmpty()) {
-            /* consider logging errors */
-            log.error("invalid json schema")
+        val validationErrors = validateAgainstSchema(jsonEvent)
+        if (validationErrors.isNotEmpty()) {
+            log.error("json validation failed: {}", validationErrors.joinToString())
         }
 
         kafkaTemplate.send(
@@ -85,7 +85,7 @@ class PermitteringsskjemaProdusent(
     private val jsonSchema = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("kafka-schema.json")
         .use {
-            JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4).getSchema(it)
+            JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012).getSchema(it)
                 .apply {
                     initializeValidators()
                 }

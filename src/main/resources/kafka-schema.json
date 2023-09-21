@@ -1,8 +1,10 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
     "id": {
       "type": "string",
+      "format": "uuid",
       "description": "Identifikator generert av backend, som unikt identifiserer et skjema fyllt ut av bruker. UUIDv4."
     },
     "type": {
@@ -36,15 +38,17 @@
     },
     "sendtInnTidspunkt": {
       "type": "string",
-      "description": "Timestamp fra backenden fra når bruker klikket på \"Send til NAV\"."
+      "description": "Timestamp fra backenden fra når bruker klikket på \"Send til NAV\". Eksempel: `2023-09-21T12:56:03.840448Z`."
     },
     "startDato": {
       "type": "string",
-      "description": "Oppgitt av bruker."
+      "format": "date",
+      "description": "Oppgitt av bruker. Format: `YYYY-MM-DD`."
     },
     "sluttDato": {
       "type": ["string", "null"],
-      "description": "Oppgitt av bruker. Alltid `null` for `MASSEOPPSIGELSE` og `INNSKRENKING_I_ARBEIDSTID`. Frivillig for `PERMITTERING_UTEN_LØNN`."
+      "format": "date",
+      "description": "Oppgitt av bruker. Alltid `null` for `MASSEOPPSIGELSE` og `INNSKRENKING_I_ARBEIDSTID`. Frivillig for `PERMITTERING_UTEN_LØNN`. Format: `YYYY-MM-DD`."
     },
     "årsakskode": {
       "enum": [
@@ -74,7 +78,8 @@
             "description": "Beskrivelse av yrket. F.eks. \"Astrolog\"."
           },
           "antall": {
-            "type": ["integer", "null"]
+            "type": ["integer", "null"],
+            "description": "Tror feltet alltid mangler"
           }
         }
       },
@@ -94,23 +99,23 @@
     },
     "årsakstekst": {
       "type": ["string", "null"],
-      "description": "Tror feltet alltid er null."
+      "description": "Tror feltet alltid mangler."
     }
   },
   "required": [
-      "id",
-      "type",
-      "antallBerorte",
-      "bedriftsnummer",
-      "kontaktNavn",
-      "kontaktEpost",
-      "kontaktTlf",
-      "sendtInnTidspunkt",
-      "startDato",
-      "årsakskode",
-      "yrkeskategorier",
-      "varsletAnsattDato",
-      "varsletNavDato",
-      "fritekst"
+    "id",
+    "type",
+    "antallBerorte",
+    "bedriftsnummer",
+    "kontaktNavn",
+    "kontaktEpost",
+    "kontaktTlf",
+    "sendtInnTidspunkt",
+    "startDato",
+    "årsakskode",
+    "yrkeskategorier",
+    "varsletAnsattDato",
+    "varsletNavDato",
+    "fritekst"
   ]
 }
