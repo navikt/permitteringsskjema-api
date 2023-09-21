@@ -1,0 +1,116 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Identifikator generert av backend, som unikt identifiserer et skjema fyllt ut av bruker. UUIDv4."
+    },
+    "type": {
+      "enum": [
+        "MASSEOPPSIGELSE",
+        "PERMITTERING_UTEN_LØNN",
+        "INNSKRENKNING_I_ARBEIDSTID"
+      ],
+      "description": "Valgt av bruker fra nedtrekksliste."
+    },
+    "antallBerorte": {
+      "type": "integer",
+      "description": "Antall personer berørt av oppsigelsen / permitteringen / innskrenkningen i arbeidstid. Tallet er skrevet inn av bruker."
+    },
+    "bedriftsnummer": {
+      "type": "string",
+      "pattern": "[0-9]{9}",
+      "description": "Orgnr. til underenhet. Valgt av bruker fra nedtrekksliste."
+    },
+    "kontaktNavn": {
+      "type": "string",
+      "description": "Navnet bruker har oppgitt som kontaktperson."
+    },
+    "kontaktEpost": {
+      "type": "string",
+      "description": "Epost-adresse bruker har oppgitt for kontaktpersonen."
+    },
+    "kontaktTlf": {
+      "type": "string",
+      "description": "Telefonnummer bruker har oppgitt for kontaktpersonen."
+    },
+    "sendtInnTidspunkt": {
+      "type": "string",
+      "description": "Timestamp fra backenden fra når bruker klikket på \"Send til NAV\"."
+    },
+    "startDato": {
+      "type": "string",
+      "description": "Oppgitt av bruker."
+    },
+    "sluttDato": {
+      "type": ["string", "null"],
+      "description": "Oppgitt av bruker. Alltid `null` for `MASSEOPPSIGELSE` og `INNSKRENKING_I_ARBEIDSTID`. Frivillig for `PERMITTERING_UTEN_LØNN`."
+    },
+    "årsakskode": {
+      "enum": [
+        "MANGEL_PÅ_ARBEID",
+        "RÅSTOFFMANGEL",
+        "ARBEIDSKONFLIKT_ELLER_STREIK",
+        "BRANN",
+        "PÅLEGG_FRA_OFFENTLIG_MYNDIGHET",
+        "ANDRE_ÅRSAKER"
+      ],
+      "description": "Valgt av bruker fra nedtrekksliste."
+    },
+    "yrkeskategorier": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "konseptId": {
+            "type": ["integer", "null"]
+          },
+          "styrk08": {
+            "type": ["string", "null"],
+            "description": "Styrk08-kode for yrket. F.eks. \"5161.01\"."
+          },
+          "label": {
+            "type": ["string", "null"],
+            "description": "Beskrivelse av yrket. F.eks. \"Astrolog\"."
+          },
+          "antall": {
+            "type": ["integer", "null"]
+          }
+        }
+      },
+      "description": "Yrkene til de berørte. Valgt av bruker. Tilgjengelige valg hentet fra Janzz."
+    },
+    "varsletAnsattDato": {
+      "type": "string",
+      "description": "Navnet på feltet beskriver ikke tidspunktet i feltet. Vanskelig å gi en klar beskrivelse av tidspunktet, men det er knyttet til brukers interaksjoner med skjemaet. Ikke bruk feltet."
+    },
+    "varsletNavDato": {
+      "type": "string",
+      "description": "Navnet på feltet beskriver ikke tidspunktet i feltet. Vanskelig å gi en klar beskrivelse av tidspunktet, men det er knyttet til brukers interaksjoner med skjemaet. Ikke bruk feltet."
+    },
+    "fritekst": {
+      "type": "string",
+      "description": "Ikke fritekst. Maskinelt genereret ut fra feltene \"årsakskode\" og \"yrkeskategorier\"."
+    },
+    "årsakstekst": {
+      "type": ["string", "null"],
+      "description": "Tror feltet alltid er null."
+    }
+  },
+  "required": [
+      "id",
+      "type",
+      "antallBerorte",
+      "bedriftsnummer",
+      "kontaktNavn",
+      "kontaktEpost",
+      "kontaktTlf",
+      "sendtInnTidspunkt",
+      "startDato",
+      "årsakskode",
+      "yrkeskategorier",
+      "varsletAnsattDato",
+      "varsletNavDato",
+      "fritekst"
+  ]
+}
