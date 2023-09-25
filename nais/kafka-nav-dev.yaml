@@ -22,14 +22,8 @@ spec:
     - team: team-dialog
       application: sf-permiteringsvarsel
       access: read
-    - team: dvh-arbeid
-      application: dvh-permittering-konsument
-      access: read
     - team: permittering-og-nedbemanning
       application: permitteringsmelding-notifikasjon
-      access: read
-    - team: dv-a-team
-      application: dvh-permittering-konsument
       access: read
     - team: dv-a-team
       application: dv-a-team-konsument
