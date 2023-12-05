@@ -6,28 +6,28 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.permitteringsskjemaapi.PermitteringTestData
 import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
-import no.nav.permitteringsskjemaapi.hendelseregistrering.HendelseRegistrering
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
 import no.nav.permitteringsskjemaapi.util.TokenUtil
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-@MockBean(HendelseRegistrering::class)
+
 @WebMvcTest(
     value = [PermitteringsskjemaController::class],
     properties = ["server.servlet.context-path=/", "tokensupport.enabled=false"]
@@ -59,12 +59,12 @@ class PermitteringsskjemaControllerTest {
 
     @Test
     fun `henter alle skjema sortert`() {
-        Mockito.`when`(tokenUtil.autentisertBruker()).thenReturn("42")
-        Mockito.`when`(altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1")).thenReturn(listOf(
+        `when`(tokenUtil.autentisertBruker()).thenReturn("42")
+        `when`(altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1")).thenReturn(listOf(
             AltinnOrganisasjon(organizationNumber = "1"),
             AltinnOrganisasjon(organizationNumber = "2"),
         ))
-        Mockito.`when`(repository.findAllByBedriftNr("1")).thenReturn(listOf(
+        `when`(repository.findAllByBedriftNr("1")).thenReturn(listOf(
             PermitteringTestData.enPermitteringMedAltFyltUt().apply {
                 bedriftNavn = "sendt inn 1 minutt siden, opprettet 10 min siden"
                 sendtInnTidspunkt = now.minus(1, ChronoUnit.MINUTES)
@@ -72,7 +72,7 @@ class PermitteringsskjemaControllerTest {
                 opprettetAv = "me"
             }
         ))
-        Mockito.`when`(repository.findAllByBedriftNr("2")).thenReturn(listOf(
+        `when`(repository.findAllByBedriftNr("2")).thenReturn(listOf(
             PermitteringTestData.enPermitteringMedAltFyltUt().apply {
                 bedriftNavn = "ikke sendt inn opprettet 5 min siden"
                 sendtInnTidspunkt = null
@@ -86,7 +86,7 @@ class PermitteringsskjemaControllerTest {
                 opprettetAv = "me"
             }
         ))
-        Mockito.`when`(repository.findAllByOpprettetAv("42")).thenReturn(listOf(
+        `when`(repository.findAllByOpprettetAv("42")).thenReturn(listOf(
             PermitteringTestData.enPermitteringMedAltFyltUt().apply {
                 bedriftNavn = "ikke sendt inn opprettet 10 min siden"
                 sendtInnTidspunkt = null
@@ -101,11 +101,13 @@ class PermitteringsskjemaControllerTest {
             }
         ))
 
-        val jsonResponse = mockMvc
-            .perform(MockMvcRequestBuilders.get("/skjema").accept(MediaType.APPLICATION_JSON))
-            .andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn().response.contentAsString
+        val jsonResponse = mockMvc.get("/skjema") {
+            accept(MediaType.APPLICATION_JSON)
+        }.andDo {
+            MockMvcResultHandlers.print()
+        }.andExpect {
+            status().isOk
+        }.andReturn().response.contentAsString
 
         val jsonNode : JsonNode = objectMapper.readValue(jsonResponse)
         Assertions.assertThat(
@@ -121,17 +123,93 @@ class PermitteringsskjemaControllerTest {
 
     @Test
     fun sendInnStarterJournalføringOgSkedulererKafkaSend() {
-        Mockito.`when`(tokenUtil.autentisertBruker()).thenReturn("42")
+        `when`(tokenUtil.autentisertBruker()).thenReturn("42")
         val skjema = PermitteringTestData.enPermitteringMedAltFyltUt()
         val skjemaid = skjema.id!!
-        Mockito.`when`(repository.findByIdAndOpprettetAv(skjemaid, "42")).thenReturn(Optional.of(skjema))
-        Mockito.`when`(repository.save(any())).thenReturn(skjema)
+        `when`(repository.findByIdAndOpprettetAv(skjemaid, "42")).thenReturn(Optional.of(skjema))
+        `when`(repository.save(any())).thenReturn(skjema)
 
-        mockMvc
-            .perform(post("/skjema/{id}/send-inn", skjemaid).accept(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        mockMvc.post("/skjema/{id}/send-inn", skjemaid) {
+            accept = MediaType.APPLICATION_JSON
+            contentType = MediaType.APPLICATION_JSON
+        }.andExpect {
+            status().isOk
+        }
 
-        Mockito.verify(journalføringService).startJournalføring(skjemaid = skjemaid)
-        Mockito.verify(permitteringsmeldingKafkaService).scheduleSend(skjemaid = skjemaid)
+        verify(journalføringService).startJournalføring(skjemaid = skjemaid)
+        verify(permitteringsmeldingKafkaService).scheduleSend(skjemaid = skjemaid)
+    }
+
+    @Test
+    fun sendInnValidererInput() {
+        `when`(tokenUtil.autentisertBruker()).thenReturn("42")
+        val skjema = PermitteringTestData.enPermitteringMedAltFyltUt()
+        val skjemaid = skjema.id!!
+        `when`(repository.findByIdAndOpprettetAv(skjemaid, "42")).thenReturn(Optional.of(skjema))
+        `when`(repository.save(any())).thenReturn(skjema)
+
+        mockMvc.post("/skjemaV2", skjemaid) {
+            accept = MediaType.APPLICATION_JSON
+            contentType = MediaType.APPLICATION_JSON
+            content = """
+                {
+                    "type": "MASSEOPPSIGELSE",
+                }
+                """
+        }.andDo {
+            MockMvcResultHandlers.print()
+        }.andExpect {
+            status().is4xxClientError
+        }
+    }
+
+    @Test
+    fun sendInnV2() {
+        `when`(tokenUtil.autentisertBruker()).thenReturn("42")
+        lateinit var savedSkjema : Permitteringsskjema
+        `when`(repository.save(any())).then { answer ->
+            savedSkjema = answer.getArgument(0)
+            savedSkjema
+        }
+
+        mockMvc.post("/skjemaV2") {
+            accept = MediaType.APPLICATION_JSON
+            contentType = MediaType.APPLICATION_JSON
+            content = """
+                {
+                  "yrkeskategorier": [
+                    {
+                      "konseptId": 21837,
+                      "label": "Kokkeassistent",
+                      "styrk08": "5120.03"
+                    }
+                  ],
+                  "bedriftNr": "910825569",
+                  "bedriftNavn": "STORFOSNA OG FREDRIKSTAD REGNSKAP",
+                  "ukjentSluttDato": false,
+                  "sluttDato": "2023-12-14T23:00:00.000Z",
+                  "startDato": "2023-12-09T23:00:00.000Z",
+                  "kontaktNavn": "asdf",
+                  "kontaktEpost": "ken@g.no",
+                  "kontaktTlf": "12341234",
+                  "antallBerørt": "12",
+                  "årsakskode": "RÅSTOFFMANGEL",
+                  "årsakstekst": "Råstoffmangel",
+                  "type": "PERMITTERING_UTEN_LØNN",
+                  "fritekst": "### Yrker\nKokkeassistent\n### Årsak\nRåstoffmangel",
+                  "varsletNavDato": "2023-12-04T13:18:52.715Z",
+                  "varsletAnsattDato": "2023-12-04T13:18:52.715Z",
+                  "opprettetTidspunkt": "2023-12-04T13:18:52.715Z",
+                  "sendtInnTidspunkt": "2023-12-04T13:18:52.715Z"
+                }
+                """
+        }.andDo {
+            MockMvcResultHandlers.print()
+        }.andExpect {
+            status().isOk
+        }
+
+        verify(journalføringService).startJournalføring(skjemaid = savedSkjema.id!!)
+        verify(permitteringsmeldingKafkaService).scheduleSend(skjemaid = savedSkjema.id!!)
     }
 }

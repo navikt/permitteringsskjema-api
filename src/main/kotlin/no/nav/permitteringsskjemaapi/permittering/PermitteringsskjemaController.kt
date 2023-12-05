@@ -1,16 +1,20 @@
 package no.nav.permitteringsskjemaapi.permittering
 
+import jakarta.validation.Valid
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException
 import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException
-import no.nav.permitteringsskjemaapi.hendelseregistrering.HendelseRegistrering
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
+import no.nav.permitteringsskjemaapi.permittering.deprecated.EndrePermitteringsskjema
+import no.nav.permitteringsskjemaapi.permittering.deprecated.OpprettPermitteringsskjema
 import no.nav.permitteringsskjemaapi.util.TokenUtil
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
+import java.time.LocalDate
 import java.util.*
 
 @RestController
@@ -20,7 +24,6 @@ class PermitteringsskjemaController(
     private val altinnService: AltinnService,
     private val repository: PermitteringsskjemaRepository,
     private val journalføringService: JournalføringService,
-    private val hendelseRegistrering: HendelseRegistrering,
     private val permitteringsmeldingKafkaService: PermitteringsmeldingKafkaService,
 ) {
     private val log = logger()
@@ -59,6 +62,21 @@ class PermitteringsskjemaController(
         throw IkkeFunnetException()
     }
 
+    @PostMapping("/skjemaV2")
+    fun sendInn(@Valid @RequestBody skjema: PermitteringsskjemaDTO): Permitteringsskjema {
+        val fnr = fnrExtractor.autentisertBruker()
+        val id = UUID.randomUUID()
+
+        /**
+         * TODO:
+         * - slett alle journalføring rader
+         */
+        journalføringService.startJournalføring(id)
+        permitteringsmeldingKafkaService.scheduleSend(id)
+        return repository.save(repository.save(skjema.tilDomene(id, fnr)))
+    }
+
+    // TODO: fjern gamle endepunkter under når nytt er tatt i bruk
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/skjema")
     fun opprett(@RequestBody opprettSkjema: OpprettPermitteringsskjema): Permitteringsskjema {
@@ -67,7 +85,6 @@ class PermitteringsskjemaController(
         val skjema: Permitteringsskjema = Permitteringsskjema.opprettSkjema(opprettSkjema, fnr)
         skjema.bedriftNavn = organisasjon.name
 
-        hendelseRegistrering.opprettet(skjema, fnr)
         return repository.save(skjema)
     }
 
@@ -77,7 +94,6 @@ class PermitteringsskjemaController(
         val permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr).orElseThrow { IkkeFunnetException() }
         permitteringsskjema.endre(endreSkjema)
 
-        hendelseRegistrering.endret(permitteringsskjema, fnr)
         return repository.save(permitteringsskjema)
     }
 
@@ -87,7 +103,6 @@ class PermitteringsskjemaController(
         val permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr).orElseThrow { IkkeFunnetException() }
         permitteringsskjema.sendInn()
 
-        hendelseRegistrering.sendtInn(permitteringsskjema, fnrExtractor.autentisertBruker())
 
         /**
          * TODO:
@@ -104,7 +119,6 @@ class PermitteringsskjemaController(
         val permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr).orElseThrow { IkkeFunnetException() }
         permitteringsskjema.avbryt()
 
-        hendelseRegistrering.avbrutt(permitteringsskjema, fnrExtractor.autentisertBruker())
         return repository.save(permitteringsskjema)
     }
 
@@ -115,4 +129,67 @@ class PermitteringsskjemaController(
         altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1").flatMap {
             repository.findAllByBedriftNr(it.organizationNumber!!)
         }
+}
+
+data class PermitteringsskjemaDTO(
+    val id: UUID?,
+
+    val type: PermitteringsskjemaType,
+
+    val bedriftNr: String,
+    val bedriftNavn: String,
+
+    val kontaktNavn: String,
+    val kontaktEpost: String,
+    val kontaktTlf: String,
+
+    val antallBerørt: Int,
+
+    val årsakskode: Årsakskode,
+    val årsakstekst: String,
+
+    val yrkeskategorier: List<Yrkeskategori>,
+
+    val startDato: LocalDate,
+    val sluttDato: LocalDate?,
+    val ukjentSluttDato: Boolean = false,
+) {
+
+    fun tilDomene(uuid: UUID, inloggetBruker: String) : Permitteringsskjema {
+        return Permitteringsskjema(
+            id = uuid,
+
+            bedriftNr = bedriftNr,
+            bedriftNavn = bedriftNavn,
+
+            kontaktNavn = kontaktNavn,
+            kontaktEpost = kontaktEpost,
+            kontaktTlf = kontaktTlf,
+
+            antallBerørt = antallBerørt,
+
+            årsakskode = årsakskode,
+            årsakstekst = årsakstekst,
+
+            yrkeskategorier = yrkeskategorier.toMutableList(),
+
+            startDato = startDato,
+            sluttDato = sluttDato,
+            ukjentSluttDato = ukjentSluttDato,
+
+            fritekst = """
+                ### Yrker
+                ${yrkeskategorier.map { it.label }.joinToString(", ")}
+                ### Årsak
+                $årsakstekst
+            """.trimIndent(),
+
+            varsletAnsattDato = LocalDate.now(),
+            varsletNavDato = LocalDate.now(),
+
+            opprettetAv = inloggetBruker,
+            opprettetTidspunkt = Instant.now(),
+            sendtInnTidspunkt = Instant.now(),
+        )
+    }
 }

@@ -2,7 +2,7 @@ package no.nav.permitteringsskjemaapi
 
 import no.nav.permitteringsskjemaapi.exceptions.AlleFelterIkkeFyltUtException
 import no.nav.permitteringsskjemaapi.exceptions.SkjemaErAvbruttException
-import no.nav.permitteringsskjemaapi.permittering.EndrePermitteringsskjema
+import no.nav.permitteringsskjemaapi.permittering.deprecated.EndrePermitteringsskjema
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import java.time.Instant
