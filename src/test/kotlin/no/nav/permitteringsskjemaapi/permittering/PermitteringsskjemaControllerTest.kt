@@ -64,7 +64,7 @@ class PermitteringsskjemaControllerTest {
             AltinnOrganisasjon(organizationNumber = "1"),
             AltinnOrganisasjon(organizationNumber = "2"),
         ))
-        `when`(repository.findAllByBedriftNr("1")).thenReturn(listOf(
+        `when`(repository.findAllByBedriftNr("1", fromDate)).thenReturn(listOf(
             PermitteringTestData.enPermitteringMedAltFyltUt().apply {
                 bedriftNavn = "sendt inn 1 minutt siden, opprettet 10 min siden"
                 sendtInnTidspunkt = now.minus(1, ChronoUnit.MINUTES)
@@ -72,7 +72,7 @@ class PermitteringsskjemaControllerTest {
                 opprettetAv = "me"
             }
         ))
-        `when`(repository.findAllByBedriftNr("2")).thenReturn(listOf(
+        `when`(repository.findAllByBedriftNr("2", fromDate)).thenReturn(listOf(
             PermitteringTestData.enPermitteringMedAltFyltUt().apply {
                 bedriftNavn = "ikke sendt inn opprettet 5 min siden"
                 sendtInnTidspunkt = null
