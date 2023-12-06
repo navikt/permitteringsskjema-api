@@ -3,12 +3,12 @@ package no.nav.permitteringsskjemaapi.permittering
 import jakarta.validation.Valid
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.config.logger
+import no.nav.permitteringsskjemaapi.deprecated.EndrePermitteringsskjema
+import no.nav.permitteringsskjemaapi.deprecated.OpprettPermitteringsskjema
 import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException
 import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
-import no.nav.permitteringsskjemaapi.permittering.deprecated.EndrePermitteringsskjema
-import no.nav.permitteringsskjemaapi.permittering.deprecated.OpprettPermitteringsskjema
 import no.nav.permitteringsskjemaapi.util.TokenUtil
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.http.HttpStatus

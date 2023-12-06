@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.permittering.deprecated
+package no.nav.permitteringsskjemaapi.deprecated
 
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
 import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori

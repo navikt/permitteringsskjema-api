@@ -3,10 +3,10 @@ package no.nav.permitteringsskjemaapi.permittering
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import no.nav.permitteringsskjemaapi.config.logger
+import no.nav.permitteringsskjemaapi.deprecated.EndrePermitteringsskjema
+import no.nav.permitteringsskjemaapi.deprecated.OpprettPermitteringsskjema
 import no.nav.permitteringsskjemaapi.exceptions.AlleFelterIkkeFyltUtException
 import no.nav.permitteringsskjemaapi.exceptions.SkjemaErAvbruttException
-import no.nav.permitteringsskjemaapi.permittering.deprecated.EndrePermitteringsskjema
-import no.nav.permitteringsskjemaapi.permittering.deprecated.OpprettPermitteringsskjema
 import org.apache.commons.lang3.ObjectUtils
 import java.time.Instant
 import java.time.LocalDate
