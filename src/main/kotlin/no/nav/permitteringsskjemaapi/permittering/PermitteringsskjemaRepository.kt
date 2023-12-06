@@ -18,4 +18,10 @@ interface PermitteringsskjemaRepository : JpaRepository<Permitteringsskjema, UUI
             "   and s.sendtInnTidspunkt is not null" +
             "   order by s.sendtInnTidspunkt desc, s.opprettetTidspunkt desc")
     fun findAllByBedriftNr(bedriftNr: String): List<Permitteringsskjema>
+    @Query("" +
+            "select s from Permitteringsskjema s " +
+            "   where s.opprettetAv = :opprettetAv " +
+            "   and s.sendtInnTidspunkt is not null" +
+            "   order by s.sendtInnTidspunkt desc")
+    fun findAllInnsendteByOpprettetAv(opprettetAv: String): List<Permitteringsskjema>
 }

@@ -62,6 +62,19 @@ class PermitteringsskjemaController(
         throw IkkeFunnetException()
     }
 
+    @GetMapping("/skjemaV2")
+    fun hentAlle(): List<Permitteringsskjema> {
+        val fnr = fnrExtractor.autentisertBruker()
+
+        val skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet().toSet()
+
+        val listeMedSkjemaBrukerenHarOpprettet = repository.findAllInnsendteByOpprettetAv(fnr).toSet()
+
+        // TODO: endre sendtInnTidspunkt, og alle felter til not null etter ny frontend er ute
+        return (skjemaHentetBasertPåRettighet + listeMedSkjemaBrukerenHarOpprettet).toList()
+            .sortedBy { it.sendtInnTidspunkt }.reversed()
+    }
+
     @PostMapping("/skjemaV2")
     fun sendInn(@Valid @RequestBody skjema: PermitteringsskjemaDTO): Permitteringsskjema {
         val fnr = fnrExtractor.autentisertBruker()
