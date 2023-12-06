@@ -40,7 +40,10 @@ class PermitteringsskjemaController(
         }.reversed()
     }
     
-    @GetMapping("/skjema/{id}")
+    @GetMapping(path = [
+        "/skjema/{id}",
+        "/skjemaV2/{id}"
+    ])
     fun hent(@PathVariable id: UUID): Permitteringsskjema {
         val fnr = fnrExtractor.autentisertBruker()
         val permitteringsskjemaOpprettetAvBruker = repository.findByIdAndOpprettetAv(id, fnr)
