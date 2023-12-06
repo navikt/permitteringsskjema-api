@@ -187,8 +187,6 @@ data class PermitteringsskjemaDTO(
             årsakskode = årsakskode,
             årsakstekst = årsakstekst,
 
-            yrkeskategorier = yrkeskategorier.toMutableList(),
-
             startDato = startDato,
             sluttDato = sluttDato,
             ukjentSluttDato = ukjentSluttDato,
@@ -206,6 +204,13 @@ data class PermitteringsskjemaDTO(
             opprettetAv = inloggetBruker,
             opprettetTidspunkt = Instant.now(),
             sendtInnTidspunkt = Instant.now(),
-        )
+        ).also { domene ->
+            domene.yrkeskategorier = yrkeskategorier.map {
+                it.copy(
+                    id = UUID.randomUUID(),
+                    permitteringsskjema = domene
+                )
+            }.toMutableList()
+        }
     }
 }
