@@ -13,6 +13,7 @@ import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
 import no.nav.permitteringsskjemaapi.util.TokenUtil
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.http.HttpStatus
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
@@ -46,18 +47,20 @@ class PermitteringsskjemaController(
             .sortedBy { it.sendtInnTidspunkt }.reversed()
     }
 
+    @Transactional
     @PostMapping("/skjemaV2")
     fun sendInn(@Valid @RequestBody skjema: PermitteringsskjemaDTO): PermitteringsskjemaDTO {
         val fnr = fnrExtractor.autentisertBruker()
-        val id = UUID.randomUUID()
 
         /**
          * TODO:
          * - slett alle journalføring rader
          */
-        journalføringService.startJournalføring(id)
-        permitteringsmeldingKafkaService.scheduleSend(id)
-        return repository.save(repository.save(skjema.tilDomene(id, fnr))).tilDTO()
+        val id = UUID.randomUUID()
+        return repository.save(skjema.tilDomene(id, fnr)).tilDTO().also {
+            journalføringService.startJournalføring(id)
+            permitteringsmeldingKafkaService.scheduleSend(id)
+        }
     }
 
     // TODO: fjern gamle endepunkter under når nytt er tatt i bruk
