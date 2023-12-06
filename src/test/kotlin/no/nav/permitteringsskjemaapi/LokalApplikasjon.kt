@@ -1,6 +1,5 @@
 package no.nav.permitteringsskjemaapi
 
-import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
@@ -12,9 +11,8 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @EnableKafka
 @EnableScheduling
 @ConfigurationPropertiesScan("no.nav.permitteringsskjemaapi")
-@EnableJwtTokenValidation(ignore = ["org.springframework", "springfox.documentation.swagger.web.ApiResourceController"]) // Hvis ikke vet ikke Spring forskjell på LokalApplikasjon og Application
 @Profile("test")
-class LokalApplikasjon {
+class LokalApplikasjon : Application() {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {

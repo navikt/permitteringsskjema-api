@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.permittering
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.validation.Valid
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.config.logger
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 @RestController
@@ -28,6 +30,38 @@ class PermitteringsskjemaController(
 ) {
     private val log = logger()
 
+    @GetMapping("/skjemaV2/{id}")
+    fun hentById(@PathVariable id: UUID) = hent(id).tilDTO()
+
+    @GetMapping("/skjemaV2")
+    fun hentAlle(): List<PermitteringsskjemaDTO> {
+        val fnr = fnrExtractor.autentisertBruker()
+
+        val skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet().toSet()
+
+        val listeMedSkjemaBrukerenHarOpprettet = repository.findAllInnsendteByOpprettetAv(fnr).toSet()
+
+        return (skjemaHentetBasertPåRettighet + listeMedSkjemaBrukerenHarOpprettet)
+            .map { it.tilDTO() }
+            .sortedBy { it.sendtInnTidspunkt }.reversed()
+    }
+
+    @PostMapping("/skjemaV2")
+    fun sendInn(@Valid @RequestBody skjema: PermitteringsskjemaDTO): PermitteringsskjemaDTO {
+        val fnr = fnrExtractor.autentisertBruker()
+        val id = UUID.randomUUID()
+
+        /**
+         * TODO:
+         * - slett alle journalføring rader
+         */
+        journalføringService.startJournalføring(id)
+        permitteringsmeldingKafkaService.scheduleSend(id)
+        return repository.save(repository.save(skjema.tilDomene(id, fnr))).tilDTO()
+    }
+
+    // TODO: fjern gamle endepunkter under når nytt er tatt i bruk
+
     @GetMapping("/skjema")
     fun hent(): List<Permitteringsskjema> {
         val fnr = fnrExtractor.autentisertBruker()
@@ -39,11 +73,8 @@ class PermitteringsskjemaController(
             it.sendtInnTidspunkt ?: it.opprettetTidspunkt
         }.reversed()
     }
-    
-    @GetMapping(path = [
-        "/skjema/{id}",
-        "/skjemaV2/{id}"
-    ])
+
+    @GetMapping("/skjema/{id}")
     fun hent(@PathVariable id: UUID): Permitteringsskjema {
         val fnr = fnrExtractor.autentisertBruker()
         val permitteringsskjemaOpprettetAvBruker = repository.findByIdAndOpprettetAv(id, fnr)
@@ -65,34 +96,6 @@ class PermitteringsskjemaController(
         throw IkkeFunnetException()
     }
 
-    @GetMapping("/skjemaV2")
-    fun hentAlle(): List<Permitteringsskjema> {
-        val fnr = fnrExtractor.autentisertBruker()
-
-        val skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet().toSet()
-
-        val listeMedSkjemaBrukerenHarOpprettet = repository.findAllInnsendteByOpprettetAv(fnr).toSet()
-
-        // TODO: endre sendtInnTidspunkt, og alle felter til not null etter ny frontend er ute
-        return (skjemaHentetBasertPåRettighet + listeMedSkjemaBrukerenHarOpprettet).toList()
-            .sortedBy { it.sendtInnTidspunkt }.reversed()
-    }
-
-    @PostMapping("/skjemaV2")
-    fun sendInn(@Valid @RequestBody skjema: PermitteringsskjemaDTO): Permitteringsskjema {
-        val fnr = fnrExtractor.autentisertBruker()
-        val id = UUID.randomUUID()
-
-        /**
-         * TODO:
-         * - slett alle journalføring rader
-         */
-        journalføringService.startJournalføring(id)
-        permitteringsmeldingKafkaService.scheduleSend(id)
-        return repository.save(repository.save(skjema.tilDomene(id, fnr)))
-    }
-
-    // TODO: fjern gamle endepunkter under når nytt er tatt i bruk
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/skjema")
     fun opprett(@RequestBody opprettSkjema: OpprettPermitteringsskjema): Permitteringsskjema {
@@ -147,6 +150,7 @@ class PermitteringsskjemaController(
         }
 }
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class PermitteringsskjemaDTO(
     val id: UUID?,
 
@@ -169,11 +173,14 @@ data class PermitteringsskjemaDTO(
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
     val ukjentSluttDato: Boolean = false,
+
+    val sendtInnTidspunkt: Instant?,
 ) {
 
     fun tilDomene(uuid: UUID, inloggetBruker: String) : Permitteringsskjema {
         return Permitteringsskjema(
             id = uuid,
+            type = type,
 
             bedriftNr = bedriftNr,
             bedriftNavn = bedriftNavn,
@@ -202,8 +209,8 @@ data class PermitteringsskjemaDTO(
             varsletNavDato = LocalDate.now(),
 
             opprettetAv = inloggetBruker,
-            opprettetTidspunkt = Instant.now(),
-            sendtInnTidspunkt = Instant.now(),
+            opprettetTidspunkt = Instant.now().truncatedTo(ChronoUnit.MICROS),
+            sendtInnTidspunkt = Instant.now().truncatedTo(ChronoUnit.MICROS),
         ).also { domene ->
             domene.yrkeskategorier = yrkeskategorier.map {
                 it.copy(
@@ -213,4 +220,31 @@ data class PermitteringsskjemaDTO(
             }.toMutableList()
         }
     }
+}
+
+private fun Permitteringsskjema.tilDTO() : PermitteringsskjemaDTO {
+    return PermitteringsskjemaDTO(
+        id = id,
+        type = type!!,
+
+        bedriftNr = bedriftNr!!,
+        bedriftNavn = bedriftNavn!!,
+
+        kontaktNavn = kontaktNavn!!,
+        kontaktEpost = kontaktEpost!!,
+        kontaktTlf = kontaktTlf!!,
+
+        antallBerørt = antallBerørt!!,
+
+        årsakskode = årsakskode!!,
+        årsakstekst = årsakstekst!!,
+
+        yrkeskategorier = yrkeskategorier,
+
+        startDato = startDato!!,
+        sluttDato = sluttDato,
+        ukjentSluttDato = ukjentSluttDato,
+
+        sendtInnTidspunkt = sendtInnTidspunkt!!
+    )
 }

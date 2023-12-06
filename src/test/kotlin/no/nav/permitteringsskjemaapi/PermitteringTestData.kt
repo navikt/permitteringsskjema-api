@@ -14,6 +14,7 @@ object PermitteringTestData {
             id = UUID.randomUUID(),
             opprettetTidspunkt = Instant.now(),
             bedriftNr = "999999999",
+            bedriftNavn = "Bedrift AS",
             type = PermitteringsskjemaType.PERMITTERING_UTEN_LØNN,
             kontaktNavn = "Tore Toresen",
             kontaktTlf = "66778899",
@@ -26,6 +27,7 @@ object PermitteringTestData {
             fritekst = "Fritekst",
             antallBerørt = 1,
             årsakskode = Årsakskode.MANGEL_PÅ_ARBEID,
+            årsakstekst = Årsakskode.MANGEL_PÅ_ARBEID.navn,
         ).apply {
             val enYrkeskategori = enYrkeskategori()
             enYrkeskategori.permitteringsskjema = this
