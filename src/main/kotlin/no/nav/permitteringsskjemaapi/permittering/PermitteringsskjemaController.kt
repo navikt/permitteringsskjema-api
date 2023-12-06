@@ -237,7 +237,9 @@ private fun Permitteringsskjema.tilDTO() : PermitteringsskjemaDTO {
         antallBerørt = antallBerørt!!,
 
         årsakskode = årsakskode!!,
-        årsakstekst = årsakstekst!!,
+
+        // TODO: mange rader har null i årsakstekst.
+        årsakstekst = årsakskode!!.navn,
 
         yrkeskategorier = yrkeskategorier,
 
