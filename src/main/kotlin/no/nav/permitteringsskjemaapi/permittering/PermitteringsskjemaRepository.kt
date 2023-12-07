@@ -8,7 +8,7 @@ import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-val fromDate = LocalDateTime.now().minusYears(1).truncatedTo(ChronoUnit.DAYS).toInstant(ZoneOffset.UTC)
+val fromDate = LocalDateTime.now().minusYears(2).truncatedTo(ChronoUnit.DAYS).toInstant(ZoneOffset.UTC)
 
 interface PermitteringsskjemaRepository : JpaRepository<Permitteringsskjema, UUID> {
     fun findByIdAndOpprettetAv(id: UUID, opprettetAv: String): Optional<Permitteringsskjema>
