@@ -1,6 +1,7 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import no.nav.permitteringsskjemaapi.config.GittMiljø
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -10,6 +11,7 @@ import java.time.LocalDate
 @Component
 class EregClient(
     @Value("\${ereg-services.baseUrl}") eregBaseUrl: String?,
+    val gittMiljø: GittMiljø,
     restTemplateBuilder: RestTemplateBuilder
 ) {
     private val restTemplate = restTemplateBuilder
@@ -29,9 +31,12 @@ class EregClient(
             "/v1/organisasjon/{virksomhetsnummer}?inkluderHierarki=true",
             EregEnhet::class.java,
             mapOf("virksomhetsnummer" to virksomhetsnummer)
-        ).body ?: throw RuntimeException("null response for underenhet $virksomhetsnummer")
+        ).body
 
-        return eregEnhet.kommuneNummer
+        return eregEnhet?.kommuneNummer ?: gittMiljø.resolve(
+            other = { null },
+            prod = { throw RuntimeException("Fant ikke virksomhet i EREG") },
+        )
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

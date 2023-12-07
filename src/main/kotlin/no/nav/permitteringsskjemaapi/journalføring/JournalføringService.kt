@@ -1,19 +1,18 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
-import io.micrometer.core.instrument.MeterRegistry
 import jakarta.transaction.Transactional
 import no.nav.permitteringsskjemaapi.config.X_CORRELATION_ID
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.journalføring.Journalføring.State
 import no.nav.permitteringsskjemaapi.journalføring.NorgClient.Companion.OSLO_ARBEIDSLIVSENTER_KODE
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
+import org.slf4j.MDC
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
-import org.slf4j.MDC
 
 @Service
 class JournalføringService(
