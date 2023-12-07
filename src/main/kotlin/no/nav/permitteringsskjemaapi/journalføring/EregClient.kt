@@ -5,7 +5,9 @@ import no.nav.permitteringsskjemaapi.config.GittMiljø
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import org.springframework.web.client.RestClientResponseException
 import java.time.LocalDate
 
 @Component
@@ -14,6 +16,7 @@ class EregClient(
     val gittMiljø: GittMiljø,
     restTemplateBuilder: RestTemplateBuilder
 ) {
+    // configure resttemplate to allow 404
     private val restTemplate = restTemplateBuilder
         .rootUri(eregBaseUrl)
         .additionalInterceptors(
@@ -27,16 +30,23 @@ class EregClient(
         .build()
 
     fun hentKommunenummer(virksomhetsnummer: String): String? {
-        val eregEnhet = restTemplate.getForEntity(
-            "/v1/organisasjon/{virksomhetsnummer}?inkluderHierarki=true",
-            EregEnhet::class.java,
-            mapOf("virksomhetsnummer" to virksomhetsnummer)
-        ).body
+        val eregEnhet = try {
+            restTemplate.getForEntity(
+                "/v1/organisasjon/{virksomhetsnummer}?inkluderHierarki=true",
+                EregEnhet::class.java,
+                mapOf("virksomhetsnummer" to virksomhetsnummer)
+            ).body
+        } catch (e: RestClientResponseException) {
+            if (e.statusCode == HttpStatus.NOT_FOUND) {
+                return gittMiljø.resolve(
+                    other = { null },
+                    prod = { throw e },
+                )
+            }
+            throw e
+        }
 
-        return eregEnhet?.kommuneNummer ?: gittMiljø.resolve(
-            other = { null },
-            prod = { throw RuntimeException("Fant ikke virksomhet i EREG") },
-        )
+        return eregEnhet?.kommuneNummer
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
