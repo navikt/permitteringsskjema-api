@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion
 import no.nav.permitteringsskjemaapi.config.logger
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
-import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2
-import no.nav.permitteringsskjemaapi.permittering.v2.YrkeskategoriV2
+import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
+import no.nav.permitteringsskjemaapi.permittering.SkjemaType
+import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
 import no.nav.permitteringsskjemaapi.permittering.Årsakskode
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.springframework.kafka.core.KafkaTemplate
@@ -27,7 +27,7 @@ class PermitteringsskjemaProdusent(
 
     private val log = logger()
 
-    fun sendTilKafkaTopic(permitteringsskjema: PermitteringsskjemaV2) {
+    fun sendTilKafkaTopic(permitteringsskjema: Permitteringsskjema) {
         val rapport = PermitteringsskjemaKafkaMelding(
             antallBerorte = permitteringsskjema.antallBerørt,
             bedriftsnummer = permitteringsskjema.bedriftNr,
@@ -68,7 +68,7 @@ class PermitteringsskjemaProdusent(
         var id: UUID,
         var bedriftsnummer: String,
         var sendtInnTidspunkt: Instant,
-        var type: PermitteringsskjemaType,
+        var type: SkjemaType,
         var kontaktNavn: String,
         var kontaktTlf: String,
         var kontaktEpost: String,
@@ -80,7 +80,7 @@ class PermitteringsskjemaProdusent(
         var antallBerorte: Int,
         var årsakskode: Årsakskode,
         var årsakstekst: String?,
-        var yrkeskategorier: List<YrkeskategoriV2>,
+        var yrkeskategorier: List<Yrkeskategori>,
     )
 
     private val jsonSchema = Thread.currentThread().getContextClassLoader()

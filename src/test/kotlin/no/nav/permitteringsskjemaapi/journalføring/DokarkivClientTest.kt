@@ -1,8 +1,8 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
-import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2
-import no.nav.permitteringsskjemaapi.permittering.v2.YrkeskategoriV2
+import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
+import no.nav.permitteringsskjemaapi.permittering.SkjemaType
+import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
 import no.nav.permitteringsskjemaapi.permittering.Årsakskode
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -48,7 +48,7 @@ class DokarkivClientTest {
     val mockAzureToken = "lol42"
     val behandlendeEnhet = "OSL42"
     val pdfContent = "hello pdf"
-    val skjema = PermitteringsskjemaV2(
+    val skjema = Permitteringsskjema(
         id = UUID.randomUUID(),
         antallBerørt = 1,
         bedriftNavn = "hey",
@@ -61,8 +61,8 @@ class DokarkivClientTest {
         startDato = LocalDate.parse("2020-01-01"),
         sluttDato = LocalDate.parse("2020-01-01"),
         ukjentSluttDato = false,
-        type = PermitteringsskjemaType.INNSKRENKNING_I_ARBEIDSTID,
-        yrkeskategorier = listOf(YrkeskategoriV2(1, "hey", "hey")),
+        type = SkjemaType.INNSKRENKNING_I_ARBEIDSTID,
+        yrkeskategorier = listOf(Yrkeskategori(1, "hey", "hey")),
         årsakskode = Årsakskode.MANGEL_PÅ_ARBEID,
     )
 

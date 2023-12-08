@@ -1,7 +1,7 @@
 package no.nav.permitteringsskjemaapi
 
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import no.nav.permitteringsskjemaapi.permittering.testSkjema
-import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2Repository
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.flywaydb.core.Flyway
 import org.junit.Before
@@ -23,7 +23,7 @@ class PermitteringsskjemaRepositoryTest {
 
 
     @Autowired
-    lateinit var repository: PermitteringsskjemaV2Repository
+    lateinit var repository: PermitteringsskjemaRepository
 
     @Autowired
     lateinit var flyway: Flyway

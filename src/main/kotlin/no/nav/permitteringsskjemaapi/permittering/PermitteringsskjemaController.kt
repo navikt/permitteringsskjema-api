@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.permittering.v2
+package no.nav.permitteringsskjemaapi.permittering
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.validation.Valid
@@ -7,8 +7,6 @@ import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
-import no.nav.permitteringsskjemaapi.permittering.Årsakskode
 import no.nav.permitteringsskjemaapi.util.TokenUtil
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.transaction.annotation.Transactional
@@ -20,10 +18,10 @@ import java.util.*
 
 @RestController
 @Protected
-class PermitteringsskjemaV2Controller(
+class PermitteringsskjemaController(
     private val fnrExtractor: TokenUtil,
     private val altinnService: AltinnService,
-    private val repository: PermitteringsskjemaV2Repository,
+    private val repository: PermitteringsskjemaRepository,
     private val journalføringService: JournalføringService,
     private val permitteringsmeldingKafkaService: PermitteringsmeldingKafkaService,
 ) {
@@ -91,7 +89,7 @@ class PermitteringsskjemaV2Controller(
 data class PermitteringsskjemaV2DTO(
     val id: UUID?,
 
-    val type: PermitteringsskjemaType,
+    val type: SkjemaType,
 
     val bedriftNr: String,
     val bedriftNavn: String,
@@ -105,7 +103,7 @@ data class PermitteringsskjemaV2DTO(
     val årsakskode: Årsakskode,
     val årsakstekst: String,
 
-    val yrkeskategorier: List<YrkeskategoriV2>,
+    val yrkeskategorier: List<Yrkeskategori>,
 
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
@@ -114,8 +112,8 @@ data class PermitteringsskjemaV2DTO(
     val sendtInnTidspunkt: Instant?,
 ) {
 
-    fun tilDomene(uuid: UUID, inloggetBruker: String) : PermitteringsskjemaV2 {
-        return PermitteringsskjemaV2(
+    fun tilDomene(uuid: UUID, inloggetBruker: String) : Permitteringsskjema {
+        return Permitteringsskjema(
             id = uuid,
             type = type,
 
@@ -141,7 +139,7 @@ data class PermitteringsskjemaV2DTO(
     }
 }
 
-private fun PermitteringsskjemaV2.tilDTO() : PermitteringsskjemaV2DTO {
+private fun Permitteringsskjema.tilDTO() : PermitteringsskjemaV2DTO {
     return PermitteringsskjemaV2DTO(
         id = id,
         type = type,

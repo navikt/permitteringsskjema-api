@@ -1,8 +1,8 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
-import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2
+import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
+import no.nav.permitteringsskjemaapi.permittering.SkjemaType
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -29,7 +29,7 @@ class DokgenClient(
         )
         .build()
 
-    fun genererPdf(skjema: PermitteringsskjemaV2): ByteArray {
+    fun genererPdf(skjema: Permitteringsskjema): ByteArray {
         val templateVariables = TemplateVariables(
             bedriftsnummer = skjema.bedriftNr,
             bedriftNavn = skjema.bedriftNavn,
@@ -56,7 +56,7 @@ class DokgenClient(
 
         @JsonFormat(shape = JsonFormat.Shape.STRING)
         val sendtInnTidspunkt: Instant,
-        val type: PermitteringsskjemaType,
+        val type: SkjemaType,
         val kontaktNavn: String,
         val kontaktTlf: String,
         val kontaktEpost: String,

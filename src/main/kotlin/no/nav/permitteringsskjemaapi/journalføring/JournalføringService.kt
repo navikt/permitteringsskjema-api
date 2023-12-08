@@ -5,7 +5,7 @@ import no.nav.permitteringsskjemaapi.config.X_CORRELATION_ID
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.journalføring.Journalføring.State
 import no.nav.permitteringsskjemaapi.journalføring.NorgClient.Companion.OSLO_ARBEIDSLIVSENTER_KODE
-import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2Repository
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import org.slf4j.MDC
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -16,7 +16,7 @@ import kotlin.jvm.optionals.getOrNull
 
 @Service
 class JournalføringService(
-    val permitteringsskjemaV2Repository: PermitteringsskjemaV2Repository,
+    val permitteringsskjemaRepository: PermitteringsskjemaRepository,
     val journalføringRepository: JournalføringRepository,
     val eregClient: EregClient,
     val norgClient: NorgClient,
@@ -53,7 +53,7 @@ class JournalføringService(
     }
 
     private fun journalfør(journalføring: Journalføring, nesteState: State) {
-        val skjema = permitteringsskjemaV2Repository.findById(journalføring.skjemaid)
+        val skjema = permitteringsskjemaRepository.findById(journalføring.skjemaid)
             ?: throw RuntimeException("journalføring finner ikke skjema med id ${journalføring.skjemaid}")
 
         val kommunenummer = eregClient.hentKommunenummer(skjema.bedriftNr)
@@ -106,7 +106,7 @@ class JournalføringService(
         }
 
 
-        val skjema = permitteringsskjemaV2Repository.findById(journalføring.skjemaid)
+        val skjema = permitteringsskjemaRepository.findById(journalføring.skjemaid)
             ?: throw RuntimeException("journalføring finner ikke skjema med id ${journalføring.skjemaid}")
 
         val journalført = journalføring.journalført

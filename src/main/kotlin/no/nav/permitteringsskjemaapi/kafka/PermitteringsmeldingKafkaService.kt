@@ -1,7 +1,7 @@
 package no.nav.permitteringsskjemaapi.kafka
 
 import jakarta.transaction.Transactional
-import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2Repository
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -10,7 +10,7 @@ import java.util.*
 @Service
 class PermitteringsmeldingKafkaService(
     private val permitteringsmeldingKafkaRepository: PermitteringsmeldingKafkaRepository,
-    private val permitteringsskjemaV2Repository: PermitteringsskjemaV2Repository,
+    private val permitteringsskjemaRepository: PermitteringsskjemaRepository,
     private val permitteringsskjemaProdusent: PermitteringsskjemaProdusent
 ) {
 
@@ -21,7 +21,7 @@ class PermitteringsmeldingKafkaService(
     )
     fun scheduleFixedRateTask() {
         permitteringsmeldingKafkaRepository.fetchQueueItems(Pageable.ofSize(100)).forEach { queueItem ->
-            val skjema = permitteringsskjemaV2Repository.findById(queueItem.skjemaId)
+            val skjema = permitteringsskjemaRepository.findById(queueItem.skjemaId)
                 ?: throw RuntimeException("skjema med id ${queueItem.skjemaId} finnes ikke")
 
             permitteringsskjemaProdusent.sendTilKafkaTopic(skjema)

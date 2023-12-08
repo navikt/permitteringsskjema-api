@@ -1,9 +1,7 @@
-package no.nav.permitteringsskjemaapi.permittering.v2
+package no.nav.permitteringsskjemaapi.permittering
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
-import no.nav.permitteringsskjemaapi.permittering.Årsakskode
 import org.postgresql.util.PGobject
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -11,17 +9,15 @@ import java.math.BigDecimal
 import java.sql.Date
 import java.sql.PreparedStatement
 import java.sql.Timestamp
-import java.time.Instant
-import java.time.LocalDate
 import java.util.*
 
 @Repository
-class PermitteringsskjemaV2Repository(
+class PermitteringsskjemaRepository(
     val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     val objectMapper: ObjectMapper,
 ) {
     
-    fun findById(id: UUID): PermitteringsskjemaV2? {
+    fun findById(id: UUID): Permitteringsskjema? {
         return namedParameterJdbcTemplate.queryForList(
                 """
                     select * 
@@ -29,10 +25,10 @@ class PermitteringsskjemaV2Repository(
                     where id = :id
                 """,
                 mapOf("id" to id)
-            ).firstOrNull()?.toPermitteringsskjemaV2()
+            ).firstOrNull()?.toPermitteringsskjema()
     }
 
-    fun findByIdAndOpprettetAv(id: UUID, opprettetAv: String): PermitteringsskjemaV2? {
+    fun findByIdAndOpprettetAv(id: UUID, opprettetAv: String): Permitteringsskjema? {
         return namedParameterJdbcTemplate.queryForList(
                 """
                     select * 
@@ -40,10 +36,10 @@ class PermitteringsskjemaV2Repository(
                     where id = :id and opprettet_av = :opprettet_av
                 """,
                 mapOf("id" to id, "opprettet_av" to opprettetAv)
-            ).firstOrNull()?.toPermitteringsskjemaV2()
+            ).firstOrNull()?.toPermitteringsskjema()
     }
 
-    fun findAllByBedriftNr(bedriftNr: String): List<PermitteringsskjemaV2> {
+    fun findAllByBedriftNr(bedriftNr: String): List<Permitteringsskjema> {
         return namedParameterJdbcTemplate.queryForList(
             """
                 select * 
@@ -51,10 +47,10 @@ class PermitteringsskjemaV2Repository(
                 where bedrift_nr = :bedrift_nr
             """,
             mapOf("bedrift_nr" to bedriftNr)
-        ).map { it.toPermitteringsskjemaV2() }
+        ).map { it.toPermitteringsskjema() }
     }
 
-    fun findAllByOpprettetAv(fnr: String): List<PermitteringsskjemaV2> {
+    fun findAllByOpprettetAv(fnr: String): List<Permitteringsskjema> {
         return namedParameterJdbcTemplate.queryForList(
             """
                 select * 
@@ -62,10 +58,10 @@ class PermitteringsskjemaV2Repository(
                 where opprettet_av = :opprettet_av
             """,
             mapOf("opprettet_av" to fnr)
-        ).map { it.toPermitteringsskjemaV2()}
+        ).map { it.toPermitteringsskjema()}
     }
 
-    fun save(skjema: PermitteringsskjemaV2): PermitteringsskjemaV2 {
+    fun save(skjema: Permitteringsskjema): Permitteringsskjema {
         return namedParameterJdbcTemplate.jdbcTemplate.update("""
            insert into permitteringsskjema_v2 (
                 id,
@@ -113,9 +109,9 @@ class PermitteringsskjemaV2Repository(
         }
     }
 
-    private fun Map<String, Any>.toPermitteringsskjemaV2() = PermitteringsskjemaV2(
+    private fun Map<String, Any>.toPermitteringsskjema() = Permitteringsskjema(
         id = this["id"] as UUID,
-        type = PermitteringsskjemaType.valueOf(this["type"] as String),
+        type = SkjemaType.valueOf(this["type"] as String),
         bedriftNr = this["bedrift_nr"] as String,
         bedriftNavn = this["bedrift_navn"] as String,
         kontaktNavn = this["kontakt_navn"] as String,
@@ -130,50 +126,6 @@ class PermitteringsskjemaV2Repository(
         sendtInnTidspunkt = (this["sendt_inn_tidspunkt"] as Timestamp).toInstant(),
         opprettetAv = this["opprettet_av"] as String,
     )
-}
-
-data class PermitteringsskjemaV2(
-    val id: UUID,
-    val type: PermitteringsskjemaType,
-
-    val bedriftNr: String,
-    val bedriftNavn: String,
-
-    val kontaktNavn: String,
-    val kontaktEpost: String,
-    val kontaktTlf: String,
-
-    val antallBerørt: Int,
-    val årsakskode: Årsakskode,
-
-    val yrkeskategorier: List<YrkeskategoriV2>,
-
-    val startDato: LocalDate,
-    val sluttDato: LocalDate?,
-    val ukjentSluttDato: Boolean,
-
-    val sendtInnTidspunkt: Instant,
-    val opprettetAv: String,
-) {
-    val fritekst = """
-        ### Yrker
-        ${yrkeskategorier.joinToString(", ") { it.label }}
-        ### Årsak
-        ${årsakskode.navn}
-    """.trimIndent()
-
-    val årsakstekst = årsakskode.navn
-}
-
-data class YrkeskategoriV2(
-    val konseptId: Int,
-    val styrk08: String,
-    val label: String,
-) {
-    // ligger igjen fra gammel modell
-    // denne er eksponert i kafka melding, selv om den alltid er null
-    // TODO: vurder om denne kan fjernes helt. kafka schema test er grønn uten denne
-    //val antall : Int? = null
 }
 
 
