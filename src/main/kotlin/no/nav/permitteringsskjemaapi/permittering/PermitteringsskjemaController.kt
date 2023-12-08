@@ -1,16 +1,23 @@
 package no.nav.permitteringsskjemaapi.permittering
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import jakarta.validation.Valid
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.config.logger
+import no.nav.permitteringsskjemaapi.deprecated.EndrePermitteringsskjema
+import no.nav.permitteringsskjemaapi.deprecated.OpprettPermitteringsskjema
 import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException
 import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException
-import no.nav.permitteringsskjemaapi.hendelseregistrering.HendelseRegistrering
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
 import no.nav.permitteringsskjemaapi.util.TokenUtil
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.http.HttpStatus
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 @RestController
@@ -20,10 +27,43 @@ class PermitteringsskjemaController(
     private val altinnService: AltinnService,
     private val repository: PermitteringsskjemaRepository,
     private val journalføringService: JournalføringService,
-    private val hendelseRegistrering: HendelseRegistrering,
     private val permitteringsmeldingKafkaService: PermitteringsmeldingKafkaService,
 ) {
     private val log = logger()
+
+    @GetMapping("/skjemaV2/{id}")
+    fun hentById(@PathVariable id: UUID) = hent(id).tilDTO()
+
+    @GetMapping("/skjemaV2")
+    fun hentAlle(): List<PermitteringsskjemaDTO> {
+        val fnr = fnrExtractor.autentisertBruker()
+
+        val skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet().toSet()
+
+        val listeMedSkjemaBrukerenHarOpprettet = repository.findAllInnsendteByOpprettetAv(fnr).toSet()
+
+        return (skjemaHentetBasertPåRettighet + listeMedSkjemaBrukerenHarOpprettet)
+            .map { it.tilDTO() }
+            .sortedBy { it.sendtInnTidspunkt }.reversed()
+    }
+
+    @Transactional
+    @PostMapping("/skjemaV2")
+    fun sendInn(@Valid @RequestBody skjema: PermitteringsskjemaDTO): PermitteringsskjemaDTO {
+        val fnr = fnrExtractor.autentisertBruker()
+
+        /**
+         * TODO:
+         * - slett alle journalføring rader
+         */
+        val id = UUID.randomUUID()
+        return repository.save(skjema.tilDomene(id, fnr)).tilDTO().also {
+            journalføringService.startJournalføring(id)
+            permitteringsmeldingKafkaService.scheduleSend(id)
+        }
+    }
+
+    // TODO: fjern gamle endepunkter under når nytt er tatt i bruk
 
     @GetMapping("/skjema")
     fun hent(): List<Permitteringsskjema> {
@@ -36,7 +76,7 @@ class PermitteringsskjemaController(
             it.sendtInnTidspunkt ?: it.opprettetTidspunkt
         }.reversed()
     }
-    
+
     @GetMapping("/skjema/{id}")
     fun hent(@PathVariable id: UUID): Permitteringsskjema {
         val fnr = fnrExtractor.autentisertBruker()
@@ -67,7 +107,6 @@ class PermitteringsskjemaController(
         val skjema: Permitteringsskjema = Permitteringsskjema.opprettSkjema(opprettSkjema, fnr)
         skjema.bedriftNavn = organisasjon.name
 
-        hendelseRegistrering.opprettet(skjema, fnr)
         return repository.save(skjema)
     }
 
@@ -77,7 +116,6 @@ class PermitteringsskjemaController(
         val permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr).orElseThrow { IkkeFunnetException() }
         permitteringsskjema.endre(endreSkjema)
 
-        hendelseRegistrering.endret(permitteringsskjema, fnr)
         return repository.save(permitteringsskjema)
     }
 
@@ -87,7 +125,6 @@ class PermitteringsskjemaController(
         val permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr).orElseThrow { IkkeFunnetException() }
         permitteringsskjema.sendInn()
 
-        hendelseRegistrering.sendtInn(permitteringsskjema, fnrExtractor.autentisertBruker())
 
         /**
          * TODO:
@@ -104,7 +141,6 @@ class PermitteringsskjemaController(
         val permitteringsskjema = repository.findByIdAndOpprettetAv(id, fnr).orElseThrow { IkkeFunnetException() }
         permitteringsskjema.avbryt()
 
-        hendelseRegistrering.avbrutt(permitteringsskjema, fnrExtractor.autentisertBruker())
         return repository.save(permitteringsskjema)
     }
 
@@ -115,4 +151,105 @@ class PermitteringsskjemaController(
         altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1").flatMap {
             repository.findAllByBedriftNr(it.organizationNumber!!)
         }
+}
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class PermitteringsskjemaDTO(
+    val id: UUID?,
+
+    val type: PermitteringsskjemaType,
+
+    val bedriftNr: String,
+    val bedriftNavn: String,
+
+    val kontaktNavn: String,
+    val kontaktEpost: String,
+    val kontaktTlf: String,
+
+    val antallBerørt: Int,
+
+    val årsakskode: Årsakskode,
+    val årsakstekst: String,
+
+    val yrkeskategorier: List<Yrkeskategori>,
+
+    val startDato: LocalDate,
+    val sluttDato: LocalDate?,
+    val ukjentSluttDato: Boolean = false,
+
+    val sendtInnTidspunkt: Instant?,
+) {
+
+    fun tilDomene(uuid: UUID, inloggetBruker: String) : Permitteringsskjema {
+        return Permitteringsskjema(
+            id = uuid,
+            type = type,
+
+            bedriftNr = bedriftNr,
+            bedriftNavn = bedriftNavn,
+
+            kontaktNavn = kontaktNavn,
+            kontaktEpost = kontaktEpost,
+            kontaktTlf = kontaktTlf,
+
+            antallBerørt = antallBerørt,
+
+            årsakskode = årsakskode,
+            årsakstekst = årsakstekst,
+
+            startDato = startDato,
+            sluttDato = sluttDato,
+            ukjentSluttDato = ukjentSluttDato,
+
+            fritekst = """
+                ### Yrker
+                ${yrkeskategorier.map { it.label }.joinToString(", ")}
+                ### Årsak
+                $årsakstekst
+            """.trimIndent(),
+
+            varsletAnsattDato = LocalDate.now(),
+            varsletNavDato = LocalDate.now(),
+
+            opprettetAv = inloggetBruker,
+            opprettetTidspunkt = Instant.now().truncatedTo(ChronoUnit.MICROS),
+            sendtInnTidspunkt = Instant.now().truncatedTo(ChronoUnit.MICROS),
+        ).also { domene ->
+            domene.yrkeskategorier = yrkeskategorier.map {
+                it.copy(
+                    id = UUID.randomUUID(),
+                    permitteringsskjema = domene
+                )
+            }.toMutableList()
+        }
+    }
+}
+
+private fun Permitteringsskjema.tilDTO() : PermitteringsskjemaDTO {
+    return PermitteringsskjemaDTO(
+        id = id,
+        type = type!!,
+
+        bedriftNr = bedriftNr!!,
+        bedriftNavn = bedriftNavn!!,
+
+        kontaktNavn = kontaktNavn!!,
+        kontaktEpost = kontaktEpost!!,
+        kontaktTlf = kontaktTlf!!,
+
+        antallBerørt = antallBerørt!!,
+
+        årsakskode = årsakskode!!,
+
+        // TODO: mange rader har null i årsakstekst.
+        årsakstekst = årsakskode!!.navn,
+
+        yrkeskategorier = yrkeskategorier,
+
+        startDato = startDato!!,
+        sluttDato = sluttDato,
+        ukjentSluttDato = ukjentSluttDato,
+
+        sendtInnTidspunkt = sendtInnTidspunkt!!
+    )
 }

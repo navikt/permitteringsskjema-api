@@ -1,4 +1,6 @@
-package no.nav.permitteringsskjemaapi.permittering
+package no.nav.permitteringsskjemaapi.deprecated
+
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
 
 
 data class OpprettPermitteringsskjema(

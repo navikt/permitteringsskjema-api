@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
+import no.nav.permitteringsskjemaapi.config.GittMiljø
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -19,7 +20,10 @@ import org.springframework.web.client.HttpClientErrorException
 
 @MockBean(MultiIssuerConfiguration::class)
 @RestClientTest(
-    components = [EregClient::class],
+    components = [EregClient::class, GittMiljø::class],
+    properties = [
+        "spring.profiles.active=prod-gcp", // later som vi er i prod for å teste funksjonalitet som bare er i prod
+    ]
 )
 class EregClientTest {
 

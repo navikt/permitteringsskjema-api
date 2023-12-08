@@ -1,10 +1,12 @@
-package no.nav.permitteringsskjemaapi.kodeverk
+package no.nav.permitteringsskjemaapi.deprecated
 
 import io.swagger.v3.oas.annotations.Hidden
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
 import no.nav.permitteringsskjemaapi.permittering.Årsakskode
 import no.nav.security.token.support.core.api.Unprotected
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import java.util.*
 
 @Unprotected

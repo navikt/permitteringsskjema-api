@@ -1,15 +1,19 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import no.nav.permitteringsskjemaapi.config.GittMiljø
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import org.springframework.web.client.RestClientResponseException
 import java.time.LocalDate
 
 @Component
 class EregClient(
     @Value("\${ereg-services.baseUrl}") eregBaseUrl: String?,
+    val gittMiljø: GittMiljø,
     restTemplateBuilder: RestTemplateBuilder
 ) {
     private val restTemplate = restTemplateBuilder
@@ -25,13 +29,23 @@ class EregClient(
         .build()
 
     fun hentKommunenummer(virksomhetsnummer: String): String? {
-        val eregEnhet = restTemplate.getForEntity(
-            "/v1/organisasjon/{virksomhetsnummer}?inkluderHierarki=true",
-            EregEnhet::class.java,
-            mapOf("virksomhetsnummer" to virksomhetsnummer)
-        ).body ?: throw RuntimeException("null response for underenhet $virksomhetsnummer")
+        val eregEnhet = try {
+            restTemplate.getForEntity(
+                "/v1/organisasjon/{virksomhetsnummer}?inkluderHierarki=true",
+                EregEnhet::class.java,
+                mapOf("virksomhetsnummer" to virksomhetsnummer)
+            ).body
+        } catch (e: RestClientResponseException) {
+            if (e.statusCode == HttpStatus.NOT_FOUND) {
+                return gittMiljø.resolve(
+                    other = { null },
+                    prod = { throw e },
+                )
+            }
+            throw e
+        }
 
-        return eregEnhet.kommuneNummer
+        return eregEnhet?.kommuneNummer
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
