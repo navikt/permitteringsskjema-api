@@ -2,10 +2,10 @@ package no.nav.permitteringsskjemaapi.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
-import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
+import no.nav.permitteringsskjemaapi.permittering.v2.YrkeskategoriV2
 import no.nav.permitteringsskjemaapi.permittering.Årsakskode
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
-import org.junit.Assert.*
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -93,14 +93,11 @@ class KafkaSchemaTests {
         type = PermitteringsskjemaType.INNSKRENKNING_I_ARBEIDSTID,
         varsletAnsattDato = LocalDate.now().minusDays(7),
         varsletNavDato = LocalDate.now(),
-        yrkeskategorier = mutableListOf(
-            Yrkeskategori(
-                id = UUID.randomUUID(),
-                permitteringsskjema = null,
+        yrkeskategorier = listOf(
+            YrkeskategoriV2(
                 konseptId = 42,
                 styrk08 = "1",
                 label = "foo",
-                antall = 3,
             )
         ),
         årsakskode = Årsakskode.ANDRE_ÅRSAKER,

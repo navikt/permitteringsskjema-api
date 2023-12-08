@@ -169,6 +169,11 @@ data class YrkeskategoriV2(
     val konseptId: Int,
     val styrk08: String,
     val label: String,
-)
+) {
+    // ligger igjen fra gammel modell
+    // denne er eksponert i kafka melding, selv om den alltid er null
+    // TODO: vurder om denne kan fjernes helt. kafka schema test er grønn uten denne
+    //val antall : Int? = null
+}
 
 

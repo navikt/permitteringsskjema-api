@@ -3,7 +3,7 @@ package no.nav.permitteringsskjemaapi.journalføring
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nav.permitteringsskjemaapi.config.logger
-import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
+import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -20,7 +20,7 @@ import javax.net.ssl.SSLHandshakeException
 
 interface DokarkivClient {
     fun opprettjournalPost(
-        skjema: Permitteringsskjema,
+        skjema: PermitteringsskjemaV2,
         behandlendeEnhet: String,
         dokumentPdfAsBytes: ByteArray,
     ): String
@@ -71,16 +71,16 @@ class DokarkivClientImpl(
      * https://confluence.adeo.no/display/BOA/opprettJournalpost
      */
     override fun opprettjournalPost(
-        skjema: Permitteringsskjema,
+        skjema: PermitteringsskjemaV2,
         behandlendeEnhet: String,
         dokumentPdfAsBytes: ByteArray,
     ) = restTemplate.postForObject(
         "/journalpost?forsoekFerdigstill=true",
         Journalpost(
-            bruker = Bruker(skjema.bedriftNr!!),
-            datoMottatt = LocalDate.ofInstant(skjema.sendtInnTidspunkt!!, ZoneId.of("Europe/Oslo")),
-            avsenderMottaker = Avsender(skjema.bedriftNr!!, skjema.bedriftNavn!!),
-            eksternReferanseId = "PRM-${skjema.id!!}",
+            bruker = Bruker(skjema.bedriftNr),
+            datoMottatt = LocalDate.ofInstant(skjema.sendtInnTidspunkt, ZoneId.of("Europe/Oslo")),
+            avsenderMottaker = Avsender(skjema.bedriftNr, skjema.bedriftNavn),
+            eksternReferanseId = "PRM-${skjema.id}",
             journalfoerendeEnhet = behandlendeEnhet,
             pdf = String(Base64.getEncoder().encode(dokumentPdfAsBytes)),
         ),

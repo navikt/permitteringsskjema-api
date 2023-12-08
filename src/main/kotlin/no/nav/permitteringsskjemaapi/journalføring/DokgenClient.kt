@@ -1,8 +1,8 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
+import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component
 import java.net.SocketException
 import java.time.Instant
 import java.time.LocalDate
-import java.util.*
 import javax.net.ssl.SSLHandshakeException
 
 @Component
@@ -30,19 +29,19 @@ class DokgenClient(
         )
         .build()
 
-    fun genererPdf(skjema: Permitteringsskjema): ByteArray {
+    fun genererPdf(skjema: PermitteringsskjemaV2): ByteArray {
         val templateVariables = TemplateVariables(
-            bedriftsnummer = skjema.bedriftNr!!,
-            bedriftNavn = skjema.bedriftNavn!!,
-            sendtInnTidspunkt = skjema.sendtInnTidspunkt!!,
-            type = skjema.type!!,
-            kontaktNavn = skjema.kontaktNavn!!,
-            kontaktTlf = skjema.kontaktTlf!!,
-            kontaktEpost = skjema.kontaktEpost!!,
-            startDato = skjema.startDato!!,
+            bedriftsnummer = skjema.bedriftNr,
+            bedriftNavn = skjema.bedriftNavn,
+            sendtInnTidspunkt = skjema.sendtInnTidspunkt,
+            type = skjema.type,
+            kontaktNavn = skjema.kontaktNavn,
+            kontaktTlf = skjema.kontaktTlf,
+            kontaktEpost = skjema.kontaktEpost,
+            startDato = skjema.startDato,
             sluttDato = skjema.sluttDato,
-            fritekst = skjema.fritekst!!,
-            antallBerorte = skjema.antallBerørt!!
+            fritekst = skjema.fritekst,
+            antallBerorte = skjema.antallBerørt
         )
         val bytes = restTemplate.postForObject("/template/permittering/create-pdf", templateVariables, ByteArray::class.java)!!
         check(bytes.sliceArray(0..3).contentEquals("%PDF".toByteArray())) {
