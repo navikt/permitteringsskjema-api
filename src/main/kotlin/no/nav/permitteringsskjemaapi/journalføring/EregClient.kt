@@ -16,7 +16,6 @@ class EregClient(
     val gittMiljø: GittMiljø,
     restTemplateBuilder: RestTemplateBuilder
 ) {
-    // configure resttemplate to allow 404
     private val restTemplate = restTemplateBuilder
         .rootUri(eregBaseUrl)
         .additionalInterceptors(
