@@ -141,8 +141,37 @@ class JournalføringService(
             return
         }
 
+        val skjema = permitteringsskjemaV2Repository.findById(journalføring.skjemaid)?.let { v2 ->
+            // TODO: fjern mapping til gammelt domene når v2 er tatt i bruk
+            Permitteringsskjema(
+                id =  v2.id,
+                type = v2.type,
+                bedriftNr = v2.bedriftNr,
+                bedriftNavn = v2.bedriftNavn,
+                kontaktNavn = v2.kontaktNavn,
+                kontaktEpost = v2.kontaktEpost,
+                kontaktTlf = v2.kontaktTlf,
+                antallBerørt = v2.antallBerørt,
+                årsakskode = v2.årsakskode,
+                årsakstekst = v2.årsakstekst,
+                yrkeskategorier = v2.yrkeskategorier.map { yk ->
+                    Yrkeskategori(
+                        label = yk.label,
+                        styrk08 = yk.styrk08,
+                        konseptId = yk.konseptId,
+                    )
+                }.toMutableList(),
+                sendtInnTidspunkt = v2.sendtInnTidspunkt,
+                opprettetAv = v2.opprettetAv,
+                fritekst = v2.fritekst,
 
-        val skjema = permitteringsskjemaRepository.findById(journalføring.skjemaid)
+                sluttDato = v2.sluttDato,
+                startDato = v2.startDato,
+                varsletAnsattDato = v2.sendtInnTidspunkt.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) },
+                varsletNavDato = v2.sendtInnTidspunkt.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) },
+            )
+            // TODO fjern fallback til v1 når v2 er tatt i bruk
+        } ?: permitteringsskjemaRepository.findById(journalføring.skjemaid) // TODO fjern fallback til v1 når v2 er tatt i bruk
             .orElseThrow { RuntimeException("journalføring finner ikke skjema med id ${journalføring.skjemaid}") }
 
         val journalført = journalføring.journalført
