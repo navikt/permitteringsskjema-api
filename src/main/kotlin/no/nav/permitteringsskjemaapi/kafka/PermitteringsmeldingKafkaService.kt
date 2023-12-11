@@ -8,6 +8,8 @@ import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2Reposi
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.*
 
 @Service
@@ -48,6 +50,11 @@ class PermitteringsmeldingKafkaService(
                     sendtInnTidspunkt = v2.sendtInnTidspunkt,
                     opprettetAv = v2.opprettetAv,
                     fritekst = v2.fritekst,
+
+                    sluttDato = v2.sluttDato,
+                    startDato = v2.startDato,
+                    varsletAnsattDato = v2.sendtInnTidspunkt.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) },
+                    varsletNavDato = v2.sendtInnTidspunkt.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) },
                 )
                 // TODO fjern fallback til v1 når v2 er tatt i bruk
             } ?: permitteringsskjemaRepository.findById(queueItem.skjemaId).orElseThrow()
