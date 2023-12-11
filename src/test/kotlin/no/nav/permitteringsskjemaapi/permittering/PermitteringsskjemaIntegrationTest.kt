@@ -3,11 +3,13 @@ package no.nav.permitteringsskjemaapi.permittering
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.permitteringsskjemaapi.PermitteringTestData
 import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
+import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2
+import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2Repository
+import no.nav.permitteringsskjemaapi.permittering.v2.YrkeskategoriV2
 import no.nav.permitteringsskjemaapi.util.TokenUtil
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.assertj.core.api.Assertions
@@ -26,7 +28,9 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Instant
+import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+import java.util.*
 
 @MockBean(TokenValidationContextHolder::class)
 @SpringBootTest(
@@ -56,7 +60,7 @@ class PermitteringsskjemaIntegrationTest {
     lateinit var mockMvc: MockMvc
 
     @Autowired
-    lateinit var repository: PermitteringsskjemaRepository
+    lateinit var repository: PermitteringsskjemaV2Repository
 
     @Autowired
     lateinit var objectMapper: ObjectMapper
@@ -80,36 +84,35 @@ class PermitteringsskjemaIntegrationTest {
             AltinnOrganisasjon(organizationNumber = "2"),
         ))
         repository.save(
-            PermitteringTestData.enPermitteringMedAltFyltUt().apply {
-                bedriftNavn = "sendt inn 1 min siden"
-                bedriftNr = "1"
-                sendtInnTidspunkt = now.minus(1, ChronoUnit.MINUTES)
-                opprettetAv = "Noen Andrè"
-            }
+            testSkjema(
+                bedriftNavn = "sendt inn 1 min siden",
+                bedriftNr = "1",
+                sendtInnTidspunkt = now.minus(1, ChronoUnit.MINUTES),
+                opprettetAv = "Noen Andrè",
+            )
         )
         repository.save(
-            PermitteringTestData.enPermitteringMedAltFyltUt().apply {
-                bedriftNavn = "sendt inn 5 min siden"
-                bedriftNr = "2"
-                sendtInnTidspunkt = now.minus(5, ChronoUnit.MINUTES)
-                opprettetAv = "Noen Andrè"
-            },
+            testSkjema(
+                bedriftNavn = "sendt inn 5 min siden",
+                bedriftNr = "2",
+                sendtInnTidspunkt = now.minus(5, ChronoUnit.MINUTES),
+                opprettetAv = "Noen Andrè",
+            ),
         )
         repository.save(
-            PermitteringTestData.enPermitteringMedAltFyltUt().apply {
-                bedriftNavn = "sendt inn 10 min siden"
-                sendtInnTidspunkt = now.minus(10, ChronoUnit.MINUTES)
-                opprettetAv = "42"
-            }
+            testSkjema(
+                bedriftNavn = "sendt inn 10 min siden",
+                sendtInnTidspunkt = now.minus(10, ChronoUnit.MINUTES),
+                opprettetAv = "42",
+            )
         )
         repository.save(
-            PermitteringTestData.enPermitteringMedAltFyltUt().apply {
-                bedriftNavn = "sendt inn 2 min siden"
-                sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES)
-                opprettetAv = "42"
-            }
+            testSkjema(
+                bedriftNavn = "sendt inn 2 min siden",
+                sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
+                opprettetAv = "42",
+            )
         )
-        repository.flush()
 
         val jsonResponse = mockMvc.get("/skjemaV2") {
             accept(MediaType.APPLICATION_JSON)
@@ -134,12 +137,11 @@ class PermitteringsskjemaIntegrationTest {
         `when`(altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1")).thenReturn(listOf())
 
         val lagretSkjema = repository.save(
-            PermitteringTestData.enPermitteringMedAltFyltUt().apply {
-                sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES)
-                opprettetAv = "42"
-            }
+            testSkjema(
+                sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
+                opprettetAv = "42",
+            )
         )
-        repository.flush()
 
         mockMvc.get("/skjemaV2/${lagretSkjema.id}") {
             accept(MediaType.APPLICATION_JSON)
@@ -158,7 +160,7 @@ class PermitteringsskjemaIntegrationTest {
                       "kontaktTlf": "${lagretSkjema.kontaktTlf}",
                       "antallBerørt": ${lagretSkjema.antallBerørt},
                       "årsakskode": "${lagretSkjema.årsakskode}",
-                      "årsakstekst": "${lagretSkjema.årsakstekst}",
+                      "årsakstekst": "${lagretSkjema.årsakskode.navn}",
                       "yrkeskategorier": [
                         {
                           "konseptId": ${lagretSkjema.yrkeskategorier.first().konseptId},
@@ -186,13 +188,12 @@ class PermitteringsskjemaIntegrationTest {
         ))
 
         val lagretSkjema = repository.save(
-            PermitteringTestData.enPermitteringMedAltFyltUt().apply {
-                sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES)
-                bedriftNr = "1"
-                opprettetAv = "Noen Andrè"
-            }
+            testSkjema(
+                sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
+                bedriftNr = "1",
+                opprettetAv = "Noen Andrè",
+            )
         )
-        repository.flush()
 
         mockMvc.get("/skjemaV2/${lagretSkjema.id}") {
             accept(MediaType.APPLICATION_JSON)
@@ -211,7 +212,7 @@ class PermitteringsskjemaIntegrationTest {
                       "kontaktTlf": "${lagretSkjema.kontaktTlf}",
                       "antallBerørt": ${lagretSkjema.antallBerørt},
                       "årsakskode": "${lagretSkjema.årsakskode}",
-                      "årsakstekst": "${lagretSkjema.årsakstekst}",
+                      "årsakstekst": "${lagretSkjema.årsakskode.navn}",
                       "yrkeskategorier": [
                         {
                           "konseptId": ${lagretSkjema.yrkeskategorier.first().konseptId},
@@ -239,13 +240,12 @@ class PermitteringsskjemaIntegrationTest {
         ))
 
         val lagretSkjema = repository.save(
-            PermitteringTestData.enPermitteringMedAltFyltUt().apply {
-                sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES)
-                bedriftNr = "2"
-                opprettetAv = "Noen Andrè"
-            }
+            testSkjema(
+                sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
+                bedriftNr = "2",
+                opprettetAv = "Noen Andrè",
+            )
         )
-        repository.flush()
 
         mockMvc.get("/skjemaV2/${lagretSkjema.id}") {
             accept(MediaType.APPLICATION_JSON)
@@ -258,7 +258,7 @@ class PermitteringsskjemaIntegrationTest {
     fun `POST skjemaV2 lagrer og returnerer og starter journalføring og kafka send`() {
         `when`(tokenUtil.autentisertBruker()).thenReturn("42")
 
-        val lagretSkjema by lazy { repository.findAll().first() }
+        val lagretSkjema by lazy { repository.findAllByOpprettetAv("42").first() }
 
         mockMvc.post("/skjemaV2") {
             accept = MediaType.APPLICATION_JSON
@@ -321,7 +321,47 @@ class PermitteringsskjemaIntegrationTest {
             }
         }
 
-        verify(journalføringService).startJournalføring(skjemaid = lagretSkjema.id!!)
-        verify(permitteringsmeldingKafkaService).scheduleSend(skjemaid = lagretSkjema.id!!)
+        verify(journalføringService).startJournalføring(skjemaid = lagretSkjema.id)
+        verify(permitteringsmeldingKafkaService).scheduleSend(skjemaid = lagretSkjema.id)
     }
 }
+
+fun testSkjema(
+    id: UUID = UUID.randomUUID(),
+    type: PermitteringsskjemaType = PermitteringsskjemaType.PERMITTERING_UTEN_LØNN,
+    bedriftNr: String = "999999999",
+    bedriftNavn: String = "Bedrift AS",
+    kontaktNavn: String = "Tore Toresen",
+    kontaktEpost: String = "per@bedrift.no",
+    kontaktTlf: String = "66778899",
+    antallBerørt: Int = 42,
+    årsakskode: Årsakskode = Årsakskode.MANGEL_PÅ_ARBEID,
+    yrkeskategorier: List<YrkeskategoriV2> = listOf(
+        YrkeskategoriV2(
+            konseptId = 1000,
+            styrk08 = "0001",
+            label = "Label",
+        )
+    ),
+    startDato: LocalDate = LocalDate.now().minusDays(1),
+    sluttDato: LocalDate? = LocalDate.now(),
+    ukjentSluttDato: Boolean = false,
+    sendtInnTidspunkt: Instant = Instant.now(),
+    opprettetAv: String = UUID.randomUUID().toString(),
+) = PermitteringsskjemaV2(
+    id = id,
+    bedriftNr = bedriftNr,
+    bedriftNavn = bedriftNavn,
+    type = type,
+    kontaktNavn = kontaktNavn,
+    kontaktTlf = kontaktTlf,
+    kontaktEpost = kontaktEpost,
+    startDato = startDato,
+    sluttDato = sluttDato,
+    ukjentSluttDato = ukjentSluttDato,
+    antallBerørt = antallBerørt,
+    årsakskode = årsakskode,
+    yrkeskategorier = yrkeskategorier,
+    sendtInnTidspunkt = sendtInnTidspunkt,
+    opprettetAv = opprettetAv,
+)
