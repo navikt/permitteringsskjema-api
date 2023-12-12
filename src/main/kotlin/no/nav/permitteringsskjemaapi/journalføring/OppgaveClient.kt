@@ -10,6 +10,7 @@ import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.stereotype.Component
 import java.net.SocketException
 import java.time.LocalDate
+import java.time.ZoneId
 import javax.net.ssl.SSLHandshakeException
 
 /** Repo: https://github.com/navikt/oppgave
@@ -74,8 +75,8 @@ private class OppgaveRequest(
     companion object {
         fun opprett(skjema: Permitteringsskjema, journalført: Journalført) = OppgaveRequest(
             journalpostId = journalført.journalpostId,
-            orgnr = skjema.bedriftNr!!,
-            aktivDato = skjema.varsletNavDato!!,
+            orgnr = skjema.bedriftNr,
+            aktivDato = skjema.sendtInnTidspunkt.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) },
             tildeltEnhetsnr = journalført.behandlendeEnhet,
         )
     }

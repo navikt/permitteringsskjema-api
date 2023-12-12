@@ -77,10 +77,10 @@ class DokarkivClientImpl(
     ) = restTemplate.postForObject(
         "/journalpost?forsoekFerdigstill=true",
         Journalpost(
-            bruker = Bruker(skjema.bedriftNr!!),
-            datoMottatt = LocalDate.ofInstant(skjema.sendtInnTidspunkt!!, ZoneId.of("Europe/Oslo")),
-            avsenderMottaker = Avsender(skjema.bedriftNr!!, skjema.bedriftNavn!!),
-            eksternReferanseId = "PRM-${skjema.id!!}",
+            bruker = Bruker(skjema.bedriftNr),
+            datoMottatt = LocalDate.ofInstant(skjema.sendtInnTidspunkt, ZoneId.of("Europe/Oslo")),
+            avsenderMottaker = Avsender(skjema.bedriftNr, skjema.bedriftNavn),
+            eksternReferanseId = "PRM-${skjema.id}",
             journalfoerendeEnhet = behandlendeEnhet,
             pdf = String(Base64.getEncoder().encode(dokumentPdfAsBytes)),
         ),

@@ -5,23 +5,17 @@ import no.nav.permitteringsskjemaapi.config.X_CORRELATION_ID
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.journalføring.Journalføring.State
 import no.nav.permitteringsskjemaapi.journalføring.NorgClient.Companion.OSLO_ARBEIDSLIVSENTER_KODE
-import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
-import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
-import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2Repository
 import org.slf4j.MDC
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 @Service
 class JournalføringService(
-    val permitteringsskjemaV2Repository: PermitteringsskjemaV2Repository,
     val permitteringsskjemaRepository: PermitteringsskjemaRepository,
     val journalføringRepository: JournalføringRepository,
     val eregClient: EregClient,
@@ -59,40 +53,10 @@ class JournalføringService(
     }
 
     private fun journalfør(journalføring: Journalføring, nesteState: State) {
-        val skjema = permitteringsskjemaV2Repository.findById(journalføring.skjemaid)?.let { v2 ->
-            // TODO: fjern mapping til gammelt domene når v2 er tatt i bruk
-            Permitteringsskjema(
-                id =  v2.id,
-                type = v2.type,
-                bedriftNr = v2.bedriftNr,
-                bedriftNavn = v2.bedriftNavn,
-                kontaktNavn = v2.kontaktNavn,
-                kontaktEpost = v2.kontaktEpost,
-                kontaktTlf = v2.kontaktTlf,
-                antallBerørt = v2.antallBerørt,
-                årsakskode = v2.årsakskode,
-                årsakstekst = v2.årsakstekst,
-                yrkeskategorier = v2.yrkeskategorier.map { yk ->
-                    Yrkeskategori(
-                        label = yk.label,
-                        styrk08 = yk.styrk08,
-                        konseptId = yk.konseptId,
-                    )
-                }.toMutableList(),
-                sendtInnTidspunkt = v2.sendtInnTidspunkt,
-                opprettetAv = v2.opprettetAv,
-                fritekst = v2.fritekst,
+        val skjema = permitteringsskjemaRepository.findById(journalføring.skjemaid)
+            ?: throw RuntimeException("journalføring finner ikke skjema med id ${journalføring.skjemaid}")
 
-                sluttDato = v2.sluttDato,
-                startDato = v2.startDato,
-                varsletAnsattDato = v2.sendtInnTidspunkt.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) },
-                varsletNavDato = v2.sendtInnTidspunkt.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) },
-            )
-            // TODO fjern fallback til v1 når v2 er tatt i bruk
-        } ?: permitteringsskjemaRepository.findById(journalføring.skjemaid) // TODO fjern fallback til v1 når v2 er tatt i bruk
-            .orElseThrow { RuntimeException("journalføring finner ikke skjema med id ${journalføring.skjemaid}") }
-
-        val kommunenummer = eregClient.hentKommunenummer(skjema.bedriftNr!!)
+        val kommunenummer = eregClient.hentKommunenummer(skjema.bedriftNr)
         log.info("fant kommunenummer {} for skjema {}", kommunenummer, skjema.id)
 
         val behandlendeEnhet = if (kommunenummer == null)
@@ -141,38 +105,9 @@ class JournalføringService(
             return
         }
 
-        val skjema = permitteringsskjemaV2Repository.findById(journalføring.skjemaid)?.let { v2 ->
-            // TODO: fjern mapping til gammelt domene når v2 er tatt i bruk
-            Permitteringsskjema(
-                id =  v2.id,
-                type = v2.type,
-                bedriftNr = v2.bedriftNr,
-                bedriftNavn = v2.bedriftNavn,
-                kontaktNavn = v2.kontaktNavn,
-                kontaktEpost = v2.kontaktEpost,
-                kontaktTlf = v2.kontaktTlf,
-                antallBerørt = v2.antallBerørt,
-                årsakskode = v2.årsakskode,
-                årsakstekst = v2.årsakstekst,
-                yrkeskategorier = v2.yrkeskategorier.map { yk ->
-                    Yrkeskategori(
-                        label = yk.label,
-                        styrk08 = yk.styrk08,
-                        konseptId = yk.konseptId,
-                    )
-                }.toMutableList(),
-                sendtInnTidspunkt = v2.sendtInnTidspunkt,
-                opprettetAv = v2.opprettetAv,
-                fritekst = v2.fritekst,
 
-                sluttDato = v2.sluttDato,
-                startDato = v2.startDato,
-                varsletAnsattDato = v2.sendtInnTidspunkt.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) },
-                varsletNavDato = v2.sendtInnTidspunkt.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) },
-            )
-            // TODO fjern fallback til v1 når v2 er tatt i bruk
-        } ?: permitteringsskjemaRepository.findById(journalføring.skjemaid) // TODO fjern fallback til v1 når v2 er tatt i bruk
-            .orElseThrow { RuntimeException("journalføring finner ikke skjema med id ${journalføring.skjemaid}") }
+        val skjema = permitteringsskjemaRepository.findById(journalføring.skjemaid)
+            ?: throw RuntimeException("journalføring finner ikke skjema med id ${journalføring.skjemaid}")
 
         val journalført = journalføring.journalført
             ?: throw RuntimeException("Skjema ${journalføring.skjemaid} må være journalført før oppgave kan opprettes")

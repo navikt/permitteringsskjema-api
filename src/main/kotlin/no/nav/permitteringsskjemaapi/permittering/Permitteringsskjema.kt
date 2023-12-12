@@ -1,71 +1,60 @@
 package no.nav.permitteringsskjemaapi.permittering
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import jakarta.persistence.*
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
-@Entity
-class Permitteringsskjema(
-    @field:Id
-    var id: UUID? = null,
+data class Permitteringsskjema(
+    val id: UUID,
+    val type: SkjemaType,
 
-    @field:Enumerated(EnumType.STRING)
-    var type: PermitteringsskjemaType? = null,
+    val bedriftNr: String,
+    val bedriftNavn: String,
 
-    var bedriftNr: String? = null,
-    var bedriftNavn: String? = null,
+    val kontaktNavn: String,
+    val kontaktEpost: String,
+    val kontaktTlf: String,
 
-    var kontaktNavn: String? = null,
-    var kontaktEpost: String? = null,
-    var kontaktTlf: String? = null,
+    val antallBerørt: Int,
+    val årsakskode: Årsakskode,
 
-    var antallBerørt: Int? = null,
+    val yrkeskategorier: List<Yrkeskategori>,
 
-    @field:Enumerated(EnumType.STRING)
-    var årsakskode: Årsakskode? = null,
-    var årsakstekst: String? = null,
+    val startDato: LocalDate,
+    val sluttDato: LocalDate?,
+    val ukjentSluttDato: Boolean,
 
-    @field:OneToMany(
-        mappedBy = "permitteringsskjema",
-        cascade = [CascadeType.ALL],
-        orphanRemoval = true,
-        fetch = FetchType.LAZY
-    )
-    var yrkeskategorier: MutableList<Yrkeskategori> = mutableListOf(),
-
-    var startDato: LocalDate? = null,
-    var sluttDato: LocalDate? = null,
-    var ukjentSluttDato: Boolean = false,
-
-    var fritekst: String? = null, // ikke fritekst, kombineres maskinelt i frontend: årsakskode og yrkeskategorier
-    var varsletAnsattDato: LocalDate? = null, // misvisende og bør fjernes
-    var varsletNavDato: LocalDate? = null, // misvisende og bør fjernes
-
-    @field:JsonIgnore
-    var opprettetAv: String? = null,
-    var opprettetTidspunkt: Instant? = null, // opprettet og sendt inn er det samme tidspunktet
-    var sendtInnTidspunkt: Instant? = null, // bør slås sammen
-
-
-    var avbrutt: Boolean = false, // gammel funksjonalitet. bør fjernes
+    val sendtInnTidspunkt: Instant,
+    val opprettetAv: String,
 ) {
+    val fritekst = """
+        ### Yrker
+        ${yrkeskategorier.joinToString(", ") { it.label }}
+        ### Årsak
+        ${årsakskode.navn}
+    """.trimIndent()
 
+    val årsakstekst = årsakskode.navn
+}
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+enum class SkjemaType(val navn: String) {
+    MASSEOPPSIGELSE("Masseoppsigelse"),
+    PERMITTERING_UTEN_LØNN("Permittering uten lønn"),
+    INNSKRENKNING_I_ARBEIDSTID("Innskrenkning i arbeidstid")
+}
 
-        other as Permitteringsskjema
-
-        if (id != other.id) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return id?.hashCode() ?: 0
-    }
+enum class Årsakskode(val navn: String) {
+    MANGEL_PÅ_ARBEID("Mangel på arbeid eller oppdrag"),
+    RÅSTOFFMANGEL("Råstoffmangel"),
+    ARBEIDSKONFLIKT_ELLER_STREIK("Arbeidskonflikt eller streik"),
+    BRANN("Brann"),
+    PÅLEGG_FRA_OFFENTLIG_MYNDIGHET("Pålegg fra offentlig myndighet"),
+    ANDRE_ÅRSAKER("Andre årsaker")
 
 }
+
+data class Yrkeskategori(
+    val konseptId: Int,
+    val styrk08: String,
+    val label: String,
+)

@@ -7,9 +7,6 @@ import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
-import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2
-import no.nav.permitteringsskjemaapi.permittering.v2.PermitteringsskjemaV2Repository
-import no.nav.permitteringsskjemaapi.permittering.v2.YrkeskategoriV2
 import no.nav.permitteringsskjemaapi.util.TokenUtil
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.assertj.core.api.Assertions
@@ -60,7 +57,7 @@ class PermitteringsskjemaIntegrationTest {
     lateinit var mockMvc: MockMvc
 
     @Autowired
-    lateinit var repository: PermitteringsskjemaV2Repository
+    lateinit var repository: PermitteringsskjemaRepository
 
     @Autowired
     lateinit var objectMapper: ObjectMapper
@@ -328,7 +325,7 @@ class PermitteringsskjemaIntegrationTest {
 
 fun testSkjema(
     id: UUID = UUID.randomUUID(),
-    type: PermitteringsskjemaType = PermitteringsskjemaType.PERMITTERING_UTEN_LØNN,
+    type: SkjemaType = SkjemaType.PERMITTERING_UTEN_LØNN,
     bedriftNr: String = "999999999",
     bedriftNavn: String = "Bedrift AS",
     kontaktNavn: String = "Tore Toresen",
@@ -336,8 +333,8 @@ fun testSkjema(
     kontaktTlf: String = "66778899",
     antallBerørt: Int = 42,
     årsakskode: Årsakskode = Årsakskode.MANGEL_PÅ_ARBEID,
-    yrkeskategorier: List<YrkeskategoriV2> = listOf(
-        YrkeskategoriV2(
+    yrkeskategorier: List<Yrkeskategori> = listOf(
+        Yrkeskategori(
             konseptId = 1000,
             styrk08 = "0001",
             label = "Label",
@@ -348,7 +345,7 @@ fun testSkjema(
     ukjentSluttDato: Boolean = false,
     sendtInnTidspunkt: Instant = Instant.now(),
     opprettetAv: String = UUID.randomUUID().toString(),
-) = PermitteringsskjemaV2(
+) = Permitteringsskjema(
     id = id,
     bedriftNr = bedriftNr,
     bedriftNavn = bedriftNavn,

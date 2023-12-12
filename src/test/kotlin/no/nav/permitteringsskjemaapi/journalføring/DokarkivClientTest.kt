@@ -1,9 +1,11 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
+import no.nav.permitteringsskjemaapi.permittering.SkjemaType
+import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
+import no.nav.permitteringsskjemaapi.permittering.Årsakskode
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
@@ -51,16 +53,17 @@ class DokarkivClientTest {
         antallBerørt = 1,
         bedriftNavn = "hey",
         bedriftNr = "hey",
-        fritekst = "hey",
         kontaktEpost = "hey",
         kontaktNavn = "hey",
         kontaktTlf = "hey",
         opprettetAv = "hey",
-        opprettetTidspunkt = Instant.parse("2010-01-01T01:01:01Z"),
         sendtInnTidspunkt = Instant.parse("2010-01-01T01:01:01Z"),
-        sluttDato = LocalDate.parse("2020-01-01"),
         startDato = LocalDate.parse("2020-01-01"),
-        type = PermitteringsskjemaType.INNSKRENKNING_I_ARBEIDSTID,
+        sluttDato = LocalDate.parse("2020-01-01"),
+        ukjentSluttDato = false,
+        type = SkjemaType.INNSKRENKNING_I_ARBEIDSTID,
+        yrkeskategorier = listOf(Yrkeskategori(1, "hey", "hey")),
+        årsakskode = Årsakskode.MANGEL_PÅ_ARBEID,
     )
 
     @Test

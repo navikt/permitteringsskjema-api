@@ -5,7 +5,7 @@ import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaType
+import no.nav.permitteringsskjemaapi.permittering.SkjemaType
 import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
 import no.nav.permitteringsskjemaapi.permittering.Årsakskode
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -13,6 +13,7 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId.systemDefault
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -28,20 +29,20 @@ class PermitteringsskjemaProdusent(
 
     fun sendTilKafkaTopic(permitteringsskjema: Permitteringsskjema) {
         val rapport = PermitteringsskjemaKafkaMelding(
-            antallBerorte = permitteringsskjema.antallBerørt!!,
-            bedriftsnummer = permitteringsskjema.bedriftNr!!,
-            fritekst = permitteringsskjema.fritekst!!,
-            id = permitteringsskjema.id!!,
-            kontaktEpost = permitteringsskjema.kontaktEpost!!,
-            kontaktNavn = permitteringsskjema.kontaktNavn!!,
-            kontaktTlf = permitteringsskjema.kontaktTlf!!,
-            sendtInnTidspunkt = permitteringsskjema.sendtInnTidspunkt!!,
+            antallBerorte = permitteringsskjema.antallBerørt,
+            bedriftsnummer = permitteringsskjema.bedriftNr,
+            fritekst = permitteringsskjema.fritekst,
+            id = permitteringsskjema.id,
+            kontaktEpost = permitteringsskjema.kontaktEpost,
+            kontaktNavn = permitteringsskjema.kontaktNavn,
+            kontaktTlf = permitteringsskjema.kontaktTlf,
+            sendtInnTidspunkt = permitteringsskjema.sendtInnTidspunkt,
             sluttDato = permitteringsskjema.sluttDato,
-            startDato = permitteringsskjema.startDato!!,
-            varsletAnsattDato = permitteringsskjema.varsletAnsattDato!!,
-            varsletNavDato = permitteringsskjema.varsletNavDato!!,
-            type = permitteringsskjema.type!!,
-            årsakskode = permitteringsskjema.årsakskode!!,
+            startDato = permitteringsskjema.startDato,
+            varsletAnsattDato = permitteringsskjema.sendtInnTidspunkt.let { LocalDate.ofInstant(it, systemDefault()) },
+            varsletNavDato = permitteringsskjema.sendtInnTidspunkt.let { LocalDate.ofInstant(it, systemDefault()) },
+            type = permitteringsskjema.type,
+            årsakskode = permitteringsskjema.årsakskode,
             årsakstekst = permitteringsskjema.årsakstekst,
             yrkeskategorier = permitteringsskjema.yrkeskategorier,
         )
@@ -59,7 +60,7 @@ class PermitteringsskjemaProdusent(
                 rapport.id.toString(),
                 jsonEvent
             )
-        ).get(1, TimeUnit.SECONDS);
+        ).get(1, TimeUnit.SECONDS)
     }
 
 
@@ -67,7 +68,7 @@ class PermitteringsskjemaProdusent(
         var id: UUID,
         var bedriftsnummer: String,
         var sendtInnTidspunkt: Instant,
-        var type: PermitteringsskjemaType,
+        var type: SkjemaType,
         var kontaktNavn: String,
         var kontaktTlf: String,
         var kontaktEpost: String,
