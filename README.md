@@ -9,7 +9,6 @@ Frontend til skjemaet ligger her: https://github.com/navikt/arbeidsgiver-permitt
 # Komme i gang
 
 Koden kan kjøres som en vanlig Spring Boot-applikasjon lokalt ved å starte `LokalApplikasjon`.
-Åpnes i browser: http://localhost:8080/permitteringsskjema-api/swagger-ui.html
 
 Hvis du vil kjøre applikasjonen med Kafka, se neste punkt.
 
@@ -33,10 +32,6 @@ kafka-console-consumer --bootstrap-server localhost:9092 --topic permittering-og
 
  - Stopp container:
 `docker stop <ID>`
-
-
-## Grafisk fremstilling av API-ene (swagger-ui)
-API-et kan sees og testes på `http://localhost:8080/permitteringsskjema-api/swagger-ui.html`
 
 ---------
 
