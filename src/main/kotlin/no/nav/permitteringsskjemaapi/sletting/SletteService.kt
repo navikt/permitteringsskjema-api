@@ -16,7 +16,7 @@ class SletteService(
 
     @Scheduled(
         initialDelayString = "PT1M",
-        fixedDelayString = "PT12H",
+        fixedRateString = "PT1H",
     )
     fun slettGammelData() {
         val oldestTimestamp = Instant.now().minus(365 * 2, ChronoUnit.DAYS)
