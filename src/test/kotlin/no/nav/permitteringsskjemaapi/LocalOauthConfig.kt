@@ -7,28 +7,24 @@ import no.nav.security.mock.oauth2.OAuth2Config
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.mock.oauth2.token.OAuth2TokenProvider
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.DependsOn
-import org.springframework.context.annotation.Primary
-import org.springframework.context.annotation.Profile
+import org.springframework.context.annotation.*
 
 @Configuration
 @Profile("mockoauth")
 class LocalOauthConfig {
     private val mockOAuth2Server: MockOAuth2Server = MockOAuth2Server(
         OAuth2Config(
-            false,
-            "",
-            OAuth2TokenProvider(),
-            setOf(
+            interactiveLogin = false,
+            loginPagePath = "",
+            tokenProvider = OAuth2TokenProvider(),
+            tokenCallbacks = setOf(
                 DefaultOAuth2TokenCallback(
-                    "aad",
-                    "19097302327",
-                    "JWT", listOf("aud-localhost"),
-                    mapOf("pid" to "19097302327"),
-                    3600L
+                    issuerId = "aad",
+                    subject = "19097302327",
+                    typeHeader = "JWT",
+                    audience = listOf("aud-localhost"),
+                    claims = mapOf("pid" to "19097302327"),
+                    expiry = 3600L
                 )
             )
         )
