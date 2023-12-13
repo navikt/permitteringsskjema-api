@@ -19,6 +19,8 @@
         <java.version>17</java.version>
         <kotlin.version>1.9.21</kotlin.version>
         <nav.security.version>3.2.0</nav.security.version>
+
+        <logback.version>1.4.14</logback.version>
     </properties>
 
     <dependencies>
@@ -58,6 +60,7 @@
             <groupId>no.nav.security</groupId>
             <artifactId>token-validation-spring-test</artifactId>
             <version>${nav.security.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
