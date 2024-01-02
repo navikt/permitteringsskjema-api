@@ -3,7 +3,6 @@ package no.nav.permitteringsskjemaapi.kafka
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion
-import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.permittering.SkjemaType
 import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
@@ -23,8 +22,6 @@ class PermitteringsskjemaProdusent(
     private val kafkaTemplate: KafkaTemplate<String, String>,
     private val mapper: ObjectMapper,
 ) {
-
-    private val log = logger()
 
     fun sendTilKafkaTopic(permitteringsskjema: Permitteringsskjema) {
         val rapport = PermitteringsskjemaKafkaMelding(
