@@ -24,18 +24,6 @@
       "pattern": "[0-9]{9}",
       "description": "Orgnr. til underenhet. Valgt av bruker fra nedtrekksliste."
     },
-    "kontaktNavn": {
-      "type": "string",
-      "description": "Navnet bruker har oppgitt som kontaktperson."
-    },
-    "kontaktEpost": {
-      "type": "string",
-      "description": "Epost-adresse bruker har oppgitt for kontaktpersonen."
-    },
-    "kontaktTlf": {
-      "type": "string",
-      "description": "Telefonnummer bruker har oppgitt for kontaktpersonen."
-    },
     "sendtInnTidspunkt": {
       "type": "string",
       "description": "Timestamp fra backenden fra når bruker klikket på \"Send til NAV\". Eksempel: `2023-09-21T12:56:03.840448Z`."
@@ -85,18 +73,6 @@
       },
       "description": "Yrkene til de berørte. Valgt av bruker. Tilgjengelige valg hentet fra Janzz."
     },
-    "varsletAnsattDato": {
-      "type": "string",
-      "description": "Navnet på feltet beskriver ikke tidspunktet i feltet. Vanskelig å gi en klar beskrivelse av tidspunktet, men det er knyttet til brukers interaksjoner med skjemaet. Ikke bruk feltet."
-    },
-    "varsletNavDato": {
-      "type": "string",
-      "description": "Navnet på feltet beskriver ikke tidspunktet i feltet. Vanskelig å gi en klar beskrivelse av tidspunktet, men det er knyttet til brukers interaksjoner med skjemaet. Ikke bruk feltet."
-    },
-    "fritekst": {
-      "type": "string",
-      "description": "Ikke fritekst. Maskinelt genereret ut fra feltene \"årsakskode\" og \"yrkeskategorier\"."
-    },
     "årsakstekst": {
       "type": ["string", "null"],
       "description": "Tror feltet alltid mangler."
@@ -107,15 +83,9 @@
     "type",
     "antallBerorte",
     "bedriftsnummer",
-    "kontaktNavn",
-    "kontaktEpost",
-    "kontaktTlf",
     "sendtInnTidspunkt",
     "startDato",
     "årsakskode",
-    "yrkeskategorier",
-    "varsletAnsattDato",
-    "varsletNavDato",
-    "fritekst"
+    "yrkeskategorier"
   ]
 }

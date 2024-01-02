@@ -82,17 +82,11 @@ class KafkaSchemaTests {
     private val eksempel1 = PermitteringsskjemaProdusent.PermitteringsskjemaKafkaMelding(
         antallBerorte = 10,
         bedriftsnummer = "123412341",
-        fritekst = "friiiiii",
         id = UUID.randomUUID(),
-        kontaktEpost = "lol@lol",
-        kontaktNavn = "dora",
-        kontaktTlf = "43214123",
         sendtInnTidspunkt = Instant.now(),
         sluttDato = LocalDate.now().plusDays(30),
         startDato = LocalDate.now(),
         type = SkjemaType.INNSKRENKNING_I_ARBEIDSTID,
-        varsletAnsattDato = LocalDate.now().minusDays(7),
-        varsletNavDato = LocalDate.now(),
         yrkeskategorier = listOf(
             Yrkeskategori(
                 konseptId = 42,

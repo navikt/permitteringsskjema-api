@@ -43,24 +43,5 @@ class SletteService(
                 log.info("Slettet $deleted gamle rader fra journalforing")
             }
         }
-
-
-        // delete from legacy tables. remove this and drop the table when all data is gone
-        // note: all data has been migrated to permitteringsskjema_v2, but is kept for histoic value in case of bugs
-        jdbcTemplate.update(
-            """
-                with deleted as (
-                    delete from permitteringsskjema
-                    where sendt_inn_tidspunkt < ?
-                    returning id
-                )
-                delete from yrkeskategori where permitteringsskjema_id in (select id from deleted);
-            """) { ps ->
-            ps.setTimestamp(1, java.sql.Timestamp.from(oldestTimestamp))
-        }.let { deleted ->
-            if (deleted > 0) {
-                log.info("Slettet $deleted gamle rader fra permitteringsskjema med tilhørende yrkeskategorier")
-            }
-        }
     }
 }

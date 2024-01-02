@@ -3,7 +3,6 @@ package no.nav.permitteringsskjemaapi.kafka
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion
-import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.permittering.SkjemaType
 import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
@@ -13,7 +12,6 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId.systemDefault
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -25,22 +23,14 @@ class PermitteringsskjemaProdusent(
     private val mapper: ObjectMapper,
 ) {
 
-    private val log = logger()
-
     fun sendTilKafkaTopic(permitteringsskjema: Permitteringsskjema) {
         val rapport = PermitteringsskjemaKafkaMelding(
             antallBerorte = permitteringsskjema.antallBerørt,
             bedriftsnummer = permitteringsskjema.bedriftNr,
-            fritekst = permitteringsskjema.fritekst,
             id = permitteringsskjema.id,
-            kontaktEpost = permitteringsskjema.kontaktEpost,
-            kontaktNavn = permitteringsskjema.kontaktNavn,
-            kontaktTlf = permitteringsskjema.kontaktTlf,
             sendtInnTidspunkt = permitteringsskjema.sendtInnTidspunkt,
             sluttDato = permitteringsskjema.sluttDato,
             startDato = permitteringsskjema.startDato,
-            varsletAnsattDato = permitteringsskjema.sendtInnTidspunkt.let { LocalDate.ofInstant(it, systemDefault()) },
-            varsletNavDato = permitteringsskjema.sendtInnTidspunkt.let { LocalDate.ofInstant(it, systemDefault()) },
             type = permitteringsskjema.type,
             årsakskode = permitteringsskjema.årsakskode,
             årsakstekst = permitteringsskjema.årsakstekst,
@@ -51,7 +41,7 @@ class PermitteringsskjemaProdusent(
 
         val validationErrors = validateAgainstSchema(jsonEvent)
         if (validationErrors.isNotEmpty()) {
-            log.error("json validation failed: {}", validationErrors.joinToString())
+            throw Error("json validation failed: ${validationErrors.joinToString()}")
         }
 
         kafkaTemplate.send(
@@ -69,14 +59,8 @@ class PermitteringsskjemaProdusent(
         var bedriftsnummer: String,
         var sendtInnTidspunkt: Instant,
         var type: SkjemaType,
-        var kontaktNavn: String,
-        var kontaktTlf: String,
-        var kontaktEpost: String,
-        var varsletAnsattDato: LocalDate,
-        var varsletNavDato: LocalDate,
         var startDato: LocalDate,
         var sluttDato: LocalDate?,
-        var fritekst: String,
         var antallBerorte: Int,
         var årsakskode: Årsakskode,
         var årsakstekst: String?,
