@@ -19,9 +19,6 @@ spec:
     - team: permittering-og-nedbemanning
       application: permittering-journalforing
       access: read
-    - team: team-dialog
-      application: sf-permiteringsvarsel
-      access: read
     - team: permittering-og-nedbemanning
       application: permitteringsmelding-notifikasjon
       access: read
