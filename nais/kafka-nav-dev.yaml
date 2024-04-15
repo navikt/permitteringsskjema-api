@@ -12,6 +12,7 @@ spec:
     minimumInSyncReplicas: 1
     partitions: 1
     retentionBytes: -1
+    retentionHours: 2160
   acl:
     - team: permittering-og-nedbemanning
       application: permitteringsskjema-api
