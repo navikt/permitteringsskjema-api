@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.3</version>
+        <version>3.2.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>no.nav</groupId>
@@ -19,8 +19,6 @@
         <java.version>17</java.version>
         <kotlin.version>1.9.21</kotlin.version>
         <nav.security.version>3.2.0</nav.security.version>
-
-        <logback.version>1.4.14</logback.version>
     </properties>
 
     <dependencies>
@@ -74,7 +72,6 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>9.22.3</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
