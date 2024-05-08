@@ -53,7 +53,7 @@ class EregClientTest {
             .andRespond(withStatus(HttpStatus.NOT_FOUND).body(underenhetIkkeFunnetRespons).contentType(APPLICATION_JSON))
 
 
-        assertThrows(HttpClientErrorException.NotFound::class.java) {
+        assertThrows(VirksomhetNotFoundException::class.java) {
             eregClient.hentKommunenummer(virksomhetsnummer)
         }
     }
