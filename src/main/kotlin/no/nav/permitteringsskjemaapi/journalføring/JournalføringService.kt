@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.time.LocalDate
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
@@ -46,6 +47,10 @@ class JournalføringService(
                 State.NEEDS_JOURNALFORING_ONLY -> journalfør(journalføring, nesteState = State.FERDIG)
                 State.FERDIG -> log.error("uventet state i workitem {}", journalføring)
             }
+        } catch (e: VirksomhetNotFoundException) {
+            log.error("utførJournalføring feilet", e)
+            journalføring.delayedUntil = LocalDate.now().plusDays(1).atTime(8, 0).toString()
+            journalføringRepository.save(journalføring)
         } finally {
             MDC.remove(X_CORRELATION_ID)
         }

@@ -39,7 +39,7 @@ class EregClient(
             if (e.statusCode == HttpStatus.NOT_FOUND) {
                 return gittMiljø.resolve(
                     other = { null },
-                    prod = { throw e },
+                    prod = { throw VirksomhetNotFoundException(e) },
                 )
             }
             throw e
@@ -77,3 +77,5 @@ class EregClient(
         val tom: LocalDate? = null,
     )
 }
+
+class VirksomhetNotFoundException(cause: Exception) : RuntimeException(cause)

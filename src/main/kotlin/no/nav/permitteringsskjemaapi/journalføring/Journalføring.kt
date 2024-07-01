@@ -47,12 +47,15 @@ class Journalføring() {
             field = newValue
         }
 
+    @field:Column(name = "delayed_until")
+    var delayedUntil: String? = null
+
     override fun equals(other: Any?) =
         this === other || (other is Journalføring && this.skjemaid == other.skjemaid)
 
     override fun hashCode() = skjemaid.hashCode()
     override fun toString() =
-        "Journalføring(skjemaid=$skjemaid, state=$state, rowInsertedAt='$rowInsertedAt', journalført=$journalført, oppgave=$oppgave)"
+        "Journalføring(skjemaid=$skjemaid, state=$state, rowInsertedAt='$rowInsertedAt', delayedUntil='$delayedUntil', journalført=$journalført, oppgave=$oppgave)"
 }
 
 @Embeddable
