@@ -2,19 +2,36 @@ package no.nav.permitteringsskjemaapi.altinn
 
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.exceptions.PermitteringsApiException
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
+import no.nav.security.token.support.client.spring.ClientConfigurationProperties
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpMethod
+import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClientException
-import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.exchange
 
 @Component
 @Profile("dev-gcp", "prod-gcp")
 class AltinnServiceImpl(
     private val altinnConfig: AltinnConfig,
-    private val restTemplate: RestTemplate
+    clientConfigurationProperties: ClientConfigurationProperties,
+    oAuth2AccessTokenService: OAuth2AccessTokenService,
+    restTemplateBuilder: RestTemplateBuilder,
 ) : AltinnService {
+
+    private val restTemplate = restTemplateBuilder
+        .additionalInterceptors(
+            ClientHttpRequestInterceptor { request, body, execution ->
+                val registration = clientConfigurationProperties.registration["altinn-rettigheter-client"]!!
+                val accessTokenResponse = oAuth2AccessTokenService.getAccessToken(registration)
+                request.headers.setBearerAuth(accessTokenResponse.accessToken!!)
+                request.headers["x-consumer-id"] = "permitteringsskjema-api"
+                execution.execute(request, body)
+            },
+        )
+        .build()
 
     private val log = logger()
 

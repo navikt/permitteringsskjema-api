@@ -12,11 +12,12 @@ import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.ControllerAdvice
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
-import java.util.*
 import java.util.stream.Collectors
 
 @ControllerAdvice
@@ -29,8 +30,9 @@ class PermitteringExceptionHandler(private val tokenUtil: TokenUtil) : ResponseE
     )
     fun handleHttpStatusCodeException(e: HttpStatusCodeException, request: WebRequest): ResponseEntity<Any>? {
         return if (e.statusCode.isSameCodeAs(HttpStatus.UNAUTHORIZED) || e.statusCode.isSameCodeAs(HttpStatus.FORBIDDEN)) {
-            logAndHandle(e.statusCode, e, request, tokenUtil.expiryDate as Any)
-        } else logAndHandle(e.statusCode, e, request)
+            logAndHandle(e.statusCode, e, request, messages = listOf(tokenUtil.expiryDate))
+        } else
+            logAndHandle(e.statusCode, e, request, messages = listOf<Any>())
     }
 
     override fun handleMethodArgumentNotValid(
@@ -68,7 +70,7 @@ class PermitteringExceptionHandler(private val tokenUtil: TokenUtil) : ResponseE
 
     @ExceptionHandler(JwtTokenValidatorException::class)
     fun handleUnauthenticatedJwtException(e: JwtTokenValidatorException, req: WebRequest): ResponseEntity<Any>? {
-        return logAndHandle(HttpStatus.FORBIDDEN, e, req, e.expiryDate)
+        return logAndHandle(HttpStatus.FORBIDDEN, e, req, messages = listOf(e.expiryDate))
     }
 
     @ExceptionHandler(value = [Exception::class])
@@ -100,32 +102,15 @@ class PermitteringExceptionHandler(private val tokenUtil: TokenUtil) : ResponseE
         status: HttpStatusCode,
         e: Exception,
         req: WebRequest,
-        vararg messages: Any
+        headers: HttpHeaders = HttpHeaders(),
+        messages: List<Any?> = emptyList(),
     ): ResponseEntity<Any>? {
-        return logAndHandle(status, e, req, HttpHeaders(), *messages)
-    }
-
-    private fun logAndHandle(
-        status: HttpStatusCode, e: Exception, req: WebRequest, headers: HttpHeaders,
-        vararg messages: Any
-    ): ResponseEntity<Any>? {
-        return logAndHandle(status, e, req, headers, listOf(*messages))
-    }
-
-    private fun logAndHandle(
-        status: HttpStatusCode, e: Exception, req: WebRequest, headers: HttpHeaders,
-        messages: List<Any?>
-    ): ResponseEntity<Any>? {
-        val apiError = apiErrorFra(status, e, messages)
+        val apiError = ApiError(status, e, messages)
         log.warn("{} {} ({})", status, apiError.messages, status.value(), e)
         return handleExceptionInternal(e, apiError, headers, status, req)
     }
 
     companion object {
-        private fun apiErrorFra(status: HttpStatusCode, e: Exception, messages: List<Any?>): ApiError {
-            return ApiError(status, e, messages)
-        }
-
         private fun validationErrors(e: MethodArgumentNotValidException): List<String> {
             return e.bindingResult.fieldErrors
                 .stream()
