@@ -1,3 +1,3 @@
-FROM navikt/java:17
-COPY --chown=apprunner:root /target/*.jar app.jar
-EXPOSE 8080
+FROM gcr.io/distroless/java21-debian12
+COPY /target/*.jar app.jar
+CMD ["app.jar"]
