@@ -160,7 +160,6 @@ no.nav.security.jwt:
   issuer:
     tokenx:
       discoveryurl: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
-      cookie_name: localhost-idtoken
       accepted_audience: tokenx
   client:
     registration:
