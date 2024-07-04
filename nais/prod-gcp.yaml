@@ -29,6 +29,7 @@ spec:
     sqlInstances:
       - name: permitteringsskjema-api
         type: POSTGRES_13
+        tier: db-custom-1-3840
         databases:
           - name: permitteringsskjema-api-db
             envVarPrefix: DATABASE
