@@ -7,6 +7,9 @@ metadata:
     team: permittering-og-nedbemanning
 spec:
   image: {{image}}
+  replicas:
+    min: 0
+    max: 0
   liveness:
     path: /permitteringsskjema-api/internal/actuator/info
     initialDelay: 60
