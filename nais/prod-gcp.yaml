@@ -6,7 +6,7 @@ metadata:
   labels:
     team: permittering-og-nedbemanning
 spec:
-  image:  europe-north1-docker.pkg.dev/nais-management-233d/permittering-og-nedbemanning/permitteringsskjema-api:a29446f426809bf317d44683bca1175301fd5b16
+  image: {{{image}}}
   liveness:
     path: /permitteringsskjema-api/internal/actuator/info
     initialDelay: 60
