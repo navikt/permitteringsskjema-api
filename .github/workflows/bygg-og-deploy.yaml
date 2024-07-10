@@ -62,7 +62,7 @@ jobs:
     name: Deploy to dev-gcp
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     continue-on-error: true
     permissions:
       contents: "read"
@@ -85,7 +85,7 @@ jobs:
   deploy-to-prod-gcp:
     name: Deploy to prod-gcp
     needs: build
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: "read"
@@ -111,7 +111,7 @@ jobs:
     permissions:
       contents: "read"
       id-token: "write"
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v1
@@ -127,7 +127,7 @@ jobs:
       id-token: "write"
     name: Deploy kafka-topic to prod
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v1
