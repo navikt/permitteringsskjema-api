@@ -56,7 +56,7 @@ jobs:
           tag: ${{ github.sha }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          byosbom: target/bom.json
+          byosbom: target/classes/META-INF/sbom/application.cdx.json
 
   deploy-to-dev-gcp:
     name: Deploy to dev-gcp
