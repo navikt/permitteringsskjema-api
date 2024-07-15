@@ -1,23 +1,16 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
-import jakarta.inject.Inject
 import no.nav.permitteringsskjemaapi.util.multiValueMapOf
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType
-import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.content
 import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 
-@MockBean(MultiIssuerConfiguration::class)
 @RestClientTest(
     components = [
         AzureADClient::class,

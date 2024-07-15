@@ -1,13 +1,10 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
 import no.nav.permitteringsskjemaapi.config.GittMiljø
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON
@@ -18,14 +15,13 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 import org.springframework.web.client.HttpClientErrorException
 
-@MockBean(MultiIssuerConfiguration::class)
 @RestClientTest(
     components = [EregClient::class, GittMiljø::class],
     properties = [
-        "spring.profiles.active=prod-gcp", // later som vi er i prod for å teste funksjonalitet som bare er i prod
+        "spring.profiles.active=prod-gcp", // Test prod-adferden (knyttet til manglende organisasjoner)
     ]
 )
-class EregClientTest {
+class EregClientImplTest {
 
     @Autowired
     lateinit var eregClient: EregClient
@@ -40,9 +36,9 @@ class EregClientTest {
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess(underenhetRespons, APPLICATION_JSON))
 
-        val result = eregClient.hentKommunenummer(virksomhetsnummer)
+        val kommunenummer = eregClient.hentKommunenummer(virksomhetsnummer)
 
-        assertEquals("3801", result)
+        assertEquals("3801", kommunenummer)
     }
 
     @Test
@@ -56,6 +52,48 @@ class EregClientTest {
         assertThrows(HttpClientErrorException.NotFound::class.java) {
             eregClient.hentKommunenummer(virksomhetsnummer)
         }
+    }
+}
+
+/* Data i enhetsregisteret finnes ikke alltid i dev. Håndter det ved å returnere null, noe som uansett
+  * kan skje. */
+@RestClientTest(
+    components = [EregClient::class, GittMiljø::class],
+    properties = [
+        "spring.profiles.active=dev-gcp",
+    ]
+)
+class EregClientImplDevTest {
+
+    @Autowired
+    lateinit var eregClient: EregClient
+
+    @Autowired
+    lateinit var server: MockRestServiceServer
+
+    @Test
+    fun `henter kommunenummer fra ereg`() {
+        val virksomhetsnummer = "42"
+        server.expect(requestTo("/v1/organisasjon/$virksomhetsnummer?inkluderHierarki=true"))
+            .andExpect(method(HttpMethod.GET))
+            .andRespond(withSuccess(underenhetRespons, APPLICATION_JSON))
+
+        val kommunenummer = eregClient.hentKommunenummer(virksomhetsnummer)
+
+        assertEquals("3801", kommunenummer)
+    }
+
+    @Test
+    fun `null når underenhet er null fra ereg`() {
+        val virksomhetsnummer = "42"
+        server.expect(requestTo("/v1/organisasjon/$virksomhetsnummer?inkluderHierarki=true"))
+            .andExpect(method(HttpMethod.GET))
+            .andRespond(
+                withStatus(HttpStatus.NOT_FOUND)
+                    .body(underenhetIkkeFunnetRespons).contentType(APPLICATION_JSON))
+
+        val kommunenummer = eregClient.hentKommunenummer(virksomhetsnummer)
+        assertNull(kommunenummer)
     }
 }
 

@@ -18,7 +18,7 @@ management:
       show-details: never
 spring:
   main.banner-mode: "off"
-  profiles.active: test
+  profiles.active: prod-gcp
   jackson:
     default-property-inclusion: non-absent
   kafka:
@@ -53,11 +53,11 @@ azuread:
 ---
 
 spring:
-  flyway:
-    locations: classpath:/db/migration, classpath:/db/privileges
   config:
     activate:
       on-profile: dev-gcp
+  flyway:
+    locations: classpath:/db/migration, classpath:/db/privileges
 
 no.nav.security.jwt:
   client:
@@ -91,11 +91,11 @@ oppgave:
 ---
 
 spring:
-  flyway:
-    locations: classpath:/db/migration, classpath:/db/privileges
   config:
     activate:
       on-profile: prod-gcp
+  flyway:
+    locations: classpath:/db/migration, classpath:/db/privileges
 
 no.nav.security.jwt:
   client:
@@ -127,62 +127,3 @@ oppgave:
   baseUrl: "https://oppgave.prod-fss-pub.nais.io"
   scope: "api://prod-fss.oppgavehandtering.oppgave/.default"
 
----
-
-spring:
-  config:
-    activate:
-      on-profile: test
-  flyway:
-    enabled: true
-  datasource:
-    url: jdbc:postgresql://localhost:3456/permitteringsskjema-api?user=postgres&password=postgres
-
-permittering:
-  arbeidsgiver:
-    enabled: false
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-  endpoint:
-    health:
-      show-details: always
-
-mock:
-  enabled: true
-  port: 8081
-
-mock-oauth2-server.port: 9000
-no.nav.security.jwt:
-  issuer:
-    tokenx:
-      discoveryurl: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
-      accepted_audience: tokenx
-  client:
-    registration:
-      altinn-rettigheter-client:
-        token-endpoint-url: http://localhost:${mock-oauth2-server.port}/oauth2/v2.0/token
-        grant-type: urn:ietf:params:oauth:grant-type:token-exchange
-        authentication:
-          client-id: 1245
-          client-jwk: src/test/resources/jwk.json
-          client-auth-method: private_key_jwt
-        token-exchange:
-          audience: dev-gcp:arbeidsgiver:altinn-rettigheter-proxy
-
-
-altinn:
-  altinnProxyUrl: "http://localhost:${mock.port}/altinn/"
-
-ereg-services.baseUrl: "https://ereg-services.dev-fss-pub.nais.io"
-norg2.baseUrl: "https://norg2.dev-fss-pub.nais.io"
-dokarkiv:
-  scope: "api://dev-fss.teamdokumenthandtering.dokarkiv-q1/.default"
-  baseUrl: "https://dokarkiv.dev-fss-pub.nais.io/rest/journalpostapi/v1"
-
-oppgave:
-  baseUrl: "https://oppgavetests.no"
-  scope: "test"
