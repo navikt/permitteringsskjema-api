@@ -17,7 +17,7 @@ import javax.net.ssl.SSLHandshakeException
  * Swagger: https://oppgave.dev.intern.nav.no/
  */
 
-interface OppgaveClient {
+fun interface OppgaveClient {
     fun lagOppgave(skjema: Permitteringsskjema, journalført: Journalført): String
 }
 

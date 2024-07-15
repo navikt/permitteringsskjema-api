@@ -2,6 +2,7 @@ package no.nav.permitteringsskjemaapi.journalføring
 
 import jakarta.transaction.Transactional
 import no.nav.permitteringsskjemaapi.journalføring.Journalføring.State.*
+import no.nav.permitteringsskjemaapi.timeline
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -12,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.Instant
 import java.util.*
 
 @ExtendWith(SpringExtension::class)
@@ -143,13 +145,79 @@ class JournalføringRepositoryTest {
     }
 
 
+    @Test
+    @Transactional
+    fun `prioritize work which has not been delayed`() {
+        val (t0, t1) = timeline()
+        val førsteSkjema = journalføringRepository.nyJournalføring(NY)
+        val andreSkjema = journalføringRepository.nyJournalføring(NY)
+
+        førsteSkjema.delayedUntil = t1
+        journalføringRepository.save(førsteSkjema)
+
+        val work = journalføringRepository.findWork(now = t0)
+        assertTrue(work.isPresent)
+        assertEquals(andreSkjema.skjemaid, work.get().skjemaid)
+    }
+
+    @Test
+    @Transactional
+    fun `dont find work before delay`() {
+        val (t0, t1) = timeline()
+        journalføringRepository.nyJournalføring(NY, delayUntil = t1)
+
+        val work = journalføringRepository.findWork(now = t0)
+        assertTrue(work.isEmpty)
+    }
+
+    @Test
+    @Transactional
+    fun `find work after delay`() {
+        val (t0, t1) = timeline()
+        val skjema = journalføringRepository.nyJournalføring(NY, delayUntil = t0)
+
+        val work = journalføringRepository.findWork(now = t1)
+        assertTrue(work.isPresent)
+        assertEquals(skjema.skjemaid, work.get().skjemaid)
+    }
+
+    @Test
+    @Transactional
+    fun `treg og feilende journalføring fører ikke til starvation`() {
+        val (t0, t1, t2, t3) = timeline()
+
+        /* Denne testen simulerer noe ganske usannsynlig: at prosesseringen går så tregt
+         * at en utsatt prosessering blir aktuell igjen før alle de andre skjemaene har
+         * hatt en mulighet for å ha fremdrift. */
+
+        val førsteSkjema = journalføringRepository.nyJournalføring(NY, delayUntil = t0)
+        val andreSkjema = journalføringRepository.nyJournalføring(NY, delayUntil = t0)
+        assertTrue(førsteSkjema.rowInsertedAt < andreSkjema.rowInsertedAt) /* precondition */
+
+        journalføringRepository.findWork(now = t1).also {
+            assertTrue(it.isPresent)
+            val skjema = it.get()
+            assertEquals(førsteSkjema.skjemaid, skjema.skjemaid)
+            skjema.delayedUntil = t2
+            journalføringRepository.save(skjema)
+        }
+
+        journalføringRepository.findWork(now = t3).also {
+            assertTrue(it.isPresent)
+            val skjema = it.get()
+            assertEquals(andreSkjema.skjemaid, skjema.skjemaid)
+        }
+    }
+
     companion object {
         private fun JournalføringRepository.nyJournalføring(
             state: Journalføring.State,
+            delayUntil: Instant? = null,
         ): Journalføring {
             val id = UUID.randomUUID()
             return Journalføring(skjemaid = id).also {
                 it.state = state
+                it.delayedUntil = delayUntil
                 save(it)
             }
         }
