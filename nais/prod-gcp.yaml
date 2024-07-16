@@ -6,7 +6,7 @@ metadata:
   labels:
     team: permittering-og-nedbemanning
 spec:
-  image: {{image}}
+  image: {{{image}}}
   liveness:
     path: /permitteringsskjema-api/internal/actuator/info
     initialDelay: 60
@@ -25,7 +25,8 @@ spec:
   gcp:
     sqlInstances:
       - name: permitteringsskjema-api
-        type: POSTGRES_12
+        type: POSTGRES_16
+        tier: db-custom-1-3840
         databases:
           - name: permitteringsskjema-api-db
             envVarPrefix: DATABASE

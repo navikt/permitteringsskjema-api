@@ -1,18 +1,15 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.*
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 
-@MockBean(MultiIssuerConfiguration::class)
 @RestClientTest(
     components = [NorgClient::class],
 )
@@ -39,7 +36,7 @@ class NorgClientTest {
     }
 }
 
-private val norgRespons = """
+private const val norgRespons = """
 [
   {
     "enhetId": 1,

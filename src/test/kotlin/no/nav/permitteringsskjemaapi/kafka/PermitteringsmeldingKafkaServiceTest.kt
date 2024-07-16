@@ -1,11 +1,9 @@
 package no.nav.permitteringsskjemaapi.kafka
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.permittering.SkjemaType
 import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
 import no.nav.permitteringsskjemaapi.permittering.Årsakskode
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -15,24 +13,19 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.test.context.ActiveProfiles
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
 
-@SpringBootTest(properties = [
-    "spring.flyway.cleanDisabled=false",
-    "spring.flyway.validateOnMigrate=false"
-])
-@MockBean(MultiIssuerConfiguration::class)
+@SpringBootTest
+@ActiveProfiles("test")
 class PermitteringsskjemaProdusentTest {
 
     @MockBean
     lateinit var kafkaTemplate: KafkaTemplate<String, String>
-
-    @Autowired
-    lateinit var objectMapper: ObjectMapper
 
     @Autowired
     lateinit var permitteringsskjemaProdusent: PermitteringsskjemaProdusent

@@ -25,7 +25,7 @@ spec:
   gcp:
     sqlInstances:
       - name: permitteringsskjema-api
-        type: POSTGRES_12
+        type: POSTGRES_16
         databases:
           - name: permitteringsskjema-api-db
             envVarPrefix: DATABASE
