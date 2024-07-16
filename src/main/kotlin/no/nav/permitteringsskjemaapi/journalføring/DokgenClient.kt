@@ -12,11 +12,15 @@ import java.time.Instant
 import java.time.LocalDate
 import javax.net.ssl.SSLHandshakeException
 
+fun interface DokgenClient {
+    fun genererPdf(skjema: Permitteringsskjema): ByteArray
+}
+
 @Component
-class DokgenClient(
+class DokgenClientImpl(
     @Value("\${permittering-dokgen.baseUrl}") dokgenBaseUrl: String,
     restTemplateBuilder: RestTemplateBuilder
-) {
+): DokgenClient {
     private val restTemplate = restTemplateBuilder
         .rootUri(dokgenBaseUrl)
         .additionalInterceptors(
@@ -29,7 +33,7 @@ class DokgenClient(
         )
         .build()
 
-    fun genererPdf(skjema: Permitteringsskjema): ByteArray {
+    override fun genererPdf(skjema: Permitteringsskjema): ByteArray {
         val templateVariables = TemplateVariables(
             bedriftsnummer = skjema.bedriftNr,
             bedriftNavn = skjema.bedriftNavn,

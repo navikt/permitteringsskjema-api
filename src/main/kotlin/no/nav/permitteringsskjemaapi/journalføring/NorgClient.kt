@@ -8,12 +8,20 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 
+fun interface NorgClient {
+    fun hentBehandlendeEnhet(kommuneNummer: String): String?
+
+    companion object {
+        const val OSLO_ARBEIDSLIVSENTER_KODE = "0391"
+    }
+}
+
 /* Dokumentasjon: https://navikt.github.io/norg2/ */
 @Service
-class NorgClient(
+class NorgClientImpl(
     @Value("\${norg2.baseUrl}") norg2BaseUrl: String,
     restTemplateBuilder: RestTemplateBuilder
-) {
+): NorgClient {
 
     private val restTemplate = restTemplateBuilder
         .rootUri(norg2BaseUrl)
@@ -28,7 +36,7 @@ class NorgClient(
         .build()
 
 
-    fun hentBehandlendeEnhet(kommuneNummer: String): String? {
+    override fun hentBehandlendeEnhet(kommuneNummer: String): String? {
         val norg2ResponseListe = try {
             restTemplate.exchange(
                 "/norg2/api/v1/arbeidsfordeling/enheter/bestmatch",
@@ -47,9 +55,6 @@ class NorgClient(
             ?.let { it["enhetNr"].toString() }
     }
 
-    companion object {
-        const val OSLO_ARBEIDSLIVSENTER_KODE = "0391"
-    }
 
     private data class Norg2Request(
         val geografiskOmraade: String,

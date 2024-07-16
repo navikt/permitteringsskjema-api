@@ -10,12 +10,16 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClientResponseException
 import java.time.LocalDate
 
+fun interface EregClient {
+    fun hentKommunenummer(virksomhetsnummer: String): String?
+}
+
 @Component
-class EregClient(
+class EregClientImpl(
     @Value("\${ereg-services.baseUrl}") eregBaseUrl: String?,
-    val gittMiljø: GittMiljø,
+    private val gittMiljø: GittMiljø,
     restTemplateBuilder: RestTemplateBuilder
-) {
+): EregClient {
     private val restTemplate = restTemplateBuilder
         .rootUri(eregBaseUrl)
         .additionalInterceptors(
@@ -28,24 +32,24 @@ class EregClient(
         )
         .build()
 
-    fun hentKommunenummer(virksomhetsnummer: String): String? {
+    override fun hentKommunenummer(virksomhetsnummer: String): String? {
         val eregEnhet = try {
             restTemplate.getForEntity(
                 "/v1/organisasjon/{virksomhetsnummer}?inkluderHierarki=true",
                 EregEnhet::class.java,
                 mapOf("virksomhetsnummer" to virksomhetsnummer)
-            ).body
+            ).body ?: throw RuntimeException("body fra ereg er null")
         } catch (e: RestClientResponseException) {
             if (e.statusCode == HttpStatus.NOT_FOUND) {
                 return gittMiljø.resolve(
-                    other = { null },
-                    prod = { throw e },
+                    dev = { null },
+                    other = { throw VirksomhetNotFoundException(e) },
                 )
             }
             throw e
         }
 
-        return eregEnhet?.kommuneNummer
+        return eregEnhet.kommuneNummer
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -77,3 +81,5 @@ class EregClient(
         val tom: LocalDate? = null,
     )
 }
+
+class VirksomhetNotFoundException(cause: Exception? = null) : RuntimeException(cause)

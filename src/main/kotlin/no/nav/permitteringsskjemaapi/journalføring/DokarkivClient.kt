@@ -18,7 +18,7 @@ import java.time.ZoneId
 import java.util.*
 import javax.net.ssl.SSLHandshakeException
 
-interface DokarkivClient {
+fun interface DokarkivClient {
     fun opprettjournalPost(
         skjema: Permitteringsskjema,
         behandlendeEnhet: String,

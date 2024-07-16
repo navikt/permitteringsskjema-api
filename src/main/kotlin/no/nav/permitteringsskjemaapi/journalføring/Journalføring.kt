@@ -47,12 +47,16 @@ class Journalføring() {
             field = newValue
         }
 
+    @field:Column(name = "delayed_until")
+    @field:Convert(converter = InstantAsIsoStringConverter::class)
+    var delayedUntil: Instant? = null
+
     override fun equals(other: Any?) =
         this === other || (other is Journalføring && this.skjemaid == other.skjemaid)
 
     override fun hashCode() = skjemaid.hashCode()
     override fun toString() =
-        "Journalføring(skjemaid=$skjemaid, state=$state, rowInsertedAt='$rowInsertedAt', journalført=$journalført, oppgave=$oppgave)"
+        "Journalføring(skjemaid=$skjemaid, state=$state, rowInsertedAt='$rowInsertedAt', delayedUntil='$delayedUntil', journalført=$journalført, oppgave=$oppgave)"
 }
 
 @Embeddable
@@ -105,4 +109,9 @@ class Journalført() {
 
     override fun toString() =
         "Journalført(journalpostId='$journalpostId', journalfortAt='$journalfortAt', kommunenummer='$kommunenummer', behandlendeEnhet='$behandlendeEnhet')"
+}
+
+class InstantAsIsoStringConverter : AttributeConverter<Instant?, String?> {
+    override fun convertToDatabaseColumn(attribute: Instant?): String? = attribute?.toString()
+    override fun convertToEntityAttribute(dbData: String?): Instant? = dbData?.let { Instant.parse(it) }
 }

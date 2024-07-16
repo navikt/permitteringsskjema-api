@@ -11,6 +11,8 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.time.temporal.ChronoUnit.HOURS
+import java.time.temporal.ChronoUnit.MINUTES
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
@@ -33,8 +35,8 @@ class JournalføringService(
     }
 
     @Transactional
-    fun utførJournalføring(): Boolean {
-        val journalføring = journalføringRepository.findWork().getOrNull() ?: return false
+    fun utførJournalføring(now: Instant = Instant.now()): Boolean {
+        val journalføring = journalføringRepository.findWork(now).getOrNull() ?: return false
         try {
             MDC.put(X_CORRELATION_ID, UUID.randomUUID().toString())
 
@@ -46,6 +48,14 @@ class JournalføringService(
                 State.NEEDS_JOURNALFORING_ONLY -> journalfør(journalføring, nesteState = State.FERDIG)
                 State.FERDIG -> log.error("uventet state i workitem {}", journalføring)
             }
+        } catch (e: VirksomhetNotFoundException) {
+            log.info("Virksomhet ikke funnet i EREG: prøver igjen senere.", e)
+            journalføring.delayedUntil = now.plus(1, HOURS)
+            journalføringRepository.save(journalføring)
+        } catch (e: Exception) {
+            log.error("Exception ved journalføring: {}", e.javaClass.name, e)
+            journalføring.delayedUntil = now.plus(1, MINUTES)
+            journalføringRepository.save(journalføring)
         } finally {
             MDC.remove(X_CORRELATION_ID)
         }
@@ -134,8 +144,7 @@ class JournalføringScheduledWorker(
      */
     @Scheduled(
         initialDelayString = "PT1M",
-        //fixedRateString = "PT5S",
-        fixedRateString = "PT5M",
+        fixedDelayString = "PT10S",
     )
     fun processingLoop() {
         while (journalføringService.utførJournalføring()) {
