@@ -7,45 +7,76 @@ import no.nav.permitteringsskjemaapi.altinn.AltinnOrganisasjon
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaIntegrationTest.Companion.`En annen BEDR`
 import no.nav.permitteringsskjemaapi.util.TokenUtil
-import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.assertj.core.api.Assertions
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Primary
 import org.springframework.http.MediaType
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-@MockBean(TokenValidationContextHolder::class)
-@SpringBootTest(
-    properties = [
-        "tokensupport.enabled=false",
-        "server.servlet.context-path=/",
-        "spring.flyway.cleanDisabled=false",
-    ]
-)
+
+@SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class PermitteringsskjemaIntegrationTest {
+    companion object {
+        const val `Unni uten lesetilganger` = "11111111111"
+        const val `Marte med lesetilganger` = "22222222222"
+        const val `Helle helt annen person` = "33333333333"
 
-    @MockBean
-    lateinit var altinnService: AltinnService
+        const val `Martes første BEDR` = "11111111"
+        const val `Martes andre BEDR` = "2222222"
+        const val `En annen BEDR` = "999999999"
+    }
 
-    @MockBean
-    lateinit var tokenUtil: TokenUtil
+    @TestConfiguration
+    class Config {
+        @Bean
+        @Primary
+        fun altinnService(tokenUtil: TokenUtil) = object: AltinnService {
+            override fun hentOrganisasjoner(): List<AltinnOrganisasjon> {
+                throw NotImplementedError("Ikke brukt i testen")
+            }
 
+            override fun hentOrganisasjonerBasertPåRettigheter(
+                serviceKode: String,
+                serviceEdition: String
+            ): List<AltinnOrganisasjon> {
+                require(serviceKode == "5810" && serviceEdition == "1")
+                return when (val fnr = tokenUtil.fnrFraToken) {
+                    `Unni uten lesetilganger` -> emptyList()
+                    `Marte med lesetilganger` -> listOf(
+                        AltinnOrganisasjon(organizationNumber = `Martes første BEDR`),
+                        AltinnOrganisasjon(organizationNumber = `Martes andre BEDR`),
+                    )
+                    else -> throw NotImplementedError("Ikke $fnr brukt i testen")
+                }
+            }
+        }
+    }
 
     @MockBean
     lateinit var journalføringService: JournalføringService
@@ -73,46 +104,59 @@ class PermitteringsskjemaIntegrationTest {
 
     val now = Instant.now().truncatedTo(ChronoUnit.SECONDS)
 
+    var client: HttpClient = HttpClient.newHttpClient()
+
+    fun MockHttpServletRequestDsl.token(pid: String) {
+        val response = client.send(
+            HttpRequest.newBuilder(URI.create("http://localhost:9000/tokenx/token"))
+                .header("content-type", "application/x-www-form-urlencoded")
+                .POST(
+                    HttpRequest.BodyPublishers.ofString("grant_type=client_credentials&client_id=1234&client_secret=1234&scope=$pid"))
+                .build(),
+            HttpResponse.BodyHandlers.ofString(),
+        )
+        val token = objectMapper.readTree(response.body())["access_token"].textValue()
+        header("Authorization", "Bearer $token")
+    }
+
     @Test
     fun `GET skjemaV2 henter alle skjema sortert`() {
-        `when`(tokenUtil.autentisertBruker()).thenReturn("42")
-        `when`(altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1")).thenReturn(listOf(
-            AltinnOrganisasjon(organizationNumber = "1"),
-            AltinnOrganisasjon(organizationNumber = "2"),
-        ))
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 1 min siden",
-                bedriftNr = "1",
+                bedriftNr = `Martes første BEDR`,
                 sendtInnTidspunkt = now.minus(1, ChronoUnit.MINUTES),
-                opprettetAv = "Noen Andrè",
+                opprettetAv = `Unni uten lesetilganger`,
             )
         )
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 5 min siden",
-                bedriftNr = "2",
+                bedriftNr = `Martes andre BEDR`,
                 sendtInnTidspunkt = now.minus(5, ChronoUnit.MINUTES),
-                opprettetAv = "Noen Andrè",
+                opprettetAv = `Unni uten lesetilganger`,
             ),
         )
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 10 min siden",
+                bedriftNr = `En annen BEDR`,
                 sendtInnTidspunkt = now.minus(10, ChronoUnit.MINUTES),
-                opprettetAv = "42",
+                opprettetAv = `Marte med lesetilganger`,
             )
         )
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 2 min siden",
+                bedriftNr = `En annen BEDR`,
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
-                opprettetAv = "42",
+                opprettetAv = `Marte med lesetilganger`,
             )
         )
 
         val jsonResponse = mockMvc.get("/skjemaV2") {
             accept(MediaType.APPLICATION_JSON)
+            token(`Marte med lesetilganger`)
         }.andExpect {
             status().isOk
         }.andReturn().response.contentAsString
@@ -130,18 +174,16 @@ class PermitteringsskjemaIntegrationTest {
 
     @Test
     fun `GET skjemaV2 by id henter skjema lagret av bruker`() {
-        `when`(tokenUtil.autentisertBruker()).thenReturn("42")
-        `when`(altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1")).thenReturn(listOf())
-
         val lagretSkjema = repository.save(
             testSkjema(
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
-                opprettetAv = "42",
+                opprettetAv = `Unni uten lesetilganger`,
             )
         )
 
         mockMvc.get("/skjemaV2/${lagretSkjema.id}") {
             accept(MediaType.APPLICATION_JSON)
+            token(`Unni uten lesetilganger`)
         }.andExpect {
             status().isOk
             content {
@@ -179,21 +221,17 @@ class PermitteringsskjemaIntegrationTest {
 
     @Test
     fun `GET skjemaV2 by id henter skjema lagret av noen andre men basert på rettighet`() {
-        `when`(tokenUtil.autentisertBruker()).thenReturn("42")
-        `when`(altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1")).thenReturn(listOf(
-            AltinnOrganisasjon(organizationNumber = "1"),
-        ))
-
         val lagretSkjema = repository.save(
             testSkjema(
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
-                bedriftNr = "1",
-                opprettetAv = "Noen Andrè",
+                bedriftNr = `Martes første BEDR`,
+                opprettetAv = `Unni uten lesetilganger`,
             )
         )
 
         mockMvc.get("/skjemaV2/${lagretSkjema.id}") {
             accept(MediaType.APPLICATION_JSON)
+            token(`Marte med lesetilganger`)
         }.andExpect {
             status().isOk
             content {
@@ -231,21 +269,17 @@ class PermitteringsskjemaIntegrationTest {
 
     @Test
     fun `GET skjemaV2 by id gir 404 når skjema lagret av noen andre og mangler bedrift basert på rettighet`() {
-        `when`(tokenUtil.autentisertBruker()).thenReturn("42")
-        `when`(altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1")).thenReturn(listOf(
-            AltinnOrganisasjon(organizationNumber = "1"),
-        ))
-
         val lagretSkjema = repository.save(
             testSkjema(
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
-                bedriftNr = "2",
-                opprettetAv = "Noen Andrè",
+                bedriftNr = `En annen BEDR`,
+                opprettetAv = `Helle helt annen person`,
             )
         )
 
         mockMvc.get("/skjemaV2/${lagretSkjema.id}") {
             accept(MediaType.APPLICATION_JSON)
+            token(`Marte med lesetilganger`)
         }.andExpect {
             status().isNotFound
         }
@@ -253,13 +287,12 @@ class PermitteringsskjemaIntegrationTest {
 
     @Test
     fun `POST skjemaV2 lagrer og returnerer og starter journalføring og kafka send`() {
-        `when`(tokenUtil.autentisertBruker()).thenReturn("42")
-
-        val lagretSkjema by lazy { repository.findAllByOpprettetAv("42").first() }
+        val lagretSkjema by lazy { repository.findAllByOpprettetAv(`Unni uten lesetilganger`).first() }
 
         mockMvc.post("/skjemaV2") {
             accept = MediaType.APPLICATION_JSON
             contentType = MediaType.APPLICATION_JSON
+            token(`Unni uten lesetilganger`)
             content = """
                 {
                   "yrkeskategorier": [
@@ -326,7 +359,7 @@ class PermitteringsskjemaIntegrationTest {
 fun testSkjema(
     id: UUID = UUID.randomUUID(),
     type: SkjemaType = SkjemaType.PERMITTERING_UTEN_LØNN,
-    bedriftNr: String = "999999999",
+    bedriftNr: String = `En annen BEDR`,
     bedriftNavn: String = "Bedrift AS",
     kontaktNavn: String = "Tore Toresen",
     kontaktEpost: String = "per@bedrift.no",

@@ -2,33 +2,28 @@ package no.nav.permitteringsskjemaapi
 
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import no.nav.permitteringsskjemaapi.permittering.testSkjema
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.flywaydb.core.Flyway
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
 
 
-@RunWith(SpringRunner::class)
-@MockBean(MultiIssuerConfiguration::class)
-@SpringBootTest(properties = ["spring.flyway.cleanDisabled=false"])
+@ExtendWith(SpringExtension::class)
+@SpringBootTest
 @ActiveProfiles("test")
 class PermitteringsskjemaRepositoryTest {
-
-
     @Autowired
     lateinit var repository: PermitteringsskjemaRepository
 
     @Autowired
     lateinit var flyway: Flyway
 
-    @Before
+    @BeforeEach
     fun clearDatabase() {
         flyway.clean()
         flyway.migrate()

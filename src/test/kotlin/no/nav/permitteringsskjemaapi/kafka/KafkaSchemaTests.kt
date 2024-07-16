@@ -4,33 +4,23 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.permitteringsskjemaapi.permittering.SkjemaType
 import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
 import no.nav.permitteringsskjemaapi.permittering.Årsakskode
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
-import org.junit.Assert.fail
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Assertions.fail
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
-@RunWith(SpringRunner::class)
-@SpringBootTest(properties = [
-    "spring.flyway.cleanDisabled=false",
-    "spring.flyway.validateOnMigrate=false"
-])
-@MockBean(MultiIssuerConfiguration::class)
+@ExtendWith(SpringExtension::class)
+@SpringBootTest
 @ActiveProfiles("test")
 @DirtiesContext
 class KafkaSchemaTests {
-    @MockBean
-    lateinit var kafkaTemplate: KafkaTemplate<String, String>
-
     @Autowired
     lateinit var mapper: ObjectMapper
 
@@ -60,7 +50,7 @@ class KafkaSchemaTests {
     private fun assertValid(json: String) {
         val errors = kafkaProdusent.validateAgainstSchema(json)
         if (errors.isNotEmpty()) {
-            fail("schema validation failed: ${errors.joinToString()}")
+            fail<Unit>("schema validation failed: ${errors.joinToString()}")
         }
     }
 

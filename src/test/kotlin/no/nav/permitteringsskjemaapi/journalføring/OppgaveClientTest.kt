@@ -23,7 +23,6 @@ import java.time.Instant
 
 private const val OPPGAVESCOPE = "api://oppgave/.default"
 
-@MockBean(MultiIssuerConfiguration::class)
 @RestClientTest(
     components = [
         OppgaveClient::class,

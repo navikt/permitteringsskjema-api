@@ -1,0 +1,47 @@
+spring:
+  flyway:
+    cleanDisabled: false
+    validateOnMigrate: false
+  datasource:
+    url: jdbc:postgresql://localhost:3456/permitteringsskjema-api?user=postgres&password=postgres
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+
+no.nav.security.jwt:
+  issuer:
+    tokenx:
+      discovery-url: http://localhost:9000/tokenx/.well-known/openid-configuration
+      accepted_audience: permitteringsskjema-test
+  client:
+    registration:
+      altinn-rettigheter-client:
+        token-endpoint-url: http://localhost:9000/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:token-exchange
+        authentication:
+          client-id: 1245
+          client-jwk: src/test/resources/jwk.json
+          client-auth-method: private_key_jwt
+        token-exchange:
+          audience: dev-gcp:arbeidsgiver:altinn-rettigheter-proxy
+
+azuread:
+  aadAccessTokenURL: http://localhost:9000/azuread/token
+  clientid: azureadid
+  azureClientSecret: azureadsecret
+
+ereg-services.baseUrl: "https://ereg-services.example.com"
+norg2.baseUrl: "https://norg2.example.com"
+dokarkiv:
+  scope: "api://dev-fss.teamdokumenthandtering.example.com/.default"
+  baseUrl: "https://dokarkiv.examples.com/rest/journalpostapi/v1"
+
+oppgave:
+  baseUrl: "https://oppgavetests.examples.com"
+  scope: "test"

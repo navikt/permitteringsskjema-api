@@ -4,14 +4,12 @@ import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.permittering.SkjemaType
 import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
 import no.nav.permitteringsskjemaapi.permittering.Årsakskode
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpMethod
 import org.springframework.test.web.client.MockRestServiceServer
@@ -22,7 +20,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
-@MockBean(MultiIssuerConfiguration::class)
 @RestClientTest(
     components = [DokgenClient::class],
 )

@@ -4,7 +4,6 @@ import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.permittering.SkjemaType
 import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
 import no.nav.permitteringsskjemaapi.permittering.Årsakskode
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
@@ -25,7 +24,6 @@ import java.util.*
 
 private const val dokarkivScope = "api://localhost/.default"
 
-@MockBean(MultiIssuerConfiguration::class)
 @RestClientTest(
     components = [
         DokarkivClient::class,

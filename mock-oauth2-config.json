@@ -1,0 +1,33 @@
+{
+  "interactiveLogin": false,
+  "tokenCallbacks": [
+    {
+      "issuerId": "tokenx",
+      "tokenExpiry": 120,
+      "requestMappings": [
+        {
+          "requestParam": "scope",
+          "match": "11111111111",
+          "claims": {
+            "pid": "11111111111",
+            "sub": "some-sub1",
+            "aud": [
+              "permitteringsskjema-test"
+            ]
+          }
+        },
+        {
+          "requestParam": "scope",
+          "match": "22222222222",
+          "claims": {
+            "pid": "22222222222",
+            "sub": "some-sub2",
+            "aud": [
+              "permitteringsskjema-test"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

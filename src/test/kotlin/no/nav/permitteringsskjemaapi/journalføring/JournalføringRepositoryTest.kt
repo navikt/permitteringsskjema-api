@@ -1,25 +1,21 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
+import jakarta.transaction.Transactional
+import no.nav.permitteringsskjemaapi.journalføring.Journalføring.State.*
 import org.flywaydb.core.Flyway
-import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
 
-@RunWith(SpringRunner::class)
-@SpringBootTest(properties = [
-    "spring.flyway.cleanDisabled=false",
-    "spring.flyway.validateOnMigrate=false"
-])
-@MockBean(MultiIssuerConfiguration::class)
+@ExtendWith(SpringExtension::class)
+@SpringBootTest
 @ActiveProfiles("test")
 @DirtiesContext
 class JournalføringRepositoryTest {
@@ -29,7 +25,7 @@ class JournalføringRepositoryTest {
     @Autowired
     lateinit var flyway: Flyway
 
-    @Before
+    @BeforeEach
     fun clearDatabase() {
         flyway.clean()
         flyway.migrate()
@@ -47,7 +43,7 @@ class JournalføringRepositoryTest {
         val nyStateReadBack = journalføringRepository.findById(eksempelId).get()
 
         assertEquals(eksempelId, nyStateReadBack.skjemaid)
-        assertEquals(Journalføring.State.NY, nyStateReadBack.state)
+        assertEquals(NY, nyStateReadBack.state)
         assertNull(nyStateReadBack.journalført)
 
         /* lagre og lese: Oppdatere til journalført-state */
@@ -58,13 +54,13 @@ class JournalføringRepositoryTest {
             kommunenummer = "1234",
             behandlendeEnhet = "4321",
         )
-        nyStateReadBack.state = Journalføring.State.JOURNALFORT
+        nyStateReadBack.state = JOURNALFORT
         journalføringRepository.save(nyStateReadBack)
 
         val journalførtStateReadBack = journalføringRepository.findById(eksempelId).get()
 
         assertNotNull(journalførtStateReadBack.journalført)
-        assertEquals(Journalføring.State.JOURNALFORT, journalførtStateReadBack.state)
+        assertEquals(JOURNALFORT, journalførtStateReadBack.state)
         assertEquals("someId", journalførtStateReadBack.journalført?.journalpostId)
         assertEquals("someTime", journalførtStateReadBack.journalført?.journalfortAt)
         assertEquals("1234", journalførtStateReadBack.journalført?.kommunenummer)
@@ -75,11 +71,11 @@ class JournalføringRepositoryTest {
             oppgaveId = "1122",
             oppgaveOpprettetAt = "1234-01-01",
         )
-        journalførtStateReadBack.state = Journalføring.State.FERDIG
+        journalførtStateReadBack.state = FERDIG
 
         journalføringRepository.save(journalførtStateReadBack)
         val ferdigStateReadback = journalføringRepository.findById(eksempelId).get()
-        assertEquals(Journalføring.State.FERDIG, ferdigStateReadback.state)
+        assertEquals(FERDIG, ferdigStateReadback.state)
 
         assertNotNull(ferdigStateReadback.journalført)
         assertEquals("someId", ferdigStateReadback.journalført?.journalpostId)
@@ -90,5 +86,72 @@ class JournalføringRepositoryTest {
         assertNotNull(ferdigStateReadback.oppgave)
         assertEquals("1122", ferdigStateReadback.oppgave?.oppgaveId)
         assertEquals("1234-01-01", ferdigStateReadback.oppgave?.oppgaveOpprettetAt)
+    }
+
+    @Test
+    @Transactional
+    fun findWorkOnEmptyDatabase() {
+        val work = journalføringRepository.findWork()
+        assertTrue(work.isEmpty)
+    }
+
+    @Test
+    @Transactional
+    fun `NY skjema needs more work`() {
+        val skjema = journalføringRepository.nyJournalføring(NY)
+        val work = journalføringRepository.findWork()
+        assertTrue(work.isPresent)
+        assertEquals(skjema.skjemaid, work.get().skjemaid)
+    }
+
+    @Test
+    @Transactional
+    fun `JOURNALFORT skjema needs more work`() {
+        val skjema = journalføringRepository.nyJournalføring(JOURNALFORT)
+        val work = journalføringRepository.findWork()
+        assertTrue(work.isPresent)
+        assertEquals(skjema.skjemaid, work.get().skjemaid)
+    }
+
+    @Test
+    @Transactional
+    fun `FERDIG skjema is finished`() {
+        journalføringRepository.nyJournalføring(FERDIG)
+        val work = journalføringRepository.findWork()
+        assertTrue(work.isEmpty)
+    }
+
+    @Test
+    @Transactional
+    fun `NEEDS_JOURNALFORING_ONLY skjema needs more work`() {
+        val skjema = journalføringRepository.nyJournalføring(NEEDS_JOURNALFORING_ONLY)
+        val work = journalføringRepository.findWork()
+        assertTrue(work.isPresent)
+        assertEquals(skjema.skjemaid, work.get().skjemaid)
+    }
+
+    @Test
+    @Transactional
+    fun `work in order of arrival`() {
+        val førsteSkjema = journalføringRepository.nyJournalføring(NY)
+        val andreSkjema = journalføringRepository.nyJournalføring(NY)
+        assertTrue(førsteSkjema.rowInsertedAt < andreSkjema.rowInsertedAt) /* precondition */
+
+        val work = journalføringRepository.findWork()
+        assertTrue(work.isPresent)
+        assertEquals(førsteSkjema.skjemaid, work.get().skjemaid)
+    }
+
+
+    companion object {
+        private fun JournalføringRepository.nyJournalføring(
+            state: Journalføring.State,
+        ): Journalføring {
+            val id = UUID.randomUUID()
+            return Journalføring(skjemaid = id).also {
+                it.state = state
+                save(it)
+            }
+        }
     }
 }
