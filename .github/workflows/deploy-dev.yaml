@@ -2,9 +2,6 @@ name: Deploy dev
 
 on: [workflow_dispatch]
 
-env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/permitteringsskjema-api:${{ github.sha }}
-
 jobs:
   deploy-to-dev-gcp:
     name: Deploy to dev-gcp
