@@ -20,9 +20,8 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           team: permittering-og-nedbemanning
-      - uses: nais/deploy/actions/deploy@v1
+      - uses: nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY_PERMITTERING_OG_NEDBEMANNING }}
           RESOURCE: nais/dev-gcp.yaml
-          IMAGE: ${{ steps.login.outputs.registry }}/permitteringsskjema-api:${{ github.sha }}
+          VAR: image=${{ steps.login.outputs.registry }}/permitteringsskjema-api:${{ github.sha }}
           CLUSTER: dev-gcp
