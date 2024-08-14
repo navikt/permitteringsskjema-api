@@ -26,6 +26,17 @@
               "permitteringsskjema-test"
             ]
           }
+        },
+        {
+          "requestParam": "scope",
+          "match": "33333333333",
+          "claims": {
+            "pid": "33333333333",
+            "sub": "some-sub2",
+            "aud": [
+              "permitteringsskjema-test"
+            ]
+          }
         }
       ]
     }

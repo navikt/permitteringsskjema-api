@@ -41,15 +41,20 @@ import java.util.*
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class PermitteringsskjemaIntegrationTest {
+class PermitteringsskjemaIntegrationTest  {
     companion object {
-        const val `Unni uten lesetilganger` = "11111111111"
+        /* Marte eier en bedrift, og har alle rettigheter i den. */
         const val `Marte med lesetilganger` = "22222222222"
-        const val `Helle helt annen person` = "33333333333"
+        val `Martes første BEDR` = AltinnOrganisasjon(organizationNumber = "11111111")
+        val `Martes andre BEDR` = AltinnOrganisasjon(organizationNumber = "2222222")
 
-        const val `Martes første BEDR` = "11111111"
-        const val `Martes andre BEDR` = "2222222"
-        const val `En annen BEDR` = "999999999"
+        /* Unni jobber i Marte sin bedrift, så har "vilkårlig reportee-tilgang", men har ikke
+         * enkteltrettigheten for å kunne lese innsende skjemaer. */
+        const val `Unni uten lesetilganger` = "11111111111"
+
+         /* Helle jobber et helt annet sted, og har tilganger i sin bedrift, men ingen i Marte sin. */
+        const val `Helle helt annen person` = "33333333333"
+        val `En annen BEDR` = AltinnOrganisasjon(organizationNumber = "999999999")
     }
 
     @TestConfiguration
@@ -57,8 +62,11 @@ class PermitteringsskjemaIntegrationTest {
         @Bean
         @Primary
         fun altinnService(tokenUtil: TokenUtil) = object: AltinnService {
-            override fun hentOrganisasjoner(): List<AltinnOrganisasjon> {
-                throw NotImplementedError("Ikke brukt i testen")
+            override fun hentOrganisasjoner(): List<AltinnOrganisasjon> = when(val fnr = tokenUtil.fnrFraToken) {
+                `Unni uten lesetilganger` -> listOf(`Martes første BEDR`, `Martes andre BEDR`)
+                `Marte med lesetilganger` -> listOf(`Martes første BEDR`, `Martes andre BEDR`)
+                `Helle helt annen person` -> listOf(`En annen BEDR`)
+                else -> throw NotImplementedError("Fnr ikke brukt i testen: $fnr")
             }
 
             override fun hentOrganisasjonerBasertPåRettigheter(
@@ -68,14 +76,14 @@ class PermitteringsskjemaIntegrationTest {
                 require(serviceKode == "5810" && serviceEdition == "1")
                 return when (val fnr = tokenUtil.fnrFraToken) {
                     `Unni uten lesetilganger` -> emptyList()
-                    `Marte med lesetilganger` -> listOf(
-                        AltinnOrganisasjon(organizationNumber = `Martes første BEDR`),
-                        AltinnOrganisasjon(organizationNumber = `Martes andre BEDR`),
-                    )
-                    else -> throw NotImplementedError("Ikke $fnr brukt i testen")
+                    `Marte med lesetilganger` -> listOf(`Martes første BEDR`, `Martes andre BEDR`)
+                    `Helle helt annen person` -> listOf(`En annen BEDR`)
+                    else -> throw NotImplementedError("Fnr ikke brukt i testen: $fnr")
                 }
             }
         }
+
+
     }
 
     @MockBean
@@ -102,7 +110,7 @@ class PermitteringsskjemaIntegrationTest {
         flyway.migrate()
     }
 
-    val now = Instant.now().truncatedTo(ChronoUnit.SECONDS)
+    val now = Instant.now().truncatedTo(ChronoUnit.SECONDS)!!
 
     var client: HttpClient = HttpClient.newHttpClient()
 
@@ -124,7 +132,7 @@ class PermitteringsskjemaIntegrationTest {
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 1 min siden",
-                bedriftNr = `Martes første BEDR`,
+                bedriftNr = `Martes første BEDR`.organizationNumber!!,
                 sendtInnTidspunkt = now.minus(1, ChronoUnit.MINUTES),
                 opprettetAv = `Unni uten lesetilganger`,
             )
@@ -132,7 +140,7 @@ class PermitteringsskjemaIntegrationTest {
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 5 min siden",
-                bedriftNr = `Martes andre BEDR`,
+                bedriftNr = `Martes andre BEDR`.organizationNumber!!,
                 sendtInnTidspunkt = now.minus(5, ChronoUnit.MINUTES),
                 opprettetAv = `Unni uten lesetilganger`,
             ),
@@ -140,7 +148,7 @@ class PermitteringsskjemaIntegrationTest {
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 10 min siden",
-                bedriftNr = `En annen BEDR`,
+                bedriftNr = `En annen BEDR`.organizationNumber!!,
                 sendtInnTidspunkt = now.minus(10, ChronoUnit.MINUTES),
                 opprettetAv = `Marte med lesetilganger`,
             )
@@ -148,7 +156,7 @@ class PermitteringsskjemaIntegrationTest {
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 2 min siden",
-                bedriftNr = `En annen BEDR`,
+                bedriftNr = `En annen BEDR`.organizationNumber!!,
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
                 opprettetAv = `Marte med lesetilganger`,
             )
@@ -224,7 +232,7 @@ class PermitteringsskjemaIntegrationTest {
         val lagretSkjema = repository.save(
             testSkjema(
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
-                bedriftNr = `Martes første BEDR`,
+                bedriftNr = `Martes første BEDR`.organizationNumber!!,
                 opprettetAv = `Unni uten lesetilganger`,
             )
         )
@@ -272,7 +280,7 @@ class PermitteringsskjemaIntegrationTest {
         val lagretSkjema = repository.save(
             testSkjema(
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
-                bedriftNr = `En annen BEDR`,
+                bedriftNr = `En annen BEDR`.organizationNumber!!,
                 opprettetAv = `Helle helt annen person`,
             )
         )
@@ -302,7 +310,7 @@ class PermitteringsskjemaIntegrationTest {
                       "styrk08": "5120.03"
                     }
                   ],
-                  "bedriftNr": "910825569",
+                  "bedriftNr": "${`Martes andre BEDR`.organizationNumber}",
                   "bedriftNavn": "STORFOSNA OG FREDRIKSTAD REGNSKAP",
                   "ukjentSluttDato": false,
                   "sluttDato": "2023-12-14T23:00:00.000Z",
@@ -318,14 +326,16 @@ class PermitteringsskjemaIntegrationTest {
                 }
                 """
         }.andExpect {
-            status().isOk
+            status {
+                isOk()
+            }
             content {
                 json(
                     """
                     {
                       "id": "${lagretSkjema.id}",
                       "type": "PERMITTERING_UTEN_LØNN",
-                      "bedriftNr": "910825569",
+                      "bedriftNr": "${`Martes andre BEDR`.organizationNumber}",
                       "bedriftNavn": "STORFOSNA OG FREDRIKSTAD REGNSKAP",
                       "kontaktNavn": "asdf",
                       "kontaktEpost": "ken@g.no",
@@ -354,12 +364,49 @@ class PermitteringsskjemaIntegrationTest {
         verify(journalføringService).startJournalføring(skjemaid = lagretSkjema.id)
         verify(permitteringsmeldingKafkaService).scheduleSend(skjemaid = lagretSkjema.id)
     }
+
+    @Test
+    fun `POST skjemaV2 returnerer 403 hvis bruker ikke har tilgang til virksomhet`() {
+        mockMvc.post("/skjemaV2") {
+            accept = MediaType.APPLICATION_JSON
+            contentType = MediaType.APPLICATION_JSON
+            token(`Helle helt annen person`)
+            content = """
+                {
+                  "yrkeskategorier": [
+                    {
+                      "konseptId": 21837,
+                      "label": "Kokkeassistent",
+                      "styrk08": "5120.03"
+                    }
+                  ],
+                  "bedriftNr": "${`Martes andre BEDR`.organizationNumber}",
+                  "bedriftNavn": "STORFOSNA OG FREDRIKSTAD REGNSKAP",
+                  "ukjentSluttDato": false,
+                  "sluttDato": "2023-12-14T23:00:00.000Z",
+                  "startDato": "2023-12-09T23:00:00.000Z",
+                  "kontaktNavn": "asdf",
+                  "kontaktEpost": "ken@g.no",
+                  "kontaktTlf": "12341234",
+                  "antallBerørt": 12,
+                  "årsakskode": "RÅSTOFFMANGEL",
+                  "årsakstekst": "Råstoffmangel",
+                  "type": "PERMITTERING_UTEN_LØNN",
+                  "fritekst": "### Yrker\nKokkeassistent\n### Årsak\nRåstoffmangel"
+                }
+                """
+        }.andExpect {
+            status {
+                isForbidden()
+            }
+        }
+    }
 }
 
 fun testSkjema(
     id: UUID = UUID.randomUUID(),
     type: SkjemaType = SkjemaType.PERMITTERING_UTEN_LØNN,
-    bedriftNr: String = `En annen BEDR`,
+    bedriftNr: String = `En annen BEDR`.organizationNumber!!,
     bedriftNavn: String = "Bedrift AS",
     kontaktNavn: String = "Tore Toresen",
     kontaktEpost: String = "per@bedrift.no",

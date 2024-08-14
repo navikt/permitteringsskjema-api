@@ -5,6 +5,7 @@ import jakarta.validation.Valid
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException
+import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
 import no.nav.permitteringsskjemaapi.util.TokenUtil
@@ -67,6 +68,10 @@ class PermitteringsskjemaController(
     @PostMapping("/skjemaV2")
     fun sendInn(@Valid @RequestBody skjema: PermitteringsskjemaV2DTO): PermitteringsskjemaV2DTO {
         val fnr = fnrExtractor.autentisertBruker()
+
+        if (altinnService.hentOrganisasjoner().none { it.organizationNumber == skjema.bedriftNr }) {
+            throw IkkeTilgangException()
+        }
 
         /**
          * TODO:
