@@ -326,7 +326,9 @@ class PermitteringsskjemaIntegrationTest  {
                 }
                 """
         }.andExpect {
-            status().isOk
+            status {
+                isOk()
+            }
             content {
                 json(
                     """
@@ -394,7 +396,9 @@ class PermitteringsskjemaIntegrationTest  {
                 }
                 """
         }.andExpect {
-            status().isUnauthorized
+            status {
+                isForbidden()
+            }
         }
     }
 }

@@ -80,7 +80,7 @@ class PermitteringExceptionHandler(private val tokenUtil: TokenUtil) : ResponseE
 
     @ExceptionHandler(value = [IkkeTilgangException::class])
     protected fun ikkeTilgang(e: Exception, req: WebRequest): ResponseEntity<Any>? {
-        return logAndHandle(HttpStatus.UNAUTHORIZED, e, req)
+        return logAndHandle(HttpStatus.FORBIDDEN, e, req)
     }
 
     @ExceptionHandler(value = [IkkeFunnetException::class])
