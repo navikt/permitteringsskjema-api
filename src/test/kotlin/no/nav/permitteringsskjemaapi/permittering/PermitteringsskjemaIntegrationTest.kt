@@ -27,7 +27,6 @@ import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -166,7 +165,9 @@ class PermitteringsskjemaIntegrationTest  {
             accept(MediaType.APPLICATION_JSON)
             token(`Marte med lesetilganger`)
         }.andExpect {
-            status().isOk
+            status {
+                isOk()
+            }
         }.andReturn().response.contentAsString
 
         val jsonNode : JsonNode = objectMapper.readValue(jsonResponse)
@@ -193,7 +194,9 @@ class PermitteringsskjemaIntegrationTest  {
             accept(MediaType.APPLICATION_JSON)
             token(`Unni uten lesetilganger`)
         }.andExpect {
-            status().isOk
+            status {
+                isOk()
+            }
             content {
                 json(
                     """
@@ -240,8 +243,11 @@ class PermitteringsskjemaIntegrationTest  {
         mockMvc.get("/skjemaV2/${lagretSkjema.id}") {
             accept(MediaType.APPLICATION_JSON)
             token(`Marte med lesetilganger`)
-        }.andExpect {
-            status().isOk
+        }
+        .andExpect {
+            status {
+                isOk()
+            }
             content {
                 json(
                     """
@@ -289,7 +295,9 @@ class PermitteringsskjemaIntegrationTest  {
             accept(MediaType.APPLICATION_JSON)
             token(`Marte med lesetilganger`)
         }.andExpect {
-            status().isNotFound
+            status {
+                isNotFound()
+            }
         }
     }
 
