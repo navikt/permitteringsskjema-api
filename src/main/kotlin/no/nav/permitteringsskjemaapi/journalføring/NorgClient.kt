@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
+import no.nav.permitteringsskjemaapi.journalføring.NorgClient.Companion.OSLO_ARBEIDSLIVSENTER_KODE
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -9,7 +10,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 
 fun interface NorgClient {
-    fun hentBehandlendeEnhet(kommuneNummer: String): String?
+    fun hentBehandlendeEnhet(kommuneNummer: String): String
 
     companion object {
         const val OSLO_ARBEIDSLIVSENTER_KODE = "0391"
@@ -36,7 +37,7 @@ class NorgClientImpl(
         .build()
 
 
-    override fun hentBehandlendeEnhet(kommuneNummer: String): String? {
+    override fun hentBehandlendeEnhet(kommuneNummer: String): String {
         val norg2ResponseListe = try {
             restTemplate.exchange(
                 "/norg2/api/v1/arbeidsfordeling/enheter/bestmatch",
@@ -48,11 +49,11 @@ class NorgClientImpl(
             throw RuntimeException("Hente behandlendeEnhet for $kommuneNummer feilet", e)
         }
 
-        // TODO: Burde vi returnere Oslo hvis vi ikke finner noe?
         return norg2ResponseListe.asSequence()
             .filter { it["status"] == "Aktiv" && it.containsKey("enhetNr") }
             .firstOrNull()
             ?.let { it["enhetNr"].toString() }
+            ?: OSLO_ARBEIDSLIVSENTER_KODE
     }
 
 
