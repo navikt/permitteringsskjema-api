@@ -2,7 +2,7 @@ package no.nav.permitteringsskjemaapi.exceptions
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import no.nav.permitteringsskjemaapi.config.logger
-import no.nav.permitteringsskjemaapi.util.TokenUtil
+import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
 import no.nav.security.token.support.core.exceptions.JwtTokenValidatorException
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.http.HttpHeaders
@@ -21,7 +21,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.stream.Collectors
 
 @ControllerAdvice
-class PermitteringExceptionHandler(private val tokenUtil: TokenUtil) : ResponseEntityExceptionHandler() {
+class PermitteringExceptionHandler(private val authenticatedUserHolder: AuthenticatedUserHolder) : ResponseEntityExceptionHandler() {
     private val log = logger()
 
     @ResponseBody
@@ -30,7 +30,7 @@ class PermitteringExceptionHandler(private val tokenUtil: TokenUtil) : ResponseE
     )
     fun handleHttpStatusCodeException(e: HttpStatusCodeException, request: WebRequest): ResponseEntity<Any>? {
         return if (e.statusCode.isSameCodeAs(HttpStatus.UNAUTHORIZED) || e.statusCode.isSameCodeAs(HttpStatus.FORBIDDEN)) {
-            logAndHandle(e.statusCode, e, request, messages = listOf(tokenUtil.expiryDate))
+            logAndHandle(e.statusCode, e, request, messages = listOf(authenticatedUserHolder.expiryDate))
         } else
             logAndHandle(e.statusCode, e, request, messages = listOf<Any>())
     }
