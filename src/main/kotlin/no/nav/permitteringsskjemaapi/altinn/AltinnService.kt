@@ -124,7 +124,6 @@ class AltinnTilgangerService(
                 ResourceAccessException::class.java,
             )
         )
-        .rootUri("http://arbeidsgiver-altinn-tilganger")
         .build()
 
     override fun hentOrganisasjoner() = hentAltinnTilganger().tilgangerFlatt()
@@ -151,11 +150,11 @@ class AltinnTilgangerService(
 
         val response = restTemplate.exchange(
             RequestEntity
-                .method(HttpMethod.POST, "/altinn-tilganger")
+                .method(HttpMethod.POST, "http://arbeidsgiver-altinn-tilganger/altinn-tilganger")
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("Authorization", "Bearer $token")
-                .body(""),
+                .build(),
             AltinnTilgangerResponse::class.java
         )
 

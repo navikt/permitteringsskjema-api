@@ -1,9 +1,12 @@
 package no.nav.permitteringsskjemaapi.altinn
 import no.nav.permitteringsskjemaapi.tokenx.TokenExchangeClient
+import no.nav.permitteringsskjemaapi.tokenx.TokenXToken
 import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.mockito.Answers
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -24,10 +27,8 @@ class AltinnTilgangerServiceTest {
     @MockBean
     lateinit var authenticatedUserHolder: AuthenticatedUserHolder
 
-    @MockBean(
-        answer = Answers.RETURNS_MOCKS
-    )
-    lateinit var tokenExchangeClient: TokenExchangeClient
+    @MockBean
+    lateinit var tokenXClient: TokenExchangeClient
 
     @Autowired
     lateinit var altinnServer: MockRestServiceServer
@@ -37,7 +38,12 @@ class AltinnTilgangerServiceTest {
 
     @Test
     fun `henter organisasjoner fra altinn tilganger proxy` (){
-        altinnServer.expect(requestTo("/altinn-tilganger"))
+        `when`(authenticatedUserHolder.token).thenReturn("user_token")
+        `when`(tokenXClient.exchange("user_token", "local:fager:arbeidsgiver-altinn-tilganger"))
+            .thenReturn(TokenXToken(access_token = "obo_tokenx_token"))
+
+
+        altinnServer.expect(requestTo("http://arbeidsgiver-altinn-tilganger/altinn-tilganger"))
             .andExpect(method(POST))
             .andRespond(
                 withSuccess(altinnTilgangerResponse, APPLICATION_JSON)
