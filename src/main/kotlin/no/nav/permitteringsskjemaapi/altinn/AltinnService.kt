@@ -147,7 +147,6 @@ class AltinnTilgangerService(
             authenticatedUserHolder.token,
             "$naisCluster:fager:arbeidsgiver-altinn-tilganger"
         )
-        log.info("fetched token for audience ${naisCluster}:fager:arbeidsgiver-altinn-tilganger")
         val response = restTemplate.exchange(
             RequestEntity
                 .method(HttpMethod.POST, "http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
