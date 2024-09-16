@@ -155,7 +155,7 @@ class AltinnTilgangerService(
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .header("Authorization", "Bearer $token")
-                .build(),
+                .body(""),
             AltinnTilgangerResponse::class.java
         )
 
