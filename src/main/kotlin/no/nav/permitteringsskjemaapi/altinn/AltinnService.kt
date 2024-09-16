@@ -22,6 +22,7 @@ import org.springframework.web.client.RestClientException
 import org.springframework.web.client.exchange
 import java.net.SocketException
 import javax.net.ssl.SSLHandshakeException
+import kotlin.math.log
 
 interface AltinnService {
     fun hentOrganisasjoner(): List<Organisasjon>
@@ -114,6 +115,7 @@ class AltinnTilgangerService(
     @Value("\${nais.cluster.name}") private val naisCluster: String,
 ) : AltinnService {
 
+    private val log = logger()
     private val restTemplate = restTemplateBuilder
         .additionalInterceptors(
             retryInterceptor(
@@ -141,19 +143,19 @@ class AltinnTilgangerService(
     }
 
     private fun hentAltinnTilganger(): AltinnTilgangerResponse {
-        val token = TokenXToken(
-            tokenExchangeClient.exchange(
-                authenticatedUserHolder.token,
-                "$naisCluster:fager:arbeidsgiver-altinn-tilganger"
-            ).access_token!!
+        val token = tokenExchangeClient.exchange(
+            authenticatedUserHolder.token,
+            "$naisCluster:fager:arbeidsgiver-altinn-tilganger"
         )
-
+        log.info("fetched token for audience ${naisCluster}:fager:arbeidsgiver-altinn-tilganger")
         val response = restTemplate.exchange(
             RequestEntity
-                .method(HttpMethod.POST, "http://arbeidsgiver-altinn-tilganger/altinn-tilganger")
+                .method(HttpMethod.POST, "http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .header("Authorization", "Bearer $token")
+                .headers {
+                    it.setBearerAuth(token.access_token!!)
+                }
                 .build(),
             AltinnTilgangerResponse::class.java
         )

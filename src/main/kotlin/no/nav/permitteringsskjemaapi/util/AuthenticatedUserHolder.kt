@@ -15,7 +15,7 @@ class AuthenticatedUserHolder(private val ctxHolder: TokenValidationContextHolde
 
     private val jwtToken: JwtToken
         get() = ctxHolder.getTokenValidationContext()
-            .firstValidToken ?: throw NoSuchElementException("no valid token. how did you get so far without a valid token?")
+            .getJwtToken(TOKENX_ISSUER) ?: throw NoSuchElementException("no valid token. how did you get so far without a valid token?")
 
     private val claimSet: JwtTokenClaims
         get() = ctxHolder.getTokenValidationContext().getClaims(TOKENX_ISSUER)

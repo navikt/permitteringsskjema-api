@@ -43,7 +43,7 @@ class AltinnTilgangerServiceTest {
             .thenReturn(TokenXToken(access_token = "obo_tokenx_token"))
 
 
-        altinnServer.expect(requestTo("http://arbeidsgiver-altinn-tilganger/altinn-tilganger"))
+        altinnServer.expect(requestTo("http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger"))
             .andExpect(method(POST))
             .andRespond(
                 withSuccess(altinnTilgangerResponse, APPLICATION_JSON)
