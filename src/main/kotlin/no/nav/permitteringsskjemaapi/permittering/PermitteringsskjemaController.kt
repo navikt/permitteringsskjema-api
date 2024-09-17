@@ -8,7 +8,7 @@ import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException
 import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
-import no.nav.permitteringsskjemaapi.util.TokenUtil
+import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -20,7 +20,7 @@ import java.util.*
 @RestController
 @Protected
 class PermitteringsskjemaController(
-    private val fnrExtractor: TokenUtil,
+    private val fnrExtractor: AuthenticatedUserHolder,
     private val altinnService: AltinnService,
     private val repository: PermitteringsskjemaRepository,
     private val journalføringService: JournalføringService,
@@ -86,7 +86,7 @@ class PermitteringsskjemaController(
 
     fun hentAlleSkjemaBasertPåRettighet() =
         altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1").flatMap {
-            repository.findAllByBedriftNr(it.organizationNumber!!)
+            repository.findAllByBedriftNr(it.organizationNumber)
         }
 }
 
