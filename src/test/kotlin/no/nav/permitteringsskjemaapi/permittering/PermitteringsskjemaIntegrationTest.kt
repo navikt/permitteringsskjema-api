@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
+import no.nav.permitteringsskjemaapi.altinn.AltinnTilgang
 import no.nav.permitteringsskjemaapi.altinn.Organisasjon
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
@@ -66,6 +67,10 @@ class PermitteringsskjemaIntegrationTest  {
         @Bean
         @Primary
         fun altinnService(authenticatedUserHolder: AuthenticatedUserHolder) = object: AltinnService {
+            override fun hentOrganisasjonstre(): List<AltinnTilgang> {
+                TODO("Not yet implemented")
+            }
+
             override fun hentOrganisasjoner(): List<Organisasjon> = when(val fnr = authenticatedUserHolder.fnr) {
                 `Unni uten lesetilganger` -> listOf(`Martes første BEDR`, `Martes andre BEDR`)
                 `Marte med lesetilganger` -> listOf(`Martes første BEDR`, `Martes andre BEDR`)

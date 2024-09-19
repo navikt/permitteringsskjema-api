@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.exceptions.PermitteringsApiException
 import no.nav.permitteringsskjemaapi.tokenx.TokenExchangeClient
-import no.nav.permitteringsskjemaapi.tokenx.TokenXToken
 import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
@@ -22,9 +21,9 @@ import org.springframework.web.client.RestClientException
 import org.springframework.web.client.exchange
 import java.net.SocketException
 import javax.net.ssl.SSLHandshakeException
-import kotlin.math.log
 
 interface AltinnService {
+    fun hentOrganisasjonstre(): List<AltinnTilgang>
     fun hentOrganisasjoner(): List<Organisasjon>
     fun hentOrganisasjonerBasertPåRettigheter(serviceKode: String, serviceEdition: String): List<Organisasjon>
 }
@@ -38,6 +37,7 @@ class AltinnServiceImpl(
     restTemplateBuilder: RestTemplateBuilder,
 ) : AltinnService {
 
+    private val log = logger()
     private val restTemplate = restTemplateBuilder
         .additionalInterceptors(
             ClientHttpRequestInterceptor { request, body, execution ->
@@ -50,7 +50,7 @@ class AltinnServiceImpl(
         )
         .build()
 
-    private val log = logger()
+    override fun hentOrganisasjonstre(): List<AltinnTilgang> = emptyList()
 
     override fun hentOrganisasjoner() = getFromAltinn(
         "${altinnConfig.altinnProxyUrl}reportees/?ForceEIAuthentication&\$filter=Type+ne+'Person'+and+Status+eq+'Active'",
@@ -77,7 +77,7 @@ class AltinnServiceImpl(
                     it.size >= PAGE_SIZE
                 } ?: false
             } catch (exception: RestClientException) {
-                log.error("Feil fra Altinn med spørring: : Exception:" + exception.message)
+                log.error("Feil fra Altinn med spørring: : Exception:" + exception.message, exception)
                 throw PermitteringsApiException("Det har skjedd en feil ved oppslag mot Altinn. Forsøk å laste siden på nytt")
             }
             pageNumber += 1
@@ -115,7 +115,6 @@ class AltinnTilgangerService(
     @Value("\${nais.cluster.name}") private val naisCluster: String,
 ) : AltinnService {
 
-    private val log = logger()
     private val restTemplate = restTemplateBuilder
         .additionalInterceptors(
             retryInterceptor(
@@ -127,6 +126,8 @@ class AltinnTilgangerService(
             )
         )
         .build()
+
+    override fun hentOrganisasjonstre() = hentAltinnTilganger().hierarki
 
     override fun hentOrganisasjoner() = hentAltinnTilganger().tilgangerFlatt()
 
@@ -163,7 +164,7 @@ class AltinnTilgangerService(
     }
 
     private fun flattenUnderOrganisasjoner(
-        altinnTilgang: AltinnTilgangerResponse.AltinnTilgang,
+        altinnTilgang: AltinnTilgang,
         parentOrgNr: String? = null
     ): List<Organisasjon> {
         val parent = Organisasjon(
@@ -187,13 +188,14 @@ private data class AltinnTilgangerResponse(
     val hierarki: List<AltinnTilgang>,
     val orgNrTilTilganger: Map<String, Set<String>>,
     val tilgangTilOrgNr: Map<String, Set<String>>,
-) {
-    data class AltinnTilgang(
-        val orgNr: String,
-        val altinn3Tilganger: Set<String>,
-        val altinn2Tilganger: Set<String>,
-        val underenheter: List<AltinnTilgang>,
-        val name: String,
-        val organizationForm: String,
-    )
-}
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AltinnTilgang(
+    val orgNr: String,
+    val altinn3Tilganger: Set<String>,
+    val altinn2Tilganger: Set<String>,
+    val underenheter: List<AltinnTilgang>,
+    val name: String,
+    val organizationForm: String,
+)

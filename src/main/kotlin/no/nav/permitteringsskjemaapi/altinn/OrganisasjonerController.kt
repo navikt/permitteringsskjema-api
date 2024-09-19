@@ -11,4 +11,7 @@ class OrganisasjonerController(
 
     @GetMapping("/organisasjoner")
     fun hentOrganisasjoner() = altinnService.hentOrganisasjoner()
+
+    @GetMapping("/organisasjoner-v2")
+    fun hentOrganisasjonerV2() = altinnService.hentOrganisasjonstre()
 }
