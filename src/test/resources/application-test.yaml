@@ -14,25 +14,20 @@ management:
     health:
       show-details: always
 
+token.x:
+  privateJwk: ${TOKEN_X_PRIVATE_JWK:}
+  clientId: ${TOKEN_X_CLIENT_ID:}
+  tokenEndpoint: ${TOKEN_X_TOKEN_ENDPOINT:}
+  issuer: ${TOKEN_X_ISSUER:}
+
 no.nav.security.jwt:
   issuer:
     tokenx:
-      discovery-url: http://localhost:9000/tokenx/.well-known/openid-configuration
+      discovery-url: http://localhost:9100/tokenx/.well-known/openid-configuration
       accepted_audience: permitteringsskjema-test
-  client:
-    registration:
-      altinn-rettigheter-client:
-        token-endpoint-url: http://localhost:9000/oauth2/v2.0/token
-        grant-type: urn:ietf:params:oauth:grant-type:token-exchange
-        authentication:
-          client-id: 1245
-          client-jwk: src/test/resources/jwk.json
-          client-auth-method: private_key_jwt
-        token-exchange:
-          audience: dev-gcp:arbeidsgiver:altinn-rettigheter-proxy
 
 azuread:
-  aadAccessTokenURL: http://localhost:9000/azuread/token
+  aadAccessTokenURL: http://localhost:9100/azuread/token
   clientid: azureadid
   azureClientSecret: azureadsecret
 

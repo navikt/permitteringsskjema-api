@@ -19,9 +19,9 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 
 @ActiveProfiles("local")
 @RestClientTest(
-    AltinnTilgangerService::class,
+    AltinnServiceImpl::class,
 )
-class AltinnTilgangerServiceTest {
+class AltinnServiceTest {
 
     @MockBean
     lateinit var authenticatedUserHolder: AuthenticatedUserHolder
@@ -33,7 +33,7 @@ class AltinnTilgangerServiceTest {
     lateinit var altinnServer: MockRestServiceServer
 
     @Autowired
-    lateinit var altinnTilgangerService: AltinnTilgangerService
+    lateinit var altinnService: AltinnService
 
     @Test
     fun `henter organisasjoner fra altinn tilganger proxy` (){
@@ -48,12 +48,12 @@ class AltinnTilgangerServiceTest {
                 withSuccess(altinnTilgangerResponse, APPLICATION_JSON)
             )
 
-        val organisasjoner = altinnTilgangerService.hentOrganisasjoner()
+        val organisasjoner = altinnService.hentOrganisasjoner()
 
         assertTrue(organisasjoner.size == 2)
 
-        val parent = organisasjoner.first( {it.organizationNumber == "810825472"} )
-        val underenhet = organisasjoner.first( {it.organizationNumber == "910825496"} )
+        val parent = organisasjoner.first { it.organizationNumber == "810825472" }
+        val underenhet = organisasjoner.first { it.organizationNumber == "910825496" }
 
         assertTrue(parent.name == "Arbeids- og Velferdsetaten")
         assertTrue(underenhet.name == "SLEMMESTAD OG STAVERN REGNSKAP")

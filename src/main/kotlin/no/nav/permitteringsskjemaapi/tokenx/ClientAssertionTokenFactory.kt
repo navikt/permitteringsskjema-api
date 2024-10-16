@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.util.*
 
-@Profile("local", "dev-gcp", "prod-gcp")
 @Component
 class ClientAssertionTokenFactory(val properties: TokenXProperties) {
     val clientAssertion: String

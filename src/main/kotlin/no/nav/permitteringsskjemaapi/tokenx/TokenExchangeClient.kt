@@ -14,7 +14,7 @@ interface TokenExchangeClient {
     fun exchange(subjectToken: String, audience: String): TokenXToken
 }
 
-@Profile("local", "dev-gcp", "prod-gcp")
+
 @Component
 class TokenExchangeClientImpl(
     private val properties: TokenXProperties,

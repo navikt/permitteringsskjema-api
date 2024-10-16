@@ -125,7 +125,7 @@ class PermitteringsskjemaIntegrationTest  {
 
     fun MockHttpServletRequestDsl.token(pid: String) {
         val response = client.send(
-            HttpRequest.newBuilder(URI.create("http://localhost:9000/tokenx/token"))
+            HttpRequest.newBuilder(URI.create("http://localhost:9100/tokenx/token"))
                 .header("content-type", "application/x-www-form-urlencoded")
                 .POST(
                     HttpRequest.BodyPublishers.ofString("grant_type=client_credentials&client_id=1234&client_secret=1234&scope=$pid"))

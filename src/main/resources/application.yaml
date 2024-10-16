@@ -57,6 +57,11 @@ token.x:
   tokenEndpoint: ${TOKEN_X_TOKEN_ENDPOINT:}
   issuer: ${TOKEN_X_ISSUER:}
 
+no.nav.security.jwt.issuer:
+  tokenx:
+    discoveryurl: ${TOKEN_X_WELL_KNOWN_URL:}
+    accepted_audience: ${TOKEN_X_CLIENT_ID:}
+
 ---
 
 spring:
@@ -65,25 +70,6 @@ spring:
       on-profile: dev-gcp
   flyway:
     locations: classpath:/db/migration, classpath:/db/privileges
-
-no.nav.security.jwt:
-  client:
-    registration:
-      altinn-rettigheter-client:
-        token-endpoint-url: ${TOKEN_X_TOKEN_ENDPOINT}
-        grant-type: urn:ietf:params:oauth:grant-type:token-exchange
-        authentication:
-          client-id: ${TOKEN_X_CLIENT_ID}
-          client-jwk: ${TOKEN_X_PRIVATE_JWK}
-          client-auth-method: private_key_jwt
-        token-exchange:
-          audience: dev-gcp:arbeidsgiver:altinn-rettigheter-proxy
-  issuer.tokenx:
-    discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
-    accepted_audience: ${TOKEN_X_CLIENT_ID}
-
-altinn:
-  altinnProxyUrl: http://altinn-rettigheter-proxy.arbeidsgiver/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
 
 ereg-services.baseUrl: "https://ereg-services.dev-fss-pub.nais.io"
 norg2.baseUrl: "https://norg2.dev-fss-pub.nais.io"
@@ -104,31 +90,11 @@ spring:
   flyway:
     locations: classpath:/db/migration, classpath:/db/privileges
 
-no.nav.security.jwt:
-  client:
-    registration:
-      altinn-rettigheter-client:
-        token-endpoint-url: ${TOKEN_X_TOKEN_ENDPOINT}
-        grant-type: urn:ietf:params:oauth:grant-type:token-exchange
-        authentication:
-          client-id: ${TOKEN_X_CLIENT_ID}
-          client-jwk: ${TOKEN_X_PRIVATE_JWK}
-          client-auth-method: private_key_jwt
-        token-exchange:
-          audience: prod-gcp:arbeidsgiver:altinn-rettigheter-proxy
-  issuer.tokenx:
-    discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
-    accepted_audience: ${TOKEN_X_CLIENT_ID}
-
-altinn:
-  altinnProxyUrl: http://altinn-rettigheter-proxy.arbeidsgiver/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/
-
 ereg-services.baseUrl: "https://ereg-services.prod-fss-pub.nais.io"
 norg2.baseUrl: "https://norg2.prod-fss-pub.nais.io"
 dokarkiv:
   scope: "api://prod-fss.teamdokumenthandtering.dokarkiv/.default"
   baseUrl: "https://dokarkiv.prod-fss-pub.nais.io/rest/journalpostapi/v1"
-
 
 oppgave:
   baseUrl: "https://oppgave.prod-fss-pub.nais.io"
