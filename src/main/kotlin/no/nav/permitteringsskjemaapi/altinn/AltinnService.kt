@@ -108,8 +108,8 @@ private data class AltinnTilgangerResponse(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AltinnTilgang(
     val orgNr: String,
-    val altinn3Tilganger: Set<String>,
-    val altinn2Tilganger: Set<String>,
+    //val altinn3Tilganger: Set<String>,
+    //val altinn2Tilganger: Set<String>,
     val underenheter: List<AltinnTilgang>,
     val name: String,
     val organizationForm: String,
