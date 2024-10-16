@@ -9,16 +9,8 @@ spec:
   image: {{{image}}}
   liveness:
     path: /permitteringsskjema-api/internal/actuator/info
-    initialDelay: 60
-    timeout: 1
-    periodSeconds: 10
-    failureThreshold: 3
   readiness:
     path: /permitteringsskjema-api/internal/actuator/info
-    initialDelay: 60
-    timeout: 1
-    periodSeconds: 10
-    failureThreshold: 3
   prometheus:
     enabled: true
     path: /permitteringsskjema-api/internal/actuator/prometheus
