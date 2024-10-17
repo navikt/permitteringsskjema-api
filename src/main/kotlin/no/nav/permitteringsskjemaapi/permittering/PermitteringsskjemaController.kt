@@ -41,7 +41,7 @@ class PermitteringsskjemaController(
         if (permitteringsskjemaOpprettetAvAnnenBruker != null) {
             val orgnr = permitteringsskjemaOpprettetAvAnnenBruker.bedriftNr
             val organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1")
-            val harRettTilÅSeSkjema = organisasjonerBasertPåRettighet.any { it.organizationNumber == orgnr }
+            val harRettTilÅSeSkjema = organisasjonerBasertPåRettighet.any { it == orgnr }
             if (harRettTilÅSeSkjema) {
                 return permitteringsskjemaOpprettetAvAnnenBruker.tilDTO()
             } else {
@@ -86,7 +86,7 @@ class PermitteringsskjemaController(
 
     fun hentAlleSkjemaBasertPåRettighet() =
         altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1").flatMap {
-            repository.findAllByBedriftNr(it.organizationNumber)
+            repository.findAllByBedriftNr(it)
         }
 }
 

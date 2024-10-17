@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
-import no.nav.permitteringsskjemaapi.altinn.AltinnTilgang
+import no.nav.permitteringsskjemaapi.altinn.AltinnTilganger
+import no.nav.permitteringsskjemaapi.altinn.AltinnTilganger.AltinnTilgang
 import no.nav.permitteringsskjemaapi.altinn.Organisasjon
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
@@ -37,12 +38,6 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-val testOrganisasjon = Organisasjon(
-    name = "",
-    parentOrganizationNumber = "",
-    organizationNumber = "",
-    organizationForm = "",
-)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -50,8 +45,6 @@ class PermitteringsskjemaIntegrationTest  {
     companion object {
         /* Marte eier en bedrift, og har alle rettigheter i den. */
         const val `Marte med lesetilganger` = "22222222222"
-        val `Martes første BEDR` = testOrganisasjon.copy(organizationNumber = "11111111")
-        val `Martes andre BEDR` = testOrganisasjon.copy(organizationNumber = "2222222")
 
         /* Unni jobber i Marte sin bedrift, så har "vilkårlig reportee-tilgang", men har ikke
          * enkteltrettigheten for å kunne lese innsende skjemaer. */
@@ -59,7 +52,42 @@ class PermitteringsskjemaIntegrationTest  {
 
          /* Helle jobber et helt annet sted, og har tilganger i sin bedrift, men ingen i Marte sin. */
         const val `Helle helt annen person` = "33333333333"
-        val `En annen BEDR` = testOrganisasjon.copy(organizationNumber = "999999999")
+        val `En annen BEDR` = AltinnTilgang(
+            orgNr = "999999",
+            name = "En annen BEDR",
+            organizationForm = "BEDR",
+            underenheter = listOf()
+        )
+        val `En annen AS` = AltinnTilgang(
+            orgNr = "900000",
+            name = "En annen AS",
+            organizationForm = "AS",
+            underenheter = listOf(
+                `En annen BEDR`
+            )
+        )
+
+        val `Martes første BEDR` = AltinnTilgang(
+            orgNr = "11111111",
+            name = "marthes første bedrift",
+            organizationForm = "BEDR",
+            underenheter = emptyList()
+        )
+        val `Martes andre BEDR` = AltinnTilgang(
+            orgNr = "2222222",
+            name = "marthes andre bedrift",
+            organizationForm = "BEDR",
+            underenheter = emptyList()
+        )
+        val `Martes overenhet` = AltinnTilgang(
+            orgNr = "4",
+            name = "marthes overenhet",
+            organizationForm = "AS",
+            underenheter = listOf(
+                `Martes første BEDR`,
+                `Martes andre BEDR`,
+            )
+        )
     }
 
     @TestConfiguration
@@ -67,28 +95,46 @@ class PermitteringsskjemaIntegrationTest  {
         @Bean
         @Primary
         fun altinnService(authenticatedUserHolder: AuthenticatedUserHolder) = object: AltinnService {
-            override fun hentOrganisasjonstre(): List<AltinnTilgang> {
-                TODO("Not yet implemented")
-            }
-
-            override fun hentOrganisasjoner(): List<Organisasjon> = when(val fnr = authenticatedUserHolder.fnr) {
-                `Unni uten lesetilganger` -> listOf(`Martes første BEDR`, `Martes andre BEDR`)
-                `Marte med lesetilganger` -> listOf(`Martes første BEDR`, `Martes andre BEDR`)
-                `Helle helt annen person` -> listOf(`En annen BEDR`)
+            override fun hentAltinnTilganger(): AltinnTilganger = when(val fnr = authenticatedUserHolder.fnr) {
+                `Unni uten lesetilganger` -> AltinnTilganger(
+                    hierarki = listOf(`Martes overenhet`),
+                    isError = false,
+                    orgNrTilTilganger = emptyMap(),
+                    tilgangTilOrgNr = emptyMap(),
+                )
+                `Marte med lesetilganger` -> AltinnTilganger(
+                    hierarki = listOf(`Martes overenhet`),
+                    isError = false,
+                    orgNrTilTilganger = mapOf(
+                        `Martes første BEDR`.orgNr to setOf("5810:1"),
+                        `Martes andre BEDR`.orgNr to setOf("5810:1"),
+                    ),
+                    tilgangTilOrgNr = mapOf(
+                        "5810:1" to setOf(`Martes første BEDR`.orgNr, `Martes andre BEDR`.orgNr),
+                    ),
+                )
+                `Helle helt annen person` -> AltinnTilganger(
+                    hierarki = listOf(`En annen AS`),
+                    isError = false,
+                    orgNrTilTilganger = mapOf(
+                        `En annen BEDR`.orgNr to setOf("5810:1"),
+                    ),
+                    tilgangTilOrgNr = mapOf(
+                        "5810:1" to setOf(`En annen BEDR`.orgNr),
+                    ),
+                )
                 else -> throw NotImplementedError("Fnr ikke brukt i testen: $fnr")
             }
+
+            override fun hentOrganisasjoner(): List<Organisasjon> = hentAltinnTilganger().organisasjonerFlattened
 
             override fun hentOrganisasjonerBasertPåRettigheter(
                 serviceKode: String,
                 serviceEdition: String
-            ): List<Organisasjon> {
+            ): Set<String> {
                 require(serviceKode == "5810" && serviceEdition == "1")
-                return when (val fnr = authenticatedUserHolder.fnr) {
-                    `Unni uten lesetilganger` -> emptyList()
-                    `Marte med lesetilganger` -> listOf(`Martes første BEDR`, `Martes andre BEDR`)
-                    `Helle helt annen person` -> listOf(`En annen BEDR`)
-                    else -> throw NotImplementedError("Fnr ikke brukt i testen: $fnr")
-                }
+
+                return hentAltinnTilganger().tilgangTilOrgNr["$serviceKode:$serviceEdition"] ?: emptySet()
             }
         }
 
@@ -136,12 +182,13 @@ class PermitteringsskjemaIntegrationTest  {
         header("Authorization", "Bearer $token")
     }
 
+
     @Test
     fun `GET skjemaV2 henter alle skjema sortert`() {
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 1 min siden",
-                bedriftNr = `Martes første BEDR`.organizationNumber,
+                bedriftNr = `Martes første BEDR`.orgNr,
                 sendtInnTidspunkt = now.minus(1, ChronoUnit.MINUTES),
                 opprettetAv = `Unni uten lesetilganger`,
             )
@@ -149,7 +196,7 @@ class PermitteringsskjemaIntegrationTest  {
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 5 min siden",
-                bedriftNr = `Martes andre BEDR`.organizationNumber,
+                bedriftNr = `Martes andre BEDR`.orgNr,
                 sendtInnTidspunkt = now.minus(5, ChronoUnit.MINUTES),
                 opprettetAv = `Unni uten lesetilganger`,
             ),
@@ -157,7 +204,7 @@ class PermitteringsskjemaIntegrationTest  {
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 10 min siden",
-                bedriftNr = `En annen BEDR`.organizationNumber,
+                bedriftNr = `En annen BEDR`.orgNr,
                 sendtInnTidspunkt = now.minus(10, ChronoUnit.MINUTES),
                 opprettetAv = `Marte med lesetilganger`,
             )
@@ -165,7 +212,7 @@ class PermitteringsskjemaIntegrationTest  {
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 2 min siden",
-                bedriftNr = `En annen BEDR`.organizationNumber,
+                bedriftNr = `En annen BEDR`.orgNr,
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
                 opprettetAv = `Marte med lesetilganger`,
             )
@@ -245,7 +292,7 @@ class PermitteringsskjemaIntegrationTest  {
         val lagretSkjema = repository.save(
             testSkjema(
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
-                bedriftNr = `Martes første BEDR`.organizationNumber,
+                bedriftNr = `Martes første BEDR`.orgNr,
                 opprettetAv = `Unni uten lesetilganger`,
             )
         )
@@ -296,7 +343,7 @@ class PermitteringsskjemaIntegrationTest  {
         val lagretSkjema = repository.save(
             testSkjema(
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
-                bedriftNr = `En annen BEDR`.organizationNumber,
+                bedriftNr = `En annen BEDR`.orgNr,
                 opprettetAv = `Helle helt annen person`,
             )
         )
@@ -328,7 +375,7 @@ class PermitteringsskjemaIntegrationTest  {
                       "styrk08": "5120.03"
                     }
                   ],
-                  "bedriftNr": "${`Martes andre BEDR`.organizationNumber}",
+                  "bedriftNr": "${`Martes andre BEDR`.orgNr}",
                   "bedriftNavn": "STORFOSNA OG FREDRIKSTAD REGNSKAP",
                   "ukjentSluttDato": false,
                   "sluttDato": "2023-12-14T23:00:00.000Z",
@@ -353,7 +400,7 @@ class PermitteringsskjemaIntegrationTest  {
                     {
                       "id": "${lagretSkjema.id}",
                       "type": "PERMITTERING_UTEN_LØNN",
-                      "bedriftNr": "${`Martes andre BEDR`.organizationNumber}",
+                      "bedriftNr": "${`Martes andre BEDR`.orgNr}",
                       "bedriftNavn": "STORFOSNA OG FREDRIKSTAD REGNSKAP",
                       "kontaktNavn": "asdf",
                       "kontaktEpost": "ken@g.no",
@@ -398,7 +445,7 @@ class PermitteringsskjemaIntegrationTest  {
                       "styrk08": "5120.03"
                     }
                   ],
-                  "bedriftNr": "${`Martes andre BEDR`.organizationNumber}",
+                  "bedriftNr": "${`Martes andre BEDR`.orgNr}",
                   "bedriftNavn": "STORFOSNA OG FREDRIKSTAD REGNSKAP",
                   "ukjentSluttDato": false,
                   "sluttDato": "2023-12-14T23:00:00.000Z",
@@ -419,12 +466,49 @@ class PermitteringsskjemaIntegrationTest  {
             }
         }
     }
+
+    @Test
+    fun `GET organisasjoner-v2 returnere trestruktur`() {
+        val jsonResponse = mockMvc.get("/organisasjoner-v2") {
+            accept(MediaType.APPLICATION_JSON)
+            token(`Marte med lesetilganger`)
+        }.andExpect {
+            status {
+                isOk()
+            }
+            content {
+                json("""
+            [{
+              "orgNr": "4",
+              "name": "marthes overenhet",
+              "organizationForm": "AS",
+              "underenheter": [
+                {
+                  "orgNr": "11111111",
+                  "underenheter": [],
+                  "name": "marthes første bedrift",
+                  "organizationForm": "BEDR"
+                },
+                {
+                  "orgNr": "2222222",
+                  "underenheter": [],
+                  "name": "marthes andre bedrift",
+                  "organizationForm": "BEDR"
+                }
+              ]
+            }]
+            """,
+                    strict = false)
+            }
+        }
+    }
+
 }
 
 fun testSkjema(
     id: UUID = UUID.randomUUID(),
     type: SkjemaType = SkjemaType.PERMITTERING_UTEN_LØNN,
-    bedriftNr: String = `En annen BEDR`.organizationNumber,
+    bedriftNr: String = `En annen BEDR`.orgNr,
     bedriftNavn: String = "Bedrift AS",
     kontaktNavn: String = "Tore Toresen",
     kontaktEpost: String = "per@bedrift.no",

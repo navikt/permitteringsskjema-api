@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.altinn
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import no.nav.permitteringsskjemaapi.tokenx.TokenExchangeClient
@@ -16,9 +17,9 @@ import java.net.SocketException
 import javax.net.ssl.SSLHandshakeException
 
 interface AltinnService {
-    fun hentOrganisasjonstre(): List<AltinnTilgang>
+    fun hentAltinnTilganger(): AltinnTilganger
     fun hentOrganisasjoner(): List<Organisasjon>
-    fun hentOrganisasjonerBasertPåRettigheter(serviceKode: String, serviceEdition: String): List<Organisasjon>
+    fun hentOrganisasjonerBasertPåRettigheter(serviceKode: String, serviceEdition: String): Set<String>
 }
 
 @Component
@@ -42,23 +43,16 @@ class AltinnServiceImpl(
         )
         .build()
 
-    override fun hentOrganisasjonstre() = hentAltinnTilganger().hierarki
+    override fun hentAltinnTilganger() = hentAltinnTilgangerFraProxy()
 
-    override fun hentOrganisasjoner() = hentAltinnTilganger().tilgangerFlatt()
+    override fun hentOrganisasjoner() = hentAltinnTilganger().organisasjonerFlattened
 
     override fun hentOrganisasjonerBasertPåRettigheter(
         serviceKode: String,
         serviceEdition: String
-    ): List<Organisasjon> {
-        val altinnTilganger = hentAltinnTilganger()
-        val orgnrTilOrg = altinnTilganger.tilgangerFlatt().associateBy { it.organizationNumber }
+    ) = hentAltinnTilganger().tilgangTilOrgNr["${serviceKode}:${serviceEdition}"] ?: emptySet()
 
-        return altinnTilganger.tilgangTilOrgNr["${serviceKode}:${serviceEdition}"]?.let { orgnumre ->
-            orgnumre.mapNotNull { orgNr -> orgnrTilOrg[orgNr] }
-        } ?: emptyList()
-    }
-
-    private fun hentAltinnTilganger(): AltinnTilgangerResponse {
+    private fun hentAltinnTilgangerFraProxy(): AltinnTilganger {
         val token = tokenExchangeClient.exchange(
             authenticatedUserHolder.token,
             "$naisCluster:fager:arbeidsgiver-altinn-tilganger"
@@ -72,11 +66,30 @@ class AltinnServiceImpl(
                     it.setBearerAuth(token.access_token!!)
                 }
                 .build(),
-            AltinnTilgangerResponse::class.java
+            AltinnTilganger::class.java
         )
 
         return response.body!! // response != 200 => throws
     }
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AltinnTilganger(
+    val isError: Boolean,
+    val hierarki: List<AltinnTilgang>,
+    val orgNrTilTilganger: Map<String, Set<String>>,
+    val tilgangTilOrgNr: Map<String, Set<String>>,
+) {
+    data class AltinnTilgang(
+        val orgNr: String,
+        val underenheter: List<AltinnTilgang>,
+        val name: String,
+        val organizationForm: String,
+    )
+
+    @get:JsonIgnore
+    val organisasjonerFlattened : List<Organisasjon>
+        get() = hierarki.flatMap { flattenUnderOrganisasjoner(it) }
 
     private fun flattenUnderOrganisasjoner(
         altinnTilgang: AltinnTilgang,
@@ -91,29 +104,7 @@ class AltinnServiceImpl(
         val children = altinnTilgang.underenheter.flatMap { flattenUnderOrganisasjoner(it, parent.organizationNumber) }
         return listOf(parent) + children
     }
-
-    private fun AltinnTilgangerResponse.tilgangerFlatt() = hierarki.flatMap {
-        flattenUnderOrganisasjoner(it)
-    }
 }
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-private data class AltinnTilgangerResponse(
-    val isError: Boolean,
-    val hierarki: List<AltinnTilgang>,
-    val orgNrTilTilganger: Map<String, Set<String>>,
-    val tilgangTilOrgNr: Map<String, Set<String>>,
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class AltinnTilgang(
-    val orgNr: String,
-    //val altinn3Tilganger: Set<String>,
-    //val altinn2Tilganger: Set<String>,
-    val underenheter: List<AltinnTilgang>,
-    val name: String,
-    val organizationForm: String,
-)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Organisasjon(
