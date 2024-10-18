@@ -4,8 +4,6 @@ import no.nav.permitteringsskjemaapi.tokenx.TokenXToken
 import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.mockito.Answers
-import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest
@@ -14,15 +12,16 @@ import org.springframework.http.HttpMethod.POST
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.client.MockRestServiceServer
-import org.springframework.test.web.client.match.MockRestRequestMatchers.*
+import org.springframework.test.web.client.match.MockRestRequestMatchers.method
+import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 
 
 @ActiveProfiles("local")
 @RestClientTest(
-    AltinnTilgangerService::class,
+    AltinnService::class,
 )
-class AltinnTilgangerServiceTest {
+class AltinnServiceTest {
 
     @MockBean
     lateinit var authenticatedUserHolder: AuthenticatedUserHolder
@@ -34,7 +33,7 @@ class AltinnTilgangerServiceTest {
     lateinit var altinnServer: MockRestServiceServer
 
     @Autowired
-    lateinit var altinnTilgangerService: AltinnTilgangerService
+    lateinit var altinnService: AltinnService
 
     @Test
     fun `henter organisasjoner fra altinn tilganger proxy` (){
@@ -49,12 +48,12 @@ class AltinnTilgangerServiceTest {
                 withSuccess(altinnTilgangerResponse, APPLICATION_JSON)
             )
 
-        val organisasjoner = altinnTilgangerService.hentOrganisasjoner()
+        val organisasjoner = altinnService.hentOrganisasjoner()
 
         assertTrue(organisasjoner.size == 2)
 
-        val parent = organisasjoner.first( {it.organizationNumber == "810825472"} )
-        val underenhet = organisasjoner.first( {it.organizationNumber == "910825496"} )
+        val parent = organisasjoner.first { it.organizationNumber == "810825472" }
+        val underenhet = organisasjoner.first { it.organizationNumber == "910825496" }
 
         assertTrue(parent.name == "Arbeids- og Velferdsetaten")
         assertTrue(underenhet.name == "SLEMMESTAD OG STAVERN REGNSKAP")

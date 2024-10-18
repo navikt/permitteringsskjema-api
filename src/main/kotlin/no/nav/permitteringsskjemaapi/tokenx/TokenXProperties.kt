@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import java.text.ParseException
 
-@Profile("local", "dev-gcp", "prod-gcp")
 @Configuration
 @ConfigurationProperties("token.x")
 class TokenXProperties(

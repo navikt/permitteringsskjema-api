@@ -43,8 +43,6 @@ spec:
         - host: dokarkiv.dev-fss-pub.nais.io
         - host: oppgave-q1.dev-fss-pub.nais.io
       rules:
-        - application: altinn-rettigheter-proxy
-          namespace: arbeidsgiver
         - application: permittering-dokgen
         - application: arbeidsgiver-altinn-tilganger
           namespace: fager

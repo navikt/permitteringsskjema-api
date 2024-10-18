@@ -4,26 +4,25 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
-import no.nav.permitteringsskjemaapi.altinn.Organisasjon
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaIntegrationTest.Companion.`En annen BEDR`
-import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
+import no.nav.permitteringsskjemaapi.tokenx.TokenExchangeClient
+import no.nav.permitteringsskjemaapi.tokenx.TokenXToken
 import org.assertj.core.api.Assertions
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Primary
-import org.springframework.http.MediaType
+import org.springframework.http.HttpMethod.POST
+import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.web.servlet.MockHttpServletRequestDsl
+import org.springframework.test.web.client.MockRestServiceServer
+import org.springframework.test.web.client.match.MockRestRequestMatchers.*
+import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -36,59 +35,10 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-val testOrganisasjon = Organisasjon(
-    name = "",
-    parentOrganizationNumber = "",
-    organizationNumber = "",
-    organizationForm = "",
-)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class PermitteringsskjemaIntegrationTest  {
-    companion object {
-        /* Marte eier en bedrift, og har alle rettigheter i den. */
-        const val `Marte med lesetilganger` = "22222222222"
-        val `Martes første BEDR` = testOrganisasjon.copy(organizationNumber = "11111111")
-        val `Martes andre BEDR` = testOrganisasjon.copy(organizationNumber = "2222222")
-
-        /* Unni jobber i Marte sin bedrift, så har "vilkårlig reportee-tilgang", men har ikke
-         * enkteltrettigheten for å kunne lese innsende skjemaer. */
-        const val `Unni uten lesetilganger` = "11111111111"
-
-         /* Helle jobber et helt annet sted, og har tilganger i sin bedrift, men ingen i Marte sin. */
-        const val `Helle helt annen person` = "33333333333"
-        val `En annen BEDR` = testOrganisasjon.copy(organizationNumber = "999999999")
-    }
-
-    @TestConfiguration
-    class Config {
-        @Bean
-        @Primary
-        fun altinnService(authenticatedUserHolder: AuthenticatedUserHolder) = object: AltinnService {
-            override fun hentOrganisasjoner(): List<Organisasjon> = when(val fnr = authenticatedUserHolder.fnr) {
-                `Unni uten lesetilganger` -> listOf(`Martes første BEDR`, `Martes andre BEDR`)
-                `Marte med lesetilganger` -> listOf(`Martes første BEDR`, `Martes andre BEDR`)
-                `Helle helt annen person` -> listOf(`En annen BEDR`)
-                else -> throw NotImplementedError("Fnr ikke brukt i testen: $fnr")
-            }
-
-            override fun hentOrganisasjonerBasertPåRettigheter(
-                serviceKode: String,
-                serviceEdition: String
-            ): List<Organisasjon> {
-                require(serviceKode == "5810" && serviceEdition == "1")
-                return when (val fnr = authenticatedUserHolder.fnr) {
-                    `Unni uten lesetilganger` -> emptyList()
-                    `Marte med lesetilganger` -> listOf(`Martes første BEDR`, `Martes andre BEDR`)
-                    `Helle helt annen person` -> listOf(`En annen BEDR`)
-                    else -> throw NotImplementedError("Fnr ikke brukt i testen: $fnr")
-                }
-            }
-        }
-
-
-    }
 
     @MockBean
     lateinit var journalføringService: JournalføringService
@@ -96,47 +46,154 @@ class PermitteringsskjemaIntegrationTest  {
     @MockBean
     lateinit var permitteringsmeldingKafkaService: PermitteringsmeldingKafkaService
 
+    @MockBean
+    lateinit var tokenExchangeClient: TokenExchangeClient
+
     @Autowired
     lateinit var mockMvc: MockMvc
 
     @Autowired
     lateinit var repository: PermitteringsskjemaRepository
 
-    @Autowired
-    lateinit var objectMapper: ObjectMapper
+    val objectMapper = ObjectMapper()
 
     @Autowired
     lateinit var flyway: Flyway
+
+    @Autowired
+    lateinit var altinnService: AltinnService
+
+    lateinit var altinnTilgangerServer: MockRestServiceServer
+
 
     @BeforeEach
     fun setup() {
         flyway.clean()
         flyway.migrate()
+        altinnTilgangerServer = MockRestServiceServer.bindTo(altinnService.restTemplate).build()
+        `when`(tokenExchangeClient.exchange(anyString(), anyString()))
+            .then {
+                TokenXToken(access_token = it.arguments[0] as String)
+            }
     }
 
     val now = Instant.now().truncatedTo(ChronoUnit.SECONDS)!!
 
     var client: HttpClient = HttpClient.newHttpClient()
 
-    fun MockHttpServletRequestDsl.token(pid: String) {
-        val response = client.send(
-            HttpRequest.newBuilder(URI.create("http://localhost:9000/tokenx/token"))
-                .header("content-type", "application/x-www-form-urlencoded")
-                .POST(
-                    HttpRequest.BodyPublishers.ofString("grant_type=client_credentials&client_id=1234&client_secret=1234&scope=$pid"))
-                .build(),
-            HttpResponse.BodyHandlers.ofString(),
-        )
-        val token = objectMapper.readTree(response.body())["access_token"].textValue()
-        header("Authorization", "Bearer $token")
-    }
+    /* Marte eier en bedrift, og har alle rettigheter i den. */
+    private val `Marte med lesetilganger` = "22222222222"
+
+    /* Unni jobber i Marte sin bedrift, så har "vilkårlig reportee-tilgang", men har ikke
+     * enkteltrettigheten for å kunne lese innsende skjemaer. */
+    private val `Unni uten lesetilganger` = "11111111111"
+
+    /* Helle jobber et helt annet sted, og har tilganger i sin bedrift, men ingen i Marte sin. */
+    private val `Helle helt annen person` = "33333333333"
+
+    private val `En annen BEDR` = "1"
+    private val `En annen AS` = "2"
+    private val `Martes første BEDR` = "3"
+    private val `Martes andre BEDR` = "4"
+    private val `Martes overenhet` = "5"
+
+    val `Martes tilganger` = """
+        {
+            "hierarki": [
+                {
+                    "orgNr": "$`Martes overenhet`",
+                    "name": "marthes overenhet",
+                    "organizationForm": "AS",
+                    "underenheter": [
+                        {
+                            "orgNr": "$`Martes første BEDR`",
+                            "underenheter": [],
+                            "name": "marthes første bedrift",
+                            "organizationForm": "BEDR"
+                        },
+                        {
+                            "orgNr": "$`Martes andre BEDR`",
+                            "underenheter": [],
+                            "name": "marthes andre bedrift",
+                            "organizationForm": "BEDR"
+                        }
+                    ]
+                }
+            ],
+            "isError": false,
+            "orgNrTilTilganger": {
+                "$`Martes første BEDR`": ["5810:1"],
+                "$`Martes andre BEDR`": ["5810:1"]
+            },
+            "tilgangTilOrgNr": {
+                "5810:1": ["$`Martes første BEDR`", "$`Martes andre BEDR`"]
+            }
+        }
+    """
+    val `Unnis tilganger` = """
+        {
+            "hierarki": [
+                {
+                    "orgNr": "$`Martes overenhet`",
+                    "name": "marthes overenhet",
+                    "organizationForm": "AS",
+                    "underenheter": [
+                        {
+                            "orgNr": "$`Martes første BEDR`",
+                            "underenheter": [],
+                            "name": "marthes første bedrift",
+                            "organizationForm": "BEDR"
+                        },
+                        {
+                            "orgNr": "$`Martes andre BEDR`",
+                            "underenheter": [],
+                            "name": "marthes andre bedrift",
+                            "organizationForm": "BEDR"
+                        }
+                    ]
+                }
+            ],
+            "isError": false,
+            "orgNrTilTilganger": {},
+            "tilgangTilOrgNr": {}
+        }
+    """
+    val `Helles tilganger` = """
+        {
+            "hierarki": [
+                {
+                    "orgNr": "$`En annen AS`",
+                    "name": "En annen AS",
+                    "organizationForm": "AS",
+                    "underenheter": [
+                        {
+                            "orgNr": "$`En annen BEDR`",
+                            "name": "En annen BEDR",
+                            "organizationForm": "BEDR",
+                            "underenheter": []
+                        }
+                    ]
+                }
+            ],
+            "isError": false,
+            "orgNrTilTilganger": {
+                "$`En annen BEDR`": ["5810:1"]
+            },
+            "tilgangTilOrgNr": {
+                "5810:1": ["$`En annen BEDR`"]
+            }
+        }
+    """
+    val `martes token` = token(`Marte med lesetilganger`)
+    val `unnis token` = token(`Unni uten lesetilganger`)
+    val `helles token` = token(`Helle helt annen person`)
 
     @Test
     fun `GET skjemaV2 henter alle skjema sortert`() {
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 1 min siden",
-                bedriftNr = `Martes første BEDR`.organizationNumber,
+                bedriftNr = `Martes første BEDR`,
                 sendtInnTidspunkt = now.minus(1, ChronoUnit.MINUTES),
                 opprettetAv = `Unni uten lesetilganger`,
             )
@@ -144,7 +201,7 @@ class PermitteringsskjemaIntegrationTest  {
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 5 min siden",
-                bedriftNr = `Martes andre BEDR`.organizationNumber,
+                bedriftNr = `Martes andre BEDR`,
                 sendtInnTidspunkt = now.minus(5, ChronoUnit.MINUTES),
                 opprettetAv = `Unni uten lesetilganger`,
             ),
@@ -152,7 +209,7 @@ class PermitteringsskjemaIntegrationTest  {
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 10 min siden",
-                bedriftNr = `En annen BEDR`.organizationNumber,
+                bedriftNr = `En annen BEDR`,
                 sendtInnTidspunkt = now.minus(10, ChronoUnit.MINUTES),
                 opprettetAv = `Marte med lesetilganger`,
             )
@@ -160,15 +217,25 @@ class PermitteringsskjemaIntegrationTest  {
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 2 min siden",
-                bedriftNr = `En annen BEDR`.organizationNumber,
+                bedriftNr = `En annen BEDR`,
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
                 opprettetAv = `Marte med lesetilganger`,
             )
         )
+        altinnTilgangerServer.expect {
+            requestTo("http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
+            method(POST)
+            header("Authorization", "Bearer $`martes token`")
+        }.andRespond(
+            withSuccess(
+                `Martes tilganger`,
+                APPLICATION_JSON
+            )
+        )
 
         val jsonResponse = mockMvc.get("/skjemaV2") {
-            accept(MediaType.APPLICATION_JSON)
-            token(`Marte med lesetilganger`)
+            accept(APPLICATION_JSON)
+            header("Authorization", "Bearer $`martes token`")
         }.andExpect {
             status {
                 isOk()
@@ -186,18 +253,30 @@ class PermitteringsskjemaIntegrationTest  {
         )
     }
 
+
     @Test
     fun `GET skjemaV2 by id henter skjema lagret av bruker`() {
         val lagretSkjema = repository.save(
             testSkjema(
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
                 opprettetAv = `Unni uten lesetilganger`,
+                bedriftNr = `En annen BEDR`,
+            )
+        )
+        altinnTilgangerServer.expect {
+            requestTo("http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
+            method(POST)
+            header("Authorization", "Bearer $`unnis token`")
+        }.andRespond(
+            withSuccess(
+                `Unnis tilganger`,
+                APPLICATION_JSON
             )
         )
 
         mockMvc.get("/skjemaV2/${lagretSkjema.id}") {
-            accept(MediaType.APPLICATION_JSON)
-            token(`Unni uten lesetilganger`)
+            accept(APPLICATION_JSON)
+            header("Authorization", "Bearer $`unnis token`")
         }.andExpect {
             status {
                 isOk()
@@ -240,14 +319,24 @@ class PermitteringsskjemaIntegrationTest  {
         val lagretSkjema = repository.save(
             testSkjema(
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
-                bedriftNr = `Martes første BEDR`.organizationNumber,
+                bedriftNr = `Martes første BEDR`,
                 opprettetAv = `Unni uten lesetilganger`,
+            )
+        )
+        altinnTilgangerServer.expect {
+            requestTo("http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
+            method(POST)
+            header("Authorization", "Bearer $`martes token`")
+        }.andRespond(
+            withSuccess(
+                `Martes tilganger`,
+                APPLICATION_JSON
             )
         )
 
         mockMvc.get("/skjemaV2/${lagretSkjema.id}") {
-            accept(MediaType.APPLICATION_JSON)
-            token(`Marte med lesetilganger`)
+            accept(APPLICATION_JSON)
+            header("Authorization", "Bearer $`martes token`")
         }
         .andExpect {
             status {
@@ -291,14 +380,24 @@ class PermitteringsskjemaIntegrationTest  {
         val lagretSkjema = repository.save(
             testSkjema(
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
-                bedriftNr = `En annen BEDR`.organizationNumber,
+                bedriftNr = `En annen BEDR`,
                 opprettetAv = `Helle helt annen person`,
+            )
+        )
+        altinnTilgangerServer.expect {
+            requestTo("http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
+            method(POST)
+            header("Authorization", "Bearer $`martes token`")
+        }.andRespond(
+            withSuccess(
+                `Martes tilganger`,
+                APPLICATION_JSON
             )
         )
 
         mockMvc.get("/skjemaV2/${lagretSkjema.id}") {
-            accept(MediaType.APPLICATION_JSON)
-            token(`Marte med lesetilganger`)
+            accept(APPLICATION_JSON)
+            header("Authorization", "Bearer $`martes token`")
         }.andExpect {
             status {
                 isNotFound()
@@ -310,10 +409,20 @@ class PermitteringsskjemaIntegrationTest  {
     fun `POST skjemaV2 lagrer og returnerer og starter journalføring og kafka send`() {
         val lagretSkjema by lazy { repository.findAllByOpprettetAv(`Unni uten lesetilganger`).first() }
 
+        altinnTilgangerServer.expect {
+            requestTo("http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
+            method(POST)
+            header("Authorization", "Bearer $`unnis token`")
+        }.andRespond(
+            withSuccess(
+                `Unnis tilganger`,
+                APPLICATION_JSON
+            )
+        )
         mockMvc.post("/skjemaV2") {
-            accept = MediaType.APPLICATION_JSON
-            contentType = MediaType.APPLICATION_JSON
-            token(`Unni uten lesetilganger`)
+            accept = APPLICATION_JSON
+            contentType = APPLICATION_JSON
+            header("Authorization", "Bearer $`unnis token`")
             content = """
                 {
                   "yrkeskategorier": [
@@ -323,7 +432,7 @@ class PermitteringsskjemaIntegrationTest  {
                       "styrk08": "5120.03"
                     }
                   ],
-                  "bedriftNr": "${`Martes andre BEDR`.organizationNumber}",
+                  "bedriftNr": "$`Martes andre BEDR`",
                   "bedriftNavn": "STORFOSNA OG FREDRIKSTAD REGNSKAP",
                   "ukjentSluttDato": false,
                   "sluttDato": "2023-12-14T23:00:00.000Z",
@@ -348,7 +457,7 @@ class PermitteringsskjemaIntegrationTest  {
                     {
                       "id": "${lagretSkjema.id}",
                       "type": "PERMITTERING_UTEN_LØNN",
-                      "bedriftNr": "${`Martes andre BEDR`.organizationNumber}",
+                      "bedriftNr": "$`Martes andre BEDR`",
                       "bedriftNavn": "STORFOSNA OG FREDRIKSTAD REGNSKAP",
                       "kontaktNavn": "asdf",
                       "kontaktEpost": "ken@g.no",
@@ -380,10 +489,20 @@ class PermitteringsskjemaIntegrationTest  {
 
     @Test
     fun `POST skjemaV2 returnerer 403 hvis bruker ikke har tilgang til virksomhet`() {
+        altinnTilgangerServer.expect {
+            requestTo("http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
+            method(POST)
+            header("Authorization", "Bearer $`helles token`")
+        }.andRespond(
+            withSuccess(
+                `Helles tilganger`,
+                APPLICATION_JSON
+            )
+        )
         mockMvc.post("/skjemaV2") {
-            accept = MediaType.APPLICATION_JSON
-            contentType = MediaType.APPLICATION_JSON
-            token(`Helle helt annen person`)
+            accept = APPLICATION_JSON
+            contentType = APPLICATION_JSON
+            header("Authorization", "Bearer $`helles token`")
             content = """
                 {
                   "yrkeskategorier": [
@@ -393,7 +512,7 @@ class PermitteringsskjemaIntegrationTest  {
                       "styrk08": "5120.03"
                     }
                   ],
-                  "bedriftNr": "${`Martes andre BEDR`.organizationNumber}",
+                  "bedriftNr": "$`Martes andre BEDR`",
                   "bedriftNavn": "STORFOSNA OG FREDRIKSTAD REGNSKAP",
                   "ukjentSluttDato": false,
                   "sluttDato": "2023-12-14T23:00:00.000Z",
@@ -414,12 +533,71 @@ class PermitteringsskjemaIntegrationTest  {
             }
         }
     }
+
+    @Test
+    fun `GET organisasjoner-v2 returnere trestruktur`() {
+        altinnTilgangerServer.expect {
+            requestTo("http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
+            method(POST)
+            header("Authorization", "Bearer $`martes token`")
+        }.andRespond(
+            withSuccess(
+                `Martes tilganger`,
+                APPLICATION_JSON
+            )
+        )
+        mockMvc.get("/organisasjoner-v2") {
+            accept(APPLICATION_JSON)
+            header("Authorization", "Bearer $`martes token`")
+        }.andExpect {
+            status {
+                isOk()
+            }
+            content {
+                json("""
+            [{
+              "orgNr": "$`Martes overenhet`",
+              "name": "marthes overenhet",
+              "organizationForm": "AS",
+              "underenheter": [
+                {
+                  "orgNr": "$`Martes første BEDR`",
+                  "underenheter": [],
+                  "name": "marthes første bedrift",
+                  "organizationForm": "BEDR"
+                },
+                {
+                  "orgNr": "$`Martes andre BEDR`",
+                  "underenheter": [],
+                  "name": "marthes andre bedrift",
+                  "organizationForm": "BEDR"
+                }
+              ]
+            }]
+            """,
+                    strict = false)
+            }
+        }
+    }
+
+    private fun token(pid: String): String {
+        val response = client.send(
+            HttpRequest.newBuilder(URI.create("http://localhost:9100/tokenx/token"))
+                .header("content-type", "application/x-www-form-urlencoded")
+                .POST(
+                    HttpRequest.BodyPublishers.ofString("grant_type=client_credentials&client_id=1234&client_secret=1234&scope=$pid"))
+                .build(),
+            HttpResponse.BodyHandlers.ofString(),
+        )
+        return objectMapper.readTree(response.body())["access_token"].textValue()!!
+    }
+
 }
 
 fun testSkjema(
     id: UUID = UUID.randomUUID(),
     type: SkjemaType = SkjemaType.PERMITTERING_UTEN_LØNN,
-    bedriftNr: String = `En annen BEDR`.organizationNumber,
+    bedriftNr: String,
     bedriftNavn: String = "Bedrift AS",
     kontaktNavn: String = "Tore Toresen",
     kontaktEpost: String = "per@bedrift.no",

@@ -31,14 +31,14 @@ class PermitteringsskjemaRepositoryTest {
 
     @Test
     fun skal_kunne_lagre_alle_felter() {
-        val permitteringsskjema = testSkjema()
+        val permitteringsskjema = testSkjema(bedriftNr = "999999")
         repository.save(permitteringsskjema)
     }
 
     @Test
     fun skal_kunne_hentes_med_id() {
         val id = UUID.randomUUID()
-        val permitteringsskjema = testSkjema(id = id)
+        val permitteringsskjema = testSkjema(id = id, bedriftNr = "999999")
         repository.save(permitteringsskjema)
         val hentetPermittering = repository.findById(id)
 

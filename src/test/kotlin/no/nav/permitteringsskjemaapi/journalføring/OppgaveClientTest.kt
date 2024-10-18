@@ -3,7 +3,6 @@ package no.nav.permitteringsskjemaapi.journalføring
 import no.nav.permitteringsskjemaapi.config.MDCConfig
 import no.nav.permitteringsskjemaapi.config.X_CORRELATION_ID
 import no.nav.permitteringsskjemaapi.permittering.testSkjema
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import org.hamcrest.core.IsAnything
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

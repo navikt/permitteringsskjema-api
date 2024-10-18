@@ -9,16 +9,8 @@ spec:
   image: {{{image}}}
   liveness:
     path: /permitteringsskjema-api/internal/actuator/info
-    initialDelay: 60
-    timeout: 1
-    periodSeconds: 10
-    failureThreshold: 3
   readiness:
     path: /permitteringsskjema-api/internal/actuator/info
-    initialDelay: 60
-    timeout: 1
-    periodSeconds: 10
-    failureThreshold: 3
   prometheus:
     enabled: true
     path: /permitteringsskjema-api/internal/actuator/prometheus
@@ -53,6 +45,6 @@ spec:
         - host: dokarkiv.prod-fss-pub.nais.io
         - host: oppgave.prod-fss-pub.nais.io
       rules:
-        - application: altinn-rettigheter-proxy
-          namespace: arbeidsgiver
         - application: permittering-dokgen
+        - application: arbeidsgiver-altinn-tilganger
+          namespace: fager

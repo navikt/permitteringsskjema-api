@@ -3,7 +3,6 @@ package no.nav.permitteringsskjemaapi.config
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -22,7 +21,6 @@ import org.springframework.web.filter.OncePerRequestFilter
 @EnableScheduling
 @Configuration
 @ConfigurationPropertiesScan("no.nav.permitteringsskjemaapi")
-@EnableOAuth2Client(cacheEnabled = true)
 @EnableJwtTokenValidation(ignore = ["org.springdoc", "org.springframework"])
 class ApplicationConfig {
 
