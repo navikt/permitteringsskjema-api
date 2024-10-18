@@ -16,22 +16,16 @@ import org.springframework.web.client.ResourceAccessException
 import java.net.SocketException
 import javax.net.ssl.SSLHandshakeException
 
-interface AltinnService {
-    fun hentAltinnTilganger(): AltinnTilganger
-    fun hentOrganisasjoner(): List<Organisasjon>
-    fun hentOrganisasjonerBasertPåRettigheter(serviceKode: String, serviceEdition: String): Set<String>
-}
-
 @Component
-class AltinnServiceImpl(
+class AltinnService(
     restTemplateBuilder: RestTemplateBuilder,
     private val authenticatedUserHolder: AuthenticatedUserHolder,
     private val tokenExchangeClient: TokenExchangeClient,
 
     @Value("\${nais.cluster.name}") private val naisCluster: String,
-) : AltinnService {
+) {
 
-    private val restTemplate = restTemplateBuilder
+    internal val restTemplate = restTemplateBuilder
         .additionalInterceptors(
             retryInterceptor(
                 maxAttempts = 3,
@@ -43,11 +37,11 @@ class AltinnServiceImpl(
         )
         .build()
 
-    override fun hentAltinnTilganger() = hentAltinnTilgangerFraProxy()
+    fun hentAltinnTilganger() = hentAltinnTilgangerFraProxy()
 
-    override fun hentOrganisasjoner() = hentAltinnTilganger().organisasjonerFlattened
+    fun hentOrganisasjoner() = hentAltinnTilganger().organisasjonerFlattened
 
-    override fun hentOrganisasjonerBasertPåRettigheter(
+    fun hentOrganisasjonerBasertPåRettigheter(
         serviceKode: String,
         serviceEdition: String
     ) = hentAltinnTilganger().tilgangTilOrgNr["${serviceKode}:${serviceEdition}"] ?: emptySet()

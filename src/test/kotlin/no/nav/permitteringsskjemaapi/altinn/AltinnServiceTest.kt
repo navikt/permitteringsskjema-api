@@ -19,7 +19,7 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 
 @ActiveProfiles("local")
 @RestClientTest(
-    AltinnServiceImpl::class,
+    AltinnService::class,
 )
 class AltinnServiceTest {
 
