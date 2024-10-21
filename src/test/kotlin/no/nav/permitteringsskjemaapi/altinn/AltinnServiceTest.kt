@@ -48,12 +48,10 @@ class AltinnServiceTest {
                 withSuccess(altinnTilgangerResponse, APPLICATION_JSON)
             )
 
-        val organisasjoner = altinnService.hentOrganisasjoner()
+        val tilganger = altinnService.hentAltinnTilganger()
 
-        assertTrue(organisasjoner.size == 2)
-
-        val parent = organisasjoner.first { it.organizationNumber == "810825472" }
-        val underenhet = organisasjoner.first { it.organizationNumber == "910825496" }
+        val parent = tilganger.hierarki.first { it.orgNr == "810825472" }
+        val underenhet = tilganger.hierarki.first().underenheter.first { it.orgNr == "910825496" }
 
         assertTrue(parent.name == "Arbeids- og Velferdsetaten")
         assertTrue(underenhet.name == "SLEMMESTAD OG STAVERN REGNSKAP")

@@ -2,7 +2,6 @@ package no.nav.permitteringsskjemaapi.altinn
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonProperty
 import no.nav.permitteringsskjemaapi.tokenx.TokenExchangeClient
 import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
@@ -38,8 +37,6 @@ class AltinnService(
         .build()
 
     fun hentAltinnTilganger() = hentAltinnTilgangerFraProxy()
-
-    fun hentOrganisasjoner() = hentAltinnTilganger().organisasjonerFlattened
 
     fun hentOrganisasjonerBasertPåRettigheter(
         serviceKode: String,
@@ -82,28 +79,14 @@ data class AltinnTilganger(
     )
 
     @get:JsonIgnore
-    val organisasjonerFlattened : List<Organisasjon>
-        get() = hierarki.flatMap { flattenUnderOrganisasjoner(it) }
+    val alleOrgNr : Set<String>
+        get() = hierarki.flatMap { flattenUnderOrganisasjoner(it) }.toSet()
 
     private fun flattenUnderOrganisasjoner(
         altinnTilgang: AltinnTilgang,
         parentOrgNr: String? = null
-    ): List<Organisasjon> {
-        val parent = Organisasjon(
-            name = altinnTilgang.name,
-            parentOrganizationNumber = parentOrgNr,
-            organizationForm = altinnTilgang.organizationForm,
-            organizationNumber = altinnTilgang.orgNr
-        )
-        val children = altinnTilgang.underenheter.flatMap { flattenUnderOrganisasjoner(it, parent.organizationNumber) }
-        return listOf(parent) + children
+    ): Set<String> {
+        val children = altinnTilgang.underenheter.flatMap { flattenUnderOrganisasjoner(it, altinnTilgang.orgNr) }
+        return setOfNotNull(parentOrgNr, altinnTilgang.orgNr) + children
     }
 }
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class Organisasjon(
-    @field:JsonProperty("Name") var name: String,
-    @field:JsonProperty("ParentOrganizationNumber") var parentOrganizationNumber: String? = null,
-    @field:JsonProperty("OrganizationNumber") var organizationNumber: String,
-    @field:JsonProperty("OrganizationForm") var organizationForm: String,
-)
