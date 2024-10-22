@@ -9,9 +9,6 @@ class OrganisasjonerController(
     private val altinnService: AltinnService
 ) {
 
-    @GetMapping("/organisasjoner")
-    fun hentOrganisasjoner() = altinnService.hentOrganisasjoner()
-
     @GetMapping("/organisasjoner-v2")
     fun hentOrganisasjonerV2() = altinnService.hentAltinnTilganger().hierarki
 }

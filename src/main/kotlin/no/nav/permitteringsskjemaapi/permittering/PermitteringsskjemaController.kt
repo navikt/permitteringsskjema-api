@@ -69,7 +69,7 @@ class PermitteringsskjemaController(
     fun sendInn(@Valid @RequestBody skjema: PermitteringsskjemaV2DTO): PermitteringsskjemaV2DTO {
         val fnr = fnrExtractor.autentisertBruker()
 
-        if (altinnService.hentOrganisasjoner().none { it.organizationNumber == skjema.bedriftNr }) {
+        if (altinnService.hentAltinnTilganger().alleOrgNr.none { it == skjema.bedriftNr }) {
             throw IkkeTilgangException()
         }
 
