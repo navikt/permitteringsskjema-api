@@ -97,58 +97,60 @@ class PermitteringsskjemaIntegrationTest  {
     private val `Martes andre BEDR` = "4"
     private val `Martes overenhet` = "5"
 
+    //language=JSON
     val `Martes tilganger` = """
         {
             "hierarki": [
                 {
-                    "orgNr": "$`Martes overenhet`",
-                    "name": "marthes overenhet",
-                    "organizationForm": "AS",
+                    "orgnr": "$`Martes overenhet`",
+                    "navn": "marthes overenhet",
+                    "organisasjonsform": "AS",
                     "underenheter": [
                         {
-                            "orgNr": "$`Martes første BEDR`",
+                            "orgnr": "$`Martes første BEDR`",
                             "underenheter": [],
-                            "name": "marthes første bedrift",
-                            "organizationForm": "BEDR"
+                            "navn": "marthes første bedrift",
+                            "organisasjonsform": "BEDR"
                         },
                         {
-                            "orgNr": "$`Martes andre BEDR`",
+                            "orgnr": "$`Martes andre BEDR`",
                             "underenheter": [],
-                            "name": "marthes andre bedrift",
-                            "organizationForm": "BEDR"
+                            "navn": "marthes andre bedrift",
+                            "organisasjonsform": "BEDR"
                         }
                     ]
                 }
             ],
             "isError": false,
             "orgNrTilTilganger": {
-                "$`Martes første BEDR`": ["5810:1"],
-                "$`Martes andre BEDR`": ["5810:1"]
+                "$`Martes første BEDR`": ["nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer"],
+                "$`Martes andre BEDR`": ["nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer"]
             },
             "tilgangTilOrgNr": {
-                "5810:1": ["$`Martes første BEDR`", "$`Martes andre BEDR`"]
+                "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer": ["$`Martes første BEDR`", "$`Martes andre BEDR`"]
             }
         }
     """
+    //language=JSON
     val `Unnis tilganger` = """
         {
             "hierarki": [
                 {
-                    "orgNr": "$`Martes overenhet`",
-                    "name": "marthes overenhet",
-                    "organizationForm": "AS",
+                    "orgnr": "$`Martes overenhet`",
+                    "navn": "marthes overenhet",
+                    "organisasjonsform": "AS",
                     "underenheter": [
                         {
-                            "orgNr": "$`Martes første BEDR`",
+                            "orgnr": "$`Martes første BEDR`",
                             "underenheter": [],
-                            "name": "marthes første bedrift",
-                            "organizationForm": "BEDR"
+                            "navn": "marthes første bedrift",
+                            "organisasjonsform": "BEDR"
                         },
                         {
-                            "orgNr": "$`Martes andre BEDR`",
+                            "orgnr": "$`Martes andre BEDR`",
                             "underenheter": [],
-                            "name": "marthes andre bedrift",
-                            "organizationForm": "BEDR"
+                            "navn": "marthes andre bedrift",
+                            "organisasjonsform": "BEDR"
                         }
                     ]
                 }
@@ -158,18 +160,19 @@ class PermitteringsskjemaIntegrationTest  {
             "tilgangTilOrgNr": {}
         }
     """
+    //language=JSON
     val `Helles tilganger` = """
         {
             "hierarki": [
                 {
-                    "orgNr": "$`En annen AS`",
-                    "name": "En annen AS",
-                    "organizationForm": "AS",
+                    "orgnr": "$`En annen AS`",
+                    "navn": "En annen AS",
+                    "organisasjonsform": "AS",
                     "underenheter": [
                         {
-                            "orgNr": "$`En annen BEDR`",
-                            "name": "En annen BEDR",
-                            "organizationForm": "BEDR",
+                            "orgnr": "$`En annen BEDR`",
+                            "navn": "En annen BEDR",
+                            "organisasjonsform": "BEDR",
                             "underenheter": []
                         }
                     ]
@@ -177,10 +180,10 @@ class PermitteringsskjemaIntegrationTest  {
             ],
             "isError": false,
             "orgNrTilTilganger": {
-                "$`En annen BEDR`": ["5810:1"]
+                "$`En annen BEDR`": ["nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer"]
             },
             "tilgangTilOrgNr": {
-                "5810:1": ["$`En annen BEDR`"]
+                "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer": ["$`En annen BEDR`"]
             }
         }
     """
@@ -556,21 +559,21 @@ class PermitteringsskjemaIntegrationTest  {
             content {
                 json("""
             [{
-              "orgNr": "$`Martes overenhet`",
-              "name": "marthes overenhet",
-              "organizationForm": "AS",
+              "orgnr": "$`Martes overenhet`",
+              "navn": "marthes overenhet",
+              "organisasjonsform": "AS",
               "underenheter": [
                 {
-                  "orgNr": "$`Martes første BEDR`",
+                  "orgnr": "$`Martes første BEDR`",
                   "underenheter": [],
-                  "name": "marthes første bedrift",
-                  "organizationForm": "BEDR"
+                  "navn": "marthes første bedrift",
+                  "organisasjonsform": "BEDR"
                 },
                 {
-                  "orgNr": "$`Martes andre BEDR`",
+                  "orgnr": "$`Martes andre BEDR`",
                   "underenheter": [],
-                  "name": "marthes andre bedrift",
-                  "organizationForm": "BEDR"
+                  "navn": "marthes andre bedrift",
+                  "organisasjonsform": "BEDR"
                 }
               ]
             }]

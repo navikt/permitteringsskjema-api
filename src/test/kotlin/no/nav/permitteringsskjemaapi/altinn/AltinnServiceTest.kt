@@ -50,27 +50,28 @@ class AltinnServiceTest {
 
         val tilganger = altinnService.hentAltinnTilganger()
 
-        val parent = tilganger.hierarki.first { it.orgNr == "810825472" }
-        val underenhet = tilganger.hierarki.first().underenheter.first { it.orgNr == "910825496" }
+        val parent = tilganger.hierarki.first { it.orgnr == "810825472" }
+        val underenhet = tilganger.hierarki.first().underenheter.first { it.orgnr == "910825496" }
 
-        assertTrue(parent.name == "Arbeids- og Velferdsetaten")
-        assertTrue(underenhet.name == "SLEMMESTAD OG STAVERN REGNSKAP")
-        assertTrue(parent.organizationForm == "ORGL")
-        assertTrue(underenhet.organizationForm == "BEDR")
+        assertTrue(parent.navn == "Arbeids- og Velferdsetaten")
+        assertTrue(underenhet.navn == "SLEMMESTAD OG STAVERN REGNSKAP")
+        assertTrue(parent.organisasjonsform == "ORGL")
+        assertTrue(underenhet.organisasjonsform == "BEDR")
     }
 }
 
+//language=JSON
 private val altinnTilgangerResponse = """
     {
       "isError": false,
       "hierarki": [
         {
-          "orgNr": "810825472",
+          "orgnr": "810825472",
           "altinn3Tilganger": [],
           "altinn2Tilganger": [],
           "underenheter": [
             {
-              "orgNr": "910825496",
+              "orgnr": "910825496",
               "altinn3Tilganger": [
                 "test-fager"
               ],
@@ -78,12 +79,12 @@ private val altinnTilgangerResponse = """
                 "4936:1"
               ],
               "underenheter": [],
-              "name": "SLEMMESTAD OG STAVERN REGNSKAP",
-              "organizationForm": "BEDR"
+              "navn": "SLEMMESTAD OG STAVERN REGNSKAP",
+              "organisasjonsform": "BEDR"
             }
           ],
-          "name": "Arbeids- og Velferdsetaten",
-          "organizationForm": "ORGL"
+          "navn": "Arbeids- og Velferdsetaten",
+          "organisasjonsform": "ORGL"
         }
       ],
       "orgNrTilTilganger": {

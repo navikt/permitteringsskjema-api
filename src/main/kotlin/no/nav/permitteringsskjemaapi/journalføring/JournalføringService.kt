@@ -81,10 +81,6 @@ class JournalføringService(
             skjema.id
         )
 
-        if (behandlendeEnhet == null) {
-            throw RuntimeException("Behandlende enhet ble ikke funnet. Behandling av melding er avbrutt for Bedrift ${skjema.bedriftNr} for skjema ${skjema.id}")
-        }
-
         val dokumentPdfAsBytes = dokgenClient.genererPdf(skjema)
         log.info("Genererte pdf ({} bytes) for skjema {}", dokumentPdfAsBytes.size, skjema.id)
 

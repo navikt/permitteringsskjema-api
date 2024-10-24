@@ -2,6 +2,7 @@ package no.nav.permitteringsskjemaapi.altinn
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.permitteringsskjemaapi.tokenx.TokenExchangeClient
 import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
@@ -13,6 +14,7 @@ import org.springframework.http.RequestEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.ResourceAccessException
 import java.net.SocketException
+import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLHandshakeException
 
 @Component
@@ -23,6 +25,12 @@ class AltinnService(
 
     @Value("\${nais.cluster.name}") private val naisCluster: String,
 ) {
+
+    val cache = Caffeine.newBuilder()
+        .maximumSize(10000)
+        .expireAfterWrite(10, TimeUnit.MINUTES)
+        .recordStats()
+        .build<String, AltinnTilganger>()
 
     internal val restTemplate = restTemplateBuilder
         .additionalInterceptors(
@@ -36,12 +44,16 @@ class AltinnService(
         )
         .build()
 
-    fun hentAltinnTilganger() = hentAltinnTilgangerFraProxy()
+    fun hentAlleOrgnr() = hentAltinnTilganger().hierarki.flatMap { flatten(it) { o -> o.orgnr } }.toSet()
+    fun hentAlleOrgnr(tilgang: String) = hentAltinnTilganger().tilgangTilOrgNr[tilgang] ?: emptySet()
 
-    fun hentOrganisasjonerBasertPåRettigheter(
-        serviceKode: String,
-        serviceEdition: String
-    ) = hentAltinnTilganger().tilgangTilOrgNr["${serviceKode}:${serviceEdition}"] ?: emptySet()
+    fun harTilgang(orgnr: String, tjeneste: String) = hentAltinnTilganger().orgNrTilTilganger[orgnr]?.contains(tjeneste) ?: false
+
+    fun hentAltinnTilganger() = cache.getIfPresent(authenticatedUserHolder.token) ?: run {
+        hentAltinnTilgangerFraProxy().also {
+            cache.put(authenticatedUserHolder.token, it)
+        }
+    }
 
     private fun hentAltinnTilgangerFraProxy(): AltinnTilganger {
         val token = tokenExchangeClient.exchange(
@@ -64,29 +76,24 @@ class AltinnService(
     }
 }
 
+data class AltinnTilgang(
+    val orgnr: String,
+    val navn: String,
+    val organisasjonsform: String,
+    val underenheter: List<AltinnTilgang>,
+)
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AltinnTilganger(
     val isError: Boolean,
     val hierarki: List<AltinnTilgang>,
     val orgNrTilTilganger: Map<String, Set<String>>,
     val tilgangTilOrgNr: Map<String, Set<String>>,
-) {
-    data class AltinnTilgang(
-        val orgNr: String,
-        val underenheter: List<AltinnTilgang>,
-        val name: String,
-        val organizationForm: String,
-    )
+)
 
-    @get:JsonIgnore
-    val alleOrgNr : Set<String>
-        get() = hierarki.flatMap { flattenUnderOrganisasjoner(it) }.toSet()
-
-    private fun flattenUnderOrganisasjoner(
-        altinnTilgang: AltinnTilgang,
-        parentOrgNr: String? = null
-    ): Set<String> {
-        val children = altinnTilgang.underenheter.flatMap { flattenUnderOrganisasjoner(it, altinnTilgang.orgNr) }
-        return setOfNotNull(parentOrgNr, altinnTilgang.orgNr) + children
-    }
-}
+private fun <T> flatten(
+    altinnTilgang: AltinnTilgang,
+    mapFn: (AltinnTilgang) -> T
+): Set<T> = setOf(
+    mapFn(altinnTilgang)
+) + altinnTilgang.underenheter.flatMap { flatten(it, mapFn) }
