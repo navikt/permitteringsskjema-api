@@ -38,11 +38,13 @@ class AzureADClient(
     }.tokenResponse.access_token
 
     @Scheduled(
-        initialDelayString = "PT1M",
-        fixedRateString = "PT1M",
+        initialDelayString = "PT10S",
+        fixedRateString = "PT10S",
     )
     fun evictionLoop() {
-        tokens.filter { it.value.expires }.forEach {
+        tokens.filter {
+            it.value.expires
+        }.forEach {
             tokens.remove(it.key)
         }
     }
@@ -84,7 +86,8 @@ private data class TokenResponse(
     val expires_in: Int,
 )
 
-private const val token_expiry_buffer = 120 /*sec*/
+private const val token_expiry_buffer = 180 /*sec*/
+
 private data class AccessTokenHolder(
     val tokenResponse: TokenResponse,
     val createdAt: Instant = Instant.now()
