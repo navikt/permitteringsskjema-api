@@ -53,7 +53,7 @@ class JournalføringService(
             journalføring.delayedUntil = now.plus(1, HOURS)
             journalføringRepository.save(journalføring)
         } catch (e: Exception) {
-            log.error("Exception ved journalføring: {}", e.javaClass.name, e)
+            log.error("Exception ved journalføring: {}", e.message, e)
             journalføring.delayedUntil = now.plus(1, MINUTES)
             journalføringRepository.save(journalføring)
         } finally {
