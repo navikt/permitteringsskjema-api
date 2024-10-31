@@ -9,6 +9,7 @@ import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
 import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
+import no.nav.permitteringsskjemaapi.util.basedOnEnv
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -16,6 +17,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.*
+
 
 @RestController
 @Protected
@@ -26,10 +28,11 @@ class PermitteringsskjemaController(
     private val journalføringService: JournalføringService,
     private val permitteringsmeldingKafkaService: PermitteringsmeldingKafkaService,
 ) {
+
     private val log = logger()
 
     @GetMapping("/skjemaV2/{id}")
-    fun hentById(@PathVariable id: UUID) : PermitteringsskjemaV2DTO? {
+    fun hentById(@PathVariable id: UUID): PermitteringsskjemaV2DTO? {
         val fnr = fnrExtractor.autentisertBruker()
 
         val permitteringsskjemaOpprettetAvBruker = repository.findByIdAndOpprettetAv(id, fnr)
@@ -40,9 +43,8 @@ class PermitteringsskjemaController(
         val permitteringsskjemaOpprettetAvAnnenBruker = repository.findById(id)
         if (permitteringsskjemaOpprettetAvAnnenBruker != null) {
             val orgnr = permitteringsskjemaOpprettetAvAnnenBruker.bedriftNr
-            val organisasjonerBasertPåRettighet = altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1")
-            val harRettTilÅSeSkjema = organisasjonerBasertPåRettighet.any { it == orgnr }
-            if (harRettTilÅSeSkjema) {
+            val harInnsynIVirksomhet = altinnService.harTilgang(orgnr, INNSYN_ALLE_PERMITTERINGSSKJEMA)
+            if (harInnsynIVirksomhet) {
                 return permitteringsskjemaOpprettetAvAnnenBruker.tilDTO()
             } else {
                 log.warn("Bruker forsoker hente skjema uten tilgang")
@@ -55,11 +57,14 @@ class PermitteringsskjemaController(
     fun hentAlle(): List<PermitteringsskjemaV2DTO> {
         val fnr = fnrExtractor.autentisertBruker()
 
-        val skjemaHentetBasertPåRettighet = hentAlleSkjemaBasertPåRettighet().toSet()
+        val alleOrgnrMedInnsynTilgang = altinnService.hentAlleOrgnr(INNSYN_ALLE_PERMITTERINGSSKJEMA)
+        val skjemaHentetBasertPåInnsynTilgang = alleOrgnrMedInnsynTilgang.flatMap {
+            repository.findAllByBedriftNr(it)
+        }.toSet()
 
-        val listeMedSkjemaBrukerenHarOpprettet = repository.findAllByOpprettetAv(fnr).toSet()
+        val skjemaBrukerenHarOpprettet = repository.findAllByOpprettetAv(fnr).toSet()
 
-        return (skjemaHentetBasertPåRettighet + listeMedSkjemaBrukerenHarOpprettet)
+        return (skjemaHentetBasertPåInnsynTilgang + skjemaBrukerenHarOpprettet)
             .map { it.tilDTO() }
             .sortedBy { it.sendtInnTidspunkt }.reversed()
     }
@@ -69,7 +74,9 @@ class PermitteringsskjemaController(
     fun sendInn(@Valid @RequestBody skjema: PermitteringsskjemaV2DTO): PermitteringsskjemaV2DTO {
         val fnr = fnrExtractor.autentisertBruker()
 
-        if (altinnService.hentAltinnTilganger().alleOrgNr.none { it == skjema.bedriftNr }) {
+        // Her kommer det på sikt en ny ressursid vi skal sjekke mot
+        val kanSendeInn = altinnService.hentAlleOrgnr().any { it == skjema.bedriftNr }
+        if (!kanSendeInn) {
             throw IkkeTilgangException()
         }
 
@@ -84,10 +91,13 @@ class PermitteringsskjemaController(
         }
     }
 
-    fun hentAlleSkjemaBasertPåRettighet() =
-        altinnService.hentOrganisasjonerBasertPåRettigheter("5810", "1").flatMap {
-            repository.findAllByBedriftNr(it)
-        }
+    companion object {
+        val INNSYN_ALLE_PERMITTERINGSSKJEMA = basedOnEnv(
+            prod = { "5810:1" }, // TODO bytt til altinn 3 ressurs når denne er tilgjengelig i altinn prod
+            other = { "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer" },
+        )
+        //const val SEND_INN = "nav_permittering-og-nedbemmaning_send-inn-skjema"
+    }
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -117,7 +127,7 @@ data class PermitteringsskjemaV2DTO(
     val sendtInnTidspunkt: Instant?,
 ) {
 
-    fun tilDomene(uuid: UUID, inloggetBruker: String) : Permitteringsskjema {
+    fun tilDomene(uuid: UUID, inloggetBruker: String): Permitteringsskjema {
         return Permitteringsskjema(
             id = uuid,
             type = type,
@@ -144,7 +154,7 @@ data class PermitteringsskjemaV2DTO(
     }
 }
 
-private fun Permitteringsskjema.tilDTO() : PermitteringsskjemaV2DTO {
+private fun Permitteringsskjema.tilDTO(): PermitteringsskjemaV2DTO {
     return PermitteringsskjemaV2DTO(
         id = id,
         type = type,
