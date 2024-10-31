@@ -9,6 +9,7 @@ import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
 import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
+import no.nav.permitteringsskjemaapi.util.basedOnEnv
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -91,7 +92,10 @@ class PermitteringsskjemaController(
     }
 
     companion object {
-        const val INNSYN_ALLE_PERMITTERINGSSKJEMA = "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer"
+        val INNSYN_ALLE_PERMITTERINGSSKJEMA = basedOnEnv(
+            prod = { "5810:1" }, // TODO bytt til altinn 3 ressurs når denne er tilgjengelig i altinn prod
+            other = { "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer" },
+        )
         //const val SEND_INN = "nav_permittering-og-nedbemmaning_send-inn-skjema"
     }
 }
