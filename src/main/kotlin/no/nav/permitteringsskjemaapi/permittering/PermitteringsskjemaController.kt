@@ -94,6 +94,7 @@ class PermitteringsskjemaController(
     companion object {
         val INNSYN_ALLE_PERMITTERINGSSKJEMA = basedOnEnv(
             prod = { "5810:1" }, // TODO bytt til altinn 3 ressurs når denne er tilgjengelig i altinn prod
+            dev = { "5810:1" },
             other = { "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer" },
         )
         //const val SEND_INN = "nav_permittering-og-nedbemmaning_send-inn-skjema"
