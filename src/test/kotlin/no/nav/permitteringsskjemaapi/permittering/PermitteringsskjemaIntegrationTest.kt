@@ -123,11 +123,11 @@ class PermitteringsskjemaIntegrationTest  {
             ],
             "isError": false,
             "orgNrTilTilganger": {
-                "$`Martes første BEDR`": ["nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer"],
-                "$`Martes andre BEDR`": ["nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer"]
+                "$`Martes første BEDR`": ["nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger"],
+                "$`Martes andre BEDR`": ["nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger"]
             },
             "tilgangTilOrgNr": {
-                "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer": ["$`Martes første BEDR`", "$`Martes andre BEDR`"]
+                "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger": ["$`Martes første BEDR`", "$`Martes andre BEDR`"]
             }
         }
     """
@@ -180,10 +180,10 @@ class PermitteringsskjemaIntegrationTest  {
             ],
             "isError": false,
             "orgNrTilTilganger": {
-                "$`En annen BEDR`": ["nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer"]
+                "$`En annen BEDR`": ["nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger"]
             },
             "tilgangTilOrgNr": {
-                "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-skjemaer": ["$`En annen BEDR`"]
+                "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger": ["$`En annen BEDR`"]
             }
         }
     """
