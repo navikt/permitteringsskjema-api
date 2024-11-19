@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
+import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaController.Companion.INNSYN_ALLE_PERMITTERINGSSKJEMA
 import no.nav.permitteringsskjemaapi.tokenx.TokenExchangeClient
 import no.nav.permitteringsskjemaapi.tokenx.TokenXToken
 import org.assertj.core.api.Assertions
@@ -123,11 +124,11 @@ class PermitteringsskjemaIntegrationTest  {
             ],
             "isError": false,
             "orgNrTilTilganger": {
-                "$`Martes første BEDR`": ["nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger"],
-                "$`Martes andre BEDR`": ["nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger"]
+                "$`Martes første BEDR`": ["$INNSYN_ALLE_PERMITTERINGSSKJEMA"],
+                "$`Martes andre BEDR`": ["$INNSYN_ALLE_PERMITTERINGSSKJEMA"]
             },
             "tilgangTilOrgNr": {
-                "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger": ["$`Martes første BEDR`", "$`Martes andre BEDR`"]
+                "$INNSYN_ALLE_PERMITTERINGSSKJEMA": ["$`Martes første BEDR`", "$`Martes andre BEDR`"]
             }
         }
     """
@@ -180,10 +181,10 @@ class PermitteringsskjemaIntegrationTest  {
             ],
             "isError": false,
             "orgNrTilTilganger": {
-                "$`En annen BEDR`": ["nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger"]
+                "$`En annen BEDR`": ["$INNSYN_ALLE_PERMITTERINGSSKJEMA"]
             },
             "tilgangTilOrgNr": {
-                "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger": ["$`En annen BEDR`"]
+                "$INNSYN_ALLE_PERMITTERINGSSKJEMA": ["$`En annen BEDR`"]
             }
         }
     """
