@@ -101,6 +101,27 @@
             <artifactId>json-schema-validator</artifactId>
             <version>1.0.87</version>
         </dependency>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-spring-client</artifactId>
+            <version>7.1.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.expediagroup</groupId>
+                    <artifactId>graphql-kotlin-client-jackson</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-client-serialization</artifactId>
+            <version>7.1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json</artifactId>
+            <version>1.6.3</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -171,6 +192,23 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.expediagroup</groupId>
+                <artifactId>graphql-kotlin-maven-plugin</artifactId>
+                <version>7.1.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-client</goal>
+                        </goals>
+                        <configuration>
+                            <schemaFile>${project.basedir}/src/main/resources/produsent.graphql</schemaFile>
+                            <packageName>no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated</packageName>
+                            <serializer>KOTLINX</serializer>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
