@@ -57,6 +57,19 @@
             <artifactId>token-validation-spring</artifactId>
             <version>${nav.security.version}</version>
         </dependency>
+        <!-- https://mavenlibs.com/maven/dependency/no.nav.security/token-client-core -->
+        <dependency>
+            <groupId>no.nav.security</groupId>
+            <artifactId>token-client-core</artifactId>
+            <version>5.0.1</version>
+        </dependency>
+        <!-- https://mavenlibs.com/maven/dependency/no.nav.security/token-client-spring -->
+        <dependency>
+            <groupId>no.nav.security</groupId>
+            <artifactId>token-client-spring</artifactId>
+            <version>5.0.1</version>
+        </dependency>
+
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>

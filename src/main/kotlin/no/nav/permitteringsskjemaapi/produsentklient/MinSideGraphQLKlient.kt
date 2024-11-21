@@ -1,20 +1,17 @@
 package no.nav.permitteringsmelding.notifikasjon.minsideklient.graphql
 
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.DeserializationFeature
-import no.nav.permitteringsmelding.notifikasjon.autentisering.Oauth2Client
 import no.nav.permitteringsskjemaapi.config.logger
-import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.opprettnysak.*
+import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.ISO8601DateTime
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.OpprettNySak
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.inputs.AltinnMottakerInput
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.inputs.MottakerInput
-import no.nav.permitteringsskjemaapi.tokenx.TokenExchangeClient
+import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.opprettnysak.*
+import no.nav.permitteringsskjemaapi.util.NaisEnvironment
 import no.nav.permitteringsskjemaapi.util.basedOnEnv
 import org.springframework.http.HttpHeaders
-import java.net.http.HttpClient
-
+import org.springframework.stereotype.Service
 
 private val urlTilNotifikasjonIMiljo = basedOnEnv(
     prod = { "http://notifikasjon-produsent-api.fager/api/graphql" },
@@ -22,33 +19,21 @@ private val urlTilNotifikasjonIMiljo = basedOnEnv(
     other = { "http://localhost:8080" },
 )
 
-private val notifikasjonerScope = basedOnEnv(
-    prod = { "api://prod-gcp.fager.notifikasjon-produsent-api/.default" },
-    dev = { "api://dev-gcp.fager.notifikasjon-produsent-api/.default" },
-    other = { "lokal" },
-)
-//
-//private val defaultHttpClient = HttpClient() {
-//    install(ContentNegotiation) {
-//        jackson {
-//            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-//            setSerializationInclusion(JsonInclude.Include.NON_NULL)
-//        }
-//    }
-//}
-
+@Service
 class MinSideGraphQLKlient(
     endpoint: String = urlTilNotifikasjonIMiljo,
-    //TODO: trengs denne?httpClient: HttpClient = defaultHttpClient,
-    private val tokenExchangeClient: TokenExchangeClient,
-    private val oauth2Client: Oauth2Client //TODO: rimelig sikker på at vi trenger denne for å snakke med produsent apiet
+    private val entraIdClient: EntraIdKlient
 ) {
-
     private val log = logger()
     private val client = GraphQLWebClient(url = endpoint)
     private val mottaker = MottakerInput(altinn = AltinnMottakerInput(serviceCode = "5810", serviceEdition = "1"), altinnRessurs = null, naermesteLeder = null)
     // TODO: endre til Altinn3 etter migrering
     // private val mottaker = MottakerInput(altinn = null, altinnRessurs = AltinnRessursMottakerInput(ressursId = "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger"), naermesteLeder = null)
+
+    private suspend fun hentEntraIdToken(): String {
+        val scope = "api://${NaisEnvironment.clusterName}.fager.notifikasjon-produsent-api/.default"
+        return entraIdClient.hentToken(scope)
+    }
 
     suspend fun opprettNySak(
         grupperingsid: String,
@@ -58,9 +43,7 @@ class MinSideGraphQLKlient(
         lenke: String,
         tidspunkt: ISO8601DateTime? = null
     ) {
-        val scopedAccessToken = tokenExchangeClient.exchange(authenticatedUserHolder.token,)
-
-        val scopedAccessToken = oauth2Client.machine2machine().accessToken
+        val scopedAccessToken = hentEntraIdToken()
         val resultat = client.execute(
             OpprettNySak(
                 variables = OpprettNySak.Variables(
