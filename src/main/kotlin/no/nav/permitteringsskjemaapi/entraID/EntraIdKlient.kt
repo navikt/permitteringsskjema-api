@@ -1,52 +1,97 @@
 package no.nav.permitteringsskjemaapi.entraID
 
-import no.nav.security.token.support.client.core.OAuth2ClientException
-import no.nav.security.token.support.client.core.http.OAuth2HttpHeaders
-import no.nav.security.token.support.client.core.http.OAuth2HttpRequest
-import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse
-import no.nav.security.token.support.client.spring.oauth2.DefaultOAuth2HttpClient
-import org.springframework.stereotype.Service
-import org.springframework.web.client.RestClient
-import java.net.URI
+import no.nav.permitteringsskjemaapi.config.logger
+import no.nav.permitteringsskjemaapi.util.multiValueMapOf
+import no.nav.permitteringsskjemaapi.util.retryInterceptor
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.context.annotation.Configuration
+import org.springframework.http.*
+import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
+import java.net.SocketException
 import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
+import javax.net.ssl.SSLHandshakeException
 
-@Service
-class EntraIdKlient(private val config: EntraIdConfig) {
-    private val oAuthClient = DefaultOAuth2HttpClient(RestClient.create())
-    private val oAuthHeaders = OAuth2HttpHeaders(mapOf("Content-Type" to listOf("application/x-www-form-urlencoded")))
 
-    private var oAuthTokenResponse: OAuth2AccessTokenResponse? = null
-    private var tokenHentetTidspunkt: Instant = Instant.MIN
+@Component
+class EntraIdKlient(
+    private val entraIdConfig: EntraIdConfig,
+    restTemplateBuilder: RestTemplateBuilder
+) {
+    private val log = logger()
 
-    suspend fun hentToken(scope: String): String {
-        if (tokenErGyldig()) {
-            return oAuthTokenResponse!!.access_token!!
-        }
-
-        val tokenRequest = OAuth2HttpRequest(
-            tokenEndpointUrl = URI.create(config.TOKEN_ENDPOINT_URL),
-            oAuth2HttpHeaders = oAuthHeaders,
-            formParameters = mapOf(
-                "client_id" to config.CLIENT_ID,
-                "client_secret" to config.CLIENT_SECRET,
-                "grant_type" to "client_credentials",
-                "scope" to scope
-            )
+    private val restTemplate = restTemplateBuilder.additionalInterceptors(
+        retryInterceptor(
+            3,
+            250L,
+            SocketException::class.java,
+            SSLHandshakeException::class.java,
         )
-        tokenHentetTidspunkt = Instant.now()
-        oAuthTokenResponse = oAuthClient.post(tokenRequest)
-        if (oAuthTokenResponse?.accessToken == null) { // linjen ovenfor skal egentlig kaste en exception dersom noe går galt, men vi gjør en ekstra sjekk
-            throw OAuth2ClientException("Klarte ikke å hente access token fra EntraID med scope $scope")
+    ).build()
+
+    private val tokens = ConcurrentHashMap<String, AccessTokenHolder>()
+
+    fun getToken(scope: String) = tokens.computeIfAbsent(scope) {
+        hentAccessToken(it)
+    }.tokenResponse.access_token
+
+    @Scheduled(
+        initialDelayString = "PT10S",
+        fixedRateString = "PT10S",
+    )
+    fun evictionLoop() {
+        tokens.filter {
+            it.value.hasExpired
+        }.forEach {
+            tokens.remove(it.key)
         }
-
-        return oAuthTokenResponse!!.accessToken!!
     }
 
-    private fun tokenErGyldig(): Boolean {
-        val now = Instant.now()
-        val utgårTidspunkt = tokenHentetTidspunkt.plusSeconds(oAuthTokenResponse?.expiresIn!!.toLong() - 5) // legger til et 5 sekunders buffer for å unngå at token er gyldig ved sjekk, men ikke ved utsending av request
-        return if (oAuthTokenResponse?.accessToken != null && oAuthTokenResponse?.expiresIn != null)
-            now < utgårTidspunkt
-        else false
+    private fun hentAccessToken(scope: String): AccessTokenHolder {
+        try {
+            val response: ResponseEntity<TokenResponse> = restTemplate.postForEntity(
+                entraIdConfig.aadAccessTokenURL,
+                HttpEntity(
+                    multiValueMapOf(
+                        "grant_type" to "client_credentials",
+                        "client_id" to entraIdConfig.clientid,
+                        "client_secret" to entraIdConfig.azureClientSecret,
+                        "scope" to scope,
+                    ),
+                    HttpHeaders().apply { contentType = MediaType.APPLICATION_FORM_URLENCODED }
+                ),
+                TokenResponse::class.java
+            )
+            return AccessTokenHolder(response.body!!)
+        } catch (e: Exception) {
+            log.error("feil ved henting av Azure AD maskin-maskin access token", e)
+            throw e
+        }
     }
+}
+
+@Configuration
+@ConfigurationProperties("azuread")
+class EntraIdConfig(
+    var aadAccessTokenURL: String = "",
+    var clientid: String = "",
+    var azureClientSecret: String = "",
+)
+
+private data class TokenResponse(
+    val access_token: String,
+    val token_type: String,
+    val expires_in: Int,
+)
+
+private const val token_expiry_buffer = 10 /*sec*/
+
+private data class AccessTokenHolder(
+    val tokenResponse: TokenResponse,
+    val createdAt: Instant = Instant.now()
+) {
+    val hasExpired: Boolean
+        get() = Instant.now() > createdAt.plusSeconds((tokenResponse.expires_in + token_expiry_buffer).toLong())
 }

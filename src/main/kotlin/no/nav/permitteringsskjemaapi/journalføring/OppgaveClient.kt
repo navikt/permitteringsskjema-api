@@ -2,6 +2,7 @@ package no.nav.permitteringsskjemaapi.journalføring
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
@@ -24,7 +25,7 @@ fun interface OppgaveClient {
 @Component
 class OppgaveClientImpl(
     restTemplateBuilder: RestTemplateBuilder,
-    azureADClient: AzureADClient,
+    entraIdKlient: EntraIdKlient,
     @Value("\${oppgave.baseUrl}") oppgaveBaseUrl: String,
     @Value("\${oppgave.scope}") oppgaveScope: String,
 ) : OppgaveClient {
@@ -32,7 +33,7 @@ class OppgaveClientImpl(
         .rootUri(oppgaveBaseUrl)
         .additionalInterceptors(
             ClientHttpRequestInterceptor { request, body, execution ->
-                request.headers.setBearerAuth(azureADClient.getToken(oppgaveScope))
+                request.headers.setBearerAuth(entraIdKlient.getToken(oppgaveScope))
                 execution.execute(request, body)
             },
             retryInterceptor(

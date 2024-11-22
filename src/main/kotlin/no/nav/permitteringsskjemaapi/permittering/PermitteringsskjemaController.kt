@@ -9,7 +9,6 @@ import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
 import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
-import no.nav.permitteringsskjemaapi.util.basedOnEnv
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*

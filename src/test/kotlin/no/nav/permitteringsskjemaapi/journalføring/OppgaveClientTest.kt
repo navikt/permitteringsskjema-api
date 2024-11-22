@@ -2,6 +2,7 @@ package no.nav.permitteringsskjemaapi.journalføring
 
 import no.nav.permitteringsskjemaapi.config.MDCConfig
 import no.nav.permitteringsskjemaapi.config.X_CORRELATION_ID
+import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
 import no.nav.permitteringsskjemaapi.permittering.testSkjema
 import org.hamcrest.core.IsAnything
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -25,7 +26,7 @@ private const val OPPGAVESCOPE = "api://oppgave/.default"
 @RestClientTest(
     components = [
         OppgaveClient::class,
-        AzureADClient::class,
+        EntraIdKlient::class,
     ],
     properties = [
         "oppgave.scope=$OPPGAVESCOPE",
@@ -46,11 +47,11 @@ class OppgaveClientTest {
     lateinit var server: MockRestServiceServer
 
     @MockBean
-    lateinit var azureADClient: AzureADClient
+    lateinit var entraIdKlient: EntraIdKlient
 
     @Test
     fun oppgaveOpprettetTest() {
-        Mockito.`when`(azureADClient.getToken(OPPGAVESCOPE)).thenReturn(mockAzureToken)
+        Mockito.`when`(entraIdKlient.getToken(OPPGAVESCOPE)).thenReturn(mockAzureToken)
 
         server.expect(requestTo("/api/v1/oppgaver"))
             .andExpect(method(HttpMethod.POST))
