@@ -44,8 +44,9 @@ class EntraIdKlient(private val config: EntraIdConfig) {
 
     private fun tokenErGyldig(): Boolean {
         val now = Instant.now()
+        val utgårTidspunkt = tokenHentetTidspunkt.plusSeconds(oAuthTokenResponse?.expiresIn!!.toLong() - 5) // legger til et 5 sekunders buffer for å unngå at token er gyldig ved sjekk, men ikke ved utsending av request
         return if (oAuthTokenResponse?.accessToken != null && oAuthTokenResponse?.expiresIn != null)
-            now < tokenHentetTidspunkt.plusSeconds(oAuthTokenResponse?.expiresIn!!.toLong() - 5) // legger til et 5 sekunders buffer
+            now < utgårTidspunkt
         else false
     }
 }
