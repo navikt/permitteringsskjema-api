@@ -1,6 +1,7 @@
-package no.nav.permitteringsmelding.notifikasjon.minsideklient.graphql
+package no.nav.permitteringsskjemaapi.notifikasjon
 
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
+import kotlinx.coroutines.runBlocking
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.ISO8601DateTime
@@ -16,16 +17,15 @@ import org.springframework.stereotype.Component
 private val urlTilNotifikasjonIMiljo = basedOnEnv(
     prod = { "http://notifikasjon-produsent-api.fager/api/graphql" },
     dev = { "http://notifikasjon-produsent-api.fager/api/graphql" },
-    other = { "http://localhost:8080" },
+    other = { "http://localhost:54058/permitteringsskjema-api/graphql" }, // brukes i tester
 )
 
 @Component
-class MinSideGraphQLKlient(
-    notifikasjonEndepunkt: String = urlTilNotifikasjonIMiljo,
+class ProdusentApiKlient(
     private val entraIdClient: EntraIdKlient
 ) {
     private val log = logger()
-    private val client = GraphQLWebClient(url = notifikasjonEndepunkt)
+    private val client = GraphQLWebClient(url = urlTilNotifikasjonIMiljo)
     private val mottaker = MottakerInput(altinn = AltinnMottakerInput(serviceCode = "5810", serviceEdition = "1"), altinnRessurs = null, naermesteLeder = null)
     // TODO: endre til Altinn3 etter migrering
     // private val mottaker = MottakerInput(altinn = null, altinnRessurs = AltinnRessursMottakerInput(ressursId = "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger"), naermesteLeder = null)
@@ -42,30 +42,33 @@ class MinSideGraphQLKlient(
         tittel: String,
         lenke: String,
         tidspunkt: ISO8601DateTime? = null
-    ) {
+    ) : String {
         val scopedAccessToken = hentEntraIdToken()
-        val resultat = client.execute(
-            OpprettNySak(
-                variables = OpprettNySak.Variables(
-                    grupperingsid,
-                    merkelapp,
-                    virksomhetsnummer,
-                    tittel,
-                    lenke,
-                    tidspunkt,
-                    mottaker
+        val resultat = runBlocking {
+            client.execute(
+                OpprettNySak(
+                    variables = OpprettNySak.Variables(
+                        grupperingsid,
+                        merkelapp,
+                        virksomhetsnummer,
+                        tittel,
+                        lenke,
+                        tidspunkt,
+                        mottaker
+                    )
                 )
-            )
-        ) {
-            header(HttpHeaders.AUTHORIZATION, "Bearer $scopedAccessToken")
+            ) {
+                header(HttpHeaders.AUTHORIZATION, "Bearer $scopedAccessToken")
+            }
         }
         val nySak = resultat.data?.nySak
 
         if (nySak is NySakVellykket) {
             log.info("Opprettet ny sak {}", nySak.id)
+            return nySak.id
         } else {
             when (nySak) {
-                is DuplikatGrupperingsid -> log.info("Sak finnes allerede. hopper over. {}", nySak.feilmelding)
+                is DuplikatGrupperingsid -> throw Exception(nySak.feilmelding) //TODO: kaste feil her?
                 is UgyldigMerkelapp -> throw Exception(nySak.feilmelding)
                 is UgyldigMottaker -> throw Exception(nySak.feilmelding)
                 is UkjentProdusent -> throw Exception(nySak.feilmelding)
