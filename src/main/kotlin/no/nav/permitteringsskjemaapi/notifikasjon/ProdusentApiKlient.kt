@@ -37,7 +37,7 @@ class ProdusentApiKlient(
         tittel: String,
         lenke: String,
         tidspunkt: ISO8601DateTime? = null
-    ) : String {
+    ) {
         val scopedAccessToken = hentEntraIdToken()
         val resultat = runBlocking {
             client.execute(
@@ -60,10 +60,10 @@ class ProdusentApiKlient(
 
         if (nySak is NySakVellykket) {
             log.info("Opprettet ny sak {}", nySak.id)
-            return nySak.id
+
         } else {
             when (nySak) {
-                is DuplikatGrupperingsid -> throw Exception(nySak.feilmelding) //TODO: kaste feil her?
+                is DuplikatGrupperingsid -> log.info("Sak finnes allerede. hopper over. {}", nySak.feilmelding)
                 is UgyldigMerkelapp -> throw Exception(nySak.feilmelding)
                 is UgyldigMottaker -> throw Exception(nySak.feilmelding)
                 is UkjentProdusent -> throw Exception(nySak.feilmelding)
