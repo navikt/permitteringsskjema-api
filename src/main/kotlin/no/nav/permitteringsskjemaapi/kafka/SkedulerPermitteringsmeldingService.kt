@@ -38,7 +38,7 @@ class SkedulerPermitteringsmeldingService(
                 )
             }
 
-            permitteringsskjemaProdusent.sendTilKafkaTopic(skjema)
+//            permitteringsskjemaProdusent.sendTilKafkaTopic(skjema)
             permitteringsmeldingKafkaRepository.delete(queueItem)
         }
     }
