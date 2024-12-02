@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
+import no.nav.permitteringsskjemaapi.notifikasjon.ProdusentApiKlient
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaController.Companion.INNSYN_ALLE_PERMITTERINGSSKJEMA
 import no.nav.permitteringsskjemaapi.tokenx.TokenExchangeClient
 import no.nav.permitteringsskjemaapi.tokenx.TokenXToken

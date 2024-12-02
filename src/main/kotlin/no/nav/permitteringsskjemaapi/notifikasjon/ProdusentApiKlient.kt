@@ -10,15 +10,9 @@ import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.inputs.Altin
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.inputs.MottakerInput
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.opprettnysak.*
 import no.nav.permitteringsskjemaapi.util.NaisEnvironment
-import no.nav.permitteringsskjemaapi.util.basedOnEnv
+import no.nav.permitteringsskjemaapi.util.urlTilNotifikasjonIMiljo
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
-
-private val urlTilNotifikasjonIMiljo = basedOnEnv(
-    prod = { "http://notifikasjon-produsent-api.fager/api/graphql" },
-    dev = { "http://notifikasjon-produsent-api.fager/api/graphql" },
-    other = { "http://localhost:54058/permitteringsskjema-api/graphql" }, // brukes i tester
-)
 
 @Component
 class ProdusentApiKlient(
@@ -26,9 +20,10 @@ class ProdusentApiKlient(
 ) {
     private val log = logger()
     private val client = GraphQLWebClient(url = urlTilNotifikasjonIMiljo)
-    private val mottaker = MottakerInput(altinn = AltinnMottakerInput(serviceCode = "5810", serviceEdition = "1"), altinnRessurs = null, naermesteLeder = null)
+
     // TODO: endre til Altinn3 etter migrering
     // private val mottaker = MottakerInput(altinn = null, altinnRessurs = AltinnRessursMottakerInput(ressursId = "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger"), naermesteLeder = null)
+    private val mottaker = MottakerInput(altinn = AltinnMottakerInput(serviceCode = "5810", serviceEdition = "1"), altinnRessurs = null, naermesteLeder = null)
 
     private suspend fun hentEntraIdToken(): String {
         val scope = "api://${NaisEnvironment.clusterName}.fager.notifikasjon-produsent-api/.default"
