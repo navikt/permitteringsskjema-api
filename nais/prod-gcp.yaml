@@ -48,3 +48,5 @@ spec:
         - application: permittering-dokgen
         - application: arbeidsgiver-altinn-tilganger
           namespace: fager
+        - application: notifikasjon-produsent-api
+          namespace: fager
