@@ -1,13 +1,9 @@
 package no.nav.permitteringsskjemaapi.kafka
 
 import jakarta.transaction.Transactional
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import no.nav.permitteringsskjemaapi.notifikasjon.ProdusentApiKlient
-import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.ISO8601DateTime
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
-import no.nav.permitteringsskjemaapi.util.basedOnEnv
 import no.nav.permitteringsskjemaapi.util.urlTilPermitteringsløsningFrontend
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
@@ -15,7 +11,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class PermitteringsmeldingKafkaService(
+class SkedulerPermitteringsmeldingService(
     private val permitteringsmeldingKafkaRepository: PermitteringsmeldingKafkaRepository,
     private val permitteringsskjemaRepository: PermitteringsskjemaRepository,
     private val permitteringsskjemaProdusent: PermitteringsskjemaProdusent,
@@ -49,11 +45,5 @@ class PermitteringsmeldingKafkaService(
 
     fun scheduleSend(skjemaid: UUID) {
         permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(skjemaid))
-    }
-
-    enum class MeldingType(val merkelapp: String, val tittel: String) { //TODO: Usikker på om denne skal være her?
-        MASSEOPPSIGELSE("Nedbemanning", "Melding om oppsigelse"),
-        PERMITTERING_UTEN_LØNN("Permittering", "Melding om permittering"),
-        INNSKRENKNING_I_ARBEIDSTID("Innskrenking av arbeidstid", "Melding om innskrenking av arbeidstid")
     }
 }

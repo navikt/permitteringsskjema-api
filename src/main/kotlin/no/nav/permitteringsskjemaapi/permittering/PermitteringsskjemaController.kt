@@ -7,7 +7,7 @@ import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException
 import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
-import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
+import no.nav.permitteringsskjemaapi.kafka.SkedulerPermitteringsmeldingService
 import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.transaction.annotation.Transactional
@@ -25,7 +25,7 @@ class PermitteringsskjemaController(
     private val altinnService: AltinnService,
     private val repository: PermitteringsskjemaRepository,
     private val journalføringService: JournalføringService,
-    private val permitteringsmeldingKafkaService: PermitteringsmeldingKafkaService,
+    private val skedulerPermitteringsmeldingService: SkedulerPermitteringsmeldingService,
 ) {
 
     private val log = logger()
@@ -86,7 +86,7 @@ class PermitteringsskjemaController(
         val id = UUID.randomUUID()
         return repository.save(skjema.tilDomene(id, fnr)).tilDTO().also {
             journalføringService.startJournalføring(id)
-            permitteringsmeldingKafkaService.scheduleSend(id)
+            skedulerPermitteringsmeldingService.scheduleSend(id)
         }
     }
 
