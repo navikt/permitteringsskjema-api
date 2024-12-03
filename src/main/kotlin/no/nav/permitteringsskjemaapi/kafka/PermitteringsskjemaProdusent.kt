@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
 private const val TOPIC = "permittering-og-nedbemanning.aapen-permittering-arbeidsgiver"
 
 @Service
-class PermitteringsskjemaProdusent( //TODO: Denne kan slettes når permitteringsskjema-notifikasjon er fjernet
+class PermitteringsskjemaProdusent(
     private val kafkaTemplate: KafkaTemplate<String, String>,
     private val mapper: ObjectMapper,
 ) {

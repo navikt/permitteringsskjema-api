@@ -17,7 +17,7 @@ import java.util.*
 @ExtendWith(SpringExtension::class)
 @Import(FakeControllerContext::class)
 @ActiveProfiles("test")
-internal class ProdusentApiKlientImplTest {
+internal class ProdusentApiKlientTest {
     @Autowired
     lateinit var produsentApiKlient: ProdusentApiKlient
 
