@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
-import no.nav.permitteringsskjemaapi.kafka.PermitteringsmeldingKafkaService
+import no.nav.permitteringsskjemaapi.kafka.SkedulerPermitteringsmeldingService
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaController.Companion.INNSYN_ALLE_PERMITTERINGSSKJEMA
 import no.nav.permitteringsskjemaapi.tokenx.TokenExchangeClient
 import no.nav.permitteringsskjemaapi.tokenx.TokenXToken
@@ -45,7 +45,7 @@ class PermitteringsskjemaIntegrationTest  {
     lateinit var journalføringService: JournalføringService
 
     @MockBean
-    lateinit var permitteringsmeldingKafkaService: PermitteringsmeldingKafkaService
+    lateinit var skedulerPermitteringsmeldingService: SkedulerPermitteringsmeldingService
 
     @MockBean
     lateinit var tokenExchangeClient: TokenExchangeClient
@@ -488,7 +488,7 @@ class PermitteringsskjemaIntegrationTest  {
         }
 
         verify(journalføringService).startJournalføring(skjemaid = lagretSkjema.id)
-        verify(permitteringsmeldingKafkaService).scheduleSend(skjemaid = lagretSkjema.id)
+        verify(skedulerPermitteringsmeldingService).scheduleSend(skjemaid = lagretSkjema.id)
     }
 
     @Test

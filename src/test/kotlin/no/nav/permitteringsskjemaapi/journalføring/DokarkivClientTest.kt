@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
+import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.permittering.SkjemaType
 import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
@@ -27,7 +28,7 @@ private const val dokarkivScope = "api://localhost/.default"
 @RestClientTest(
     components = [
         DokarkivClient::class,
-        AzureADClient::class,
+        EntraIdKlient::class,
     ],
     properties = [
         "dokarkiv.scope=$dokarkivScope",
@@ -38,7 +39,7 @@ class DokarkivClientTest {
     lateinit var dokarkivClient: DokarkivClient
 
     @MockBean
-    lateinit var azureADClient: AzureADClient
+    lateinit var entraIdKlient: EntraIdKlient
 
     @Autowired
     lateinit var server: MockRestServiceServer
@@ -66,7 +67,7 @@ class DokarkivClientTest {
 
     @Test
     fun oppretterJournalpostMedAzureToken() {
-        Mockito.`when`(azureADClient.getToken(dokarkivScope)).thenReturn(mockAzureToken)
+        Mockito.`when`(entraIdKlient.getToken(dokarkivScope)).thenReturn(mockAzureToken)
 
         server.expect(requestTo("/journalpost?forsoekFerdigstill=true"))
             .andExpect(method(HttpMethod.POST))

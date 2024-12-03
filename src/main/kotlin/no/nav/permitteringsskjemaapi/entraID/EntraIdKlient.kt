@@ -1,4 +1,4 @@
-package no.nav.permitteringsskjemaapi.journalføring
+package no.nav.permitteringsskjemaapi.entraID
 
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.util.multiValueMapOf
@@ -16,8 +16,8 @@ import javax.net.ssl.SSLHandshakeException
 
 
 @Component
-class AzureADClient(
-    private val azureADProperties: AzureADProperties,
+class EntraIdKlient(
+    private val entraIdConfig: EntraIdConfig,
     restTemplateBuilder: RestTemplateBuilder
 ) {
     private val log = logger()
@@ -43,7 +43,7 @@ class AzureADClient(
     )
     fun evictionLoop() {
         tokens.filter {
-            it.value.expires
+            it.value.hasExpired
         }.forEach {
             tokens.remove(it.key)
         }
@@ -52,12 +52,12 @@ class AzureADClient(
     private fun hentAccessToken(scope: String): AccessTokenHolder {
         try {
             val response: ResponseEntity<TokenResponse> = restTemplate.postForEntity(
-                azureADProperties.aadAccessTokenURL,
+                entraIdConfig.aadAccessTokenURL,
                 HttpEntity(
                     multiValueMapOf(
                         "grant_type" to "client_credentials",
-                        "client_id" to azureADProperties.clientid,
-                        "client_secret" to azureADProperties.azureClientSecret,
+                        "client_id" to entraIdConfig.clientid,
+                        "client_secret" to entraIdConfig.azureClientSecret,
                         "scope" to scope,
                     ),
                     HttpHeaders().apply { contentType = MediaType.APPLICATION_FORM_URLENCODED }
@@ -74,7 +74,7 @@ class AzureADClient(
 
 @Configuration
 @ConfigurationProperties("azuread")
-class AzureADProperties(
+class EntraIdConfig(
     var aadAccessTokenURL: String = "",
     var clientid: String = "",
     var azureClientSecret: String = "",
@@ -86,12 +86,12 @@ private data class TokenResponse(
     val expires_in: Int,
 )
 
-private const val token_expiry_buffer = 180 /*sec*/
+private const val token_expiry_buffer = 10 /*sec*/
 
 private data class AccessTokenHolder(
     val tokenResponse: TokenResponse,
     val createdAt: Instant = Instant.now()
 ) {
-    val expires: Boolean
+    val hasExpired: Boolean
         get() = Instant.now() > createdAt.plusSeconds((tokenResponse.expires_in + token_expiry_buffer).toLong())
 }

@@ -3,6 +3,7 @@ package no.nav.permitteringsskjemaapi.journalføring
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nav.permitteringsskjemaapi.config.logger
+import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
@@ -34,7 +35,7 @@ fun interface DokarkivClient {
 class DokarkivClientImpl(
     @Value("\${dokarkiv.scope}") dokarkivScope: String,
     @Value("\${dokarkiv.baseUrl}") dokarkivBaseUrl: String,
-    val azureADClient: AzureADClient,
+    val entraIdKlient: EntraIdKlient,
     restTemplateBuilder: RestTemplateBuilder,
 ) : DokarkivClient {
     private val log = logger()
@@ -55,7 +56,7 @@ class DokarkivClientImpl(
         })
         .additionalInterceptors(
             ClientHttpRequestInterceptor { request, body, execution ->
-                request.headers.setBearerAuth(azureADClient.getToken(dokarkivScope))
+                request.headers.setBearerAuth(entraIdKlient.getToken(dokarkivScope))
                 execution.execute(request, body)
             },
             retryInterceptor(

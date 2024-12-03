@@ -1,5 +1,7 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
+import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
+import no.nav.permitteringsskjemaapi.entraID.EntraIdConfig
 import no.nav.permitteringsskjemaapi.util.multiValueMapOf
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -13,8 +15,8 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 
 @RestClientTest(
     components = [
-        AzureADClient::class,
-        AzureADProperties::class,
+        EntraIdKlient::class,
+        EntraIdConfig::class,
     ],
     properties = [
         "azuread.aadAccessTokenURL=/some-azure-ad-endpoint",
@@ -22,9 +24,9 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
         "azuread.azureClientSecret=fake-client-secret",
     ]
 )
-class AzureADClientTest {
+class EntraIdKlientTest {
     @Autowired
-    lateinit var azureADClient: AzureADClient
+    lateinit var entraIdKlient: EntraIdKlient
 
     @Autowired
     lateinit var server: MockRestServiceServer
@@ -54,7 +56,7 @@ class AzureADClientTest {
             )))
             .andRespond(withSuccess(exampleResponse, MediaType.APPLICATION_JSON))
 
-        val token = azureADClient.getToken(scope)
+        val token = entraIdKlient.getToken(scope)
 
         assertEquals("eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Ik5HVEZ2ZEstZnl0aEV1Q...", token)
     }
