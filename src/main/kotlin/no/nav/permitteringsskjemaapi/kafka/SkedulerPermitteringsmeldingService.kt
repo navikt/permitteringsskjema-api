@@ -28,7 +28,7 @@ class SkedulerPermitteringsmeldingService(
             val skjema = permitteringsskjemaRepository.findById(queueItem.skjemaId)
                 ?: throw RuntimeException("skjema med id ${queueItem.skjemaId} finnes ikke")
 
-            runBlocking { // TODO: endre denne etter test, fjerne permitteringtsskjemaproduset.sendTilKafkaTopic
+            runBlocking {
                 produsentApiKlient.opprettNySak(
                     grupperingsid = skjema.id.toString(),
                     tittel = skjema.type.tittel,
