@@ -86,7 +86,7 @@ private data class TokenResponse(
     val expires_in: Int,
 )
 
-private const val token_expiry_buffer = 10 /*sec*/
+private const val token_expiry_buffer = 180 /*sec*/
 
 private data class AccessTokenHolder(
     val tokenResponse: TokenResponse,
