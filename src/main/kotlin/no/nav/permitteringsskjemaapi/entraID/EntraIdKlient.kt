@@ -43,7 +43,7 @@ class EntraIdKlient(
     )
     fun evictionLoop() {
         tokens.filter {
-            it.value.hasExpired
+            it.value.hasExpired(Instant.now())
         }.forEach {
             tokens.remove(it.key)
         }
@@ -80,18 +80,21 @@ class EntraIdConfig(
     var azureClientSecret: String = "",
 )
 
-private data class TokenResponse(
+internal data class TokenResponse(
     val access_token: String,
     val token_type: String,
     val expires_in: Int,
 )
 
-private const val token_expiry_buffer = 180 /*sec*/
+internal const val token_expiry_buffer_seconds = 60 /*sec*/
 
-private data class AccessTokenHolder(
+internal data class AccessTokenHolder(
     val tokenResponse: TokenResponse,
     val createdAt: Instant = Instant.now()
 ) {
-    val hasExpired: Boolean
-        get() = Instant.now() > createdAt.plusSeconds((tokenResponse.expires_in + token_expiry_buffer).toLong())
+    fun hasExpired(
+        now: Instant = Instant.now(),
+    ): Boolean {
+        return now > createdAt.plusSeconds((tokenResponse.expires_in - token_expiry_buffer_seconds).toLong())
+    }
 }
