@@ -2,11 +2,12 @@ package no.nav.permitteringsskjemaapi.notifikasjon
 
 import com.expediagroup.graphql.client.spring.GraphQLWebClient
 import kotlinx.coroutines.runBlocking
+import no.nav.permitteringsskjemaapi.config.INNSYN_ALLE_PERMITTERINGSSKJEMA
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.ISO8601DateTime
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.OpprettNySak
-import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.inputs.AltinnMottakerInput
+import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.inputs.AltinnRessursMottakerInput
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.inputs.MottakerInput
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.opprettnysak.*
 import no.nav.permitteringsskjemaapi.util.NaisEnvironment
@@ -21,9 +22,11 @@ class ProdusentApiKlient(
     private val log = logger()
     private val client = GraphQLWebClient(url = urlTilNotifikasjonIMiljo)
 
-    // TODO: endre til Altinn3 etter migrering
-    // private val mottaker = MottakerInput(altinn = null, altinnRessurs = AltinnRessursMottakerInput(ressursId = "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger"), naermesteLeder = null)
-    private val mottaker = MottakerInput(altinn = AltinnMottakerInput(serviceCode = "5810", serviceEdition = "1"), altinnRessurs = null, naermesteLeder = null)
+    private val mottaker = MottakerInput(
+        altinn = null,
+        altinnRessurs = AltinnRessursMottakerInput(ressursId = INNSYN_ALLE_PERMITTERINGSSKJEMA),
+        naermesteLeder = null
+    )
 
     private suspend fun hentEntraIdToken(): String {
         val scope = "api://${NaisEnvironment.clusterName}.fager.notifikasjon-produsent-api/.default"

@@ -3,6 +3,7 @@ package no.nav.permitteringsskjemaapi.permittering
 import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.validation.Valid
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
+import no.nav.permitteringsskjemaapi.config.INNSYN_ALLE_PERMITTERINGSSKJEMA
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException
 import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException
@@ -88,14 +89,6 @@ class PermitteringsskjemaController(
             journalføringService.startJournalføring(id)
             skedulerPermitteringsmeldingService.scheduleSend(id)
         }
-    }
-
-    companion object {
-        const val INNSYN_ALLE_PERMITTERINGSSKJEMA = "5810:1"
-        //TODO: når altinn 3 ressursen er migrert bytt til følgende
-        //const val INNSYN_ALLE_PERMITTERINGSSKJEMA = "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger"
-
-        //const val SEND_INN = "nav_permittering-og-nedbemmaning_send-inn-skjema"
     }
 }
 

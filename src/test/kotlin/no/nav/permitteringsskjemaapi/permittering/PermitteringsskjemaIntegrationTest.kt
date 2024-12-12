@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
+import no.nav.permitteringsskjemaapi.config.INNSYN_ALLE_PERMITTERINGSSKJEMA
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.SkedulerPermitteringsmeldingService
-import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaController.Companion.INNSYN_ALLE_PERMITTERINGSSKJEMA
 import no.nav.permitteringsskjemaapi.tokenx.TokenExchangeClient
 import no.nav.permitteringsskjemaapi.tokenx.TokenXToken
 import org.assertj.core.api.Assertions
