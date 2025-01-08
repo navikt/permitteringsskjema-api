@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestClientResponseException
 import java.time.LocalDate
 
@@ -28,6 +29,9 @@ class EregClientImpl(
                 250L,
                 java.net.SocketException::class.java,
                 javax.net.ssl.SSLHandshakeException::class.java,
+                HttpServerErrorException.BadGateway::class.java,
+                HttpServerErrorException.GatewayTimeout::class.java,
+                HttpServerErrorException.ServiceUnavailable::class.java,
             )
         )
         .build()

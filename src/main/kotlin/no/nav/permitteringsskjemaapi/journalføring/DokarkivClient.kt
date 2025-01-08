@@ -13,6 +13,7 @@ import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
+import org.springframework.web.client.HttpServerErrorException
 import java.net.SocketException
 import java.time.LocalDate
 import java.time.ZoneId
@@ -64,6 +65,9 @@ class DokarkivClientImpl(
                 250L,
                 SocketException::class.java,
                 SSLHandshakeException::class.java,
+                HttpServerErrorException.BadGateway::class.java,
+                HttpServerErrorException.GatewayTimeout::class.java,
+                HttpServerErrorException.ServiceUnavailable::class.java,
             )
         )
         .build()

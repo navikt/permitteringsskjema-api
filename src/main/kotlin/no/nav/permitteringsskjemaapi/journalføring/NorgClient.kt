@@ -8,6 +8,7 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpServerErrorException
 
 fun interface NorgClient {
     fun hentBehandlendeEnhet(kommuneNummer: String): String
@@ -32,6 +33,9 @@ class NorgClientImpl(
                 250L,
                 java.net.SocketException::class.java,
                 javax.net.ssl.SSLHandshakeException::class.java,
+                HttpServerErrorException.BadGateway::class.java,
+                HttpServerErrorException.GatewayTimeout::class.java,
+                HttpServerErrorException.ServiceUnavailable::class.java,
             )
         )
         .build()

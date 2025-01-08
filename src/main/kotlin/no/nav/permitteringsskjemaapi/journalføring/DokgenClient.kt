@@ -7,6 +7,7 @@ import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpServerErrorException
 import java.net.SocketException
 import java.time.Instant
 import java.time.LocalDate
@@ -29,6 +30,9 @@ class DokgenClientImpl(
                 250L,
                 SocketException::class.java,
                 SSLHandshakeException::class.java,
+                HttpServerErrorException.BadGateway::class.java,
+                HttpServerErrorException.GatewayTimeout::class.java,
+                HttpServerErrorException.ServiceUnavailable::class.java,
             )
         )
         .build()

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpServerErrorException
 import java.net.SocketException
 import java.time.LocalDate
 import java.time.ZoneId
@@ -41,6 +42,9 @@ class OppgaveClientImpl(
                 250L,
                 SocketException::class.java,
                 SSLHandshakeException::class.java,
+                HttpServerErrorException.BadGateway::class.java,
+                HttpServerErrorException.GatewayTimeout::class.java,
+                HttpServerErrorException.ServiceUnavailable::class.java,
             )
         )
         .build()

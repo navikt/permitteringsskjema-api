@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.*
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpServerErrorException
 import java.net.SocketException
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
@@ -28,6 +29,9 @@ class EntraIdKlient(
             250L,
             SocketException::class.java,
             SSLHandshakeException::class.java,
+            HttpServerErrorException.BadGateway::class.java,
+            HttpServerErrorException.GatewayTimeout::class.java,
+            HttpServerErrorException.ServiceUnavailable::class.java,
         )
     ).build()
 

@@ -9,6 +9,7 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
+import org.springframework.web.client.HttpServerErrorException
 
 interface TokenExchangeClient {
     fun exchange(subjectToken: String, audience: String): TokenXToken
@@ -28,8 +29,9 @@ class TokenExchangeClientImpl(
             250L,
             java.net.SocketException::class.java,
             javax.net.ssl.SSLHandshakeException::class.java,
-            org.springframework.web.client.HttpServerErrorException.GatewayTimeout::class.java,
-            org.springframework.web.client.HttpServerErrorException.ServiceUnavailable::class.java,
+            HttpServerErrorException.BadGateway::class.java,
+            HttpServerErrorException.GatewayTimeout::class.java,
+            HttpServerErrorException.ServiceUnavailable::class.java,
         )
     ).build()
 
