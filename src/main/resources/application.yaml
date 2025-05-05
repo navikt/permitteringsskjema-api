@@ -18,6 +18,7 @@ management:
       show-details: never
 spring:
   main.banner-mode: "off"
+  jpa.open-in-view: false
   profiles.active: prod-gcp
   jackson:
     default-property-inclusion: non-absent

@@ -61,13 +61,13 @@
         <dependency>
             <groupId>no.nav.security</groupId>
             <artifactId>token-client-core</artifactId>
-            <version>5.0.1</version>
+            <version>${nav.security.version}</version>
         </dependency>
         <!-- https://mavenlibs.com/maven/dependency/no.nav.security/token-client-spring -->
         <dependency>
             <groupId>no.nav.security</groupId>
             <artifactId>token-client-spring</artifactId>
-            <version>5.0.1</version>
+            <version>${nav.security.version}</version>
         </dependency>
 
         <dependency>
