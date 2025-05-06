@@ -7,6 +7,11 @@ metadata:
     team: permittering-og-nedbemanning
 spec:
   image: {{image}}
+  resources:
+    requests:
+      memory: 512Mi
+    limits:
+      memory: 1024Mi
   liveness:
     path: /permitteringsskjema-api/internal/actuator/info
   readiness:
