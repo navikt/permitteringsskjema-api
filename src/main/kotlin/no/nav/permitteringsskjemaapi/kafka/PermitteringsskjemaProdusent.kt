@@ -23,7 +23,7 @@ class PermitteringsskjemaProdusent(
     private val mapper: ObjectMapper,
 ) {
 
-    fun sendTilKafkaTopic(permitteringsskjema: Permitteringsskjema) {
+    fun sendTilKafkaTopic(permitteringsskjema: Permitteringsskjema) : Unit {
         val rapport = PermitteringsskjemaKafkaMelding(
             antallBerorte = permitteringsskjema.antallBerørt,
             bedriftsnummer = permitteringsskjema.bedriftNr,

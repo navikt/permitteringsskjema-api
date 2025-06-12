@@ -11,9 +11,9 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture
 @ActiveProfiles("test")
 class PermitteringsskjemaProdusentTest {
 
-    @MockBean
+    @MockitoBean
     lateinit var kafkaTemplate: KafkaTemplate<String, String>
 
     @Autowired

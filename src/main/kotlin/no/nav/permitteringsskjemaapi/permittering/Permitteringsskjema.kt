@@ -37,10 +37,10 @@ data class Permitteringsskjema(
     val årsakstekst = årsakskode.navn
 }
 
-enum class SkjemaType(val merkelapp: String, val tittel: String) {
-    MASSEOPPSIGELSE("Nedbemanning", "Melding om oppsigelse"),
-    PERMITTERING_UTEN_LØNN("Permittering", "Melding om permittering"),
-    INNSKRENKNING_I_ARBEIDSTID("Innskrenking av arbeidstid", "Melding om innskrenking av arbeidstid")
+enum class SkjemaType(val merkelapp: String, val tittel: String, val beskjedTekst: String) {
+    MASSEOPPSIGELSE("Nedbemanning", "Melding om oppsigelse", "Nav har mottatt din melding om oppsigelse. Vi kontakter deg snart"),
+    PERMITTERING_UTEN_LØNN("Permittering", "Melding om permittering", "Nav har mottatt din melding om permittering. Vi kontakter deg snart"),
+    INNSKRENKNING_I_ARBEIDSTID("Innskrenking av arbeidstid", "Melding om innskrenking av arbeidstid", "Nav har mottatt din melding om innskrenking av arbeidstid. Vi kontakter deg snart"),
 }
 
 enum class Årsakskode(val navn: String) {

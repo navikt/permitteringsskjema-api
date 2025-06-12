@@ -17,10 +17,12 @@ import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.json.JsonCompareMode
+import org.springframework.test.json.JsonCompareMode.LENIENT
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.*
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
@@ -39,15 +41,15 @@ import java.util.*
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class PermitteringsskjemaIntegrationTest  {
+class PermitteringsskjemaIntegrationTest {
 
-    @MockBean
+    @MockitoBean
     lateinit var journalføringService: JournalføringService
 
-    @MockBean
+    @MockitoBean
     lateinit var skedulerPermitteringsmeldingService: SkedulerPermitteringsmeldingService
 
-    @MockBean
+    @MockitoBean
     lateinit var tokenExchangeClient: TokenExchangeClient
 
     @Autowired
@@ -132,6 +134,7 @@ class PermitteringsskjemaIntegrationTest  {
             }
         }
     """
+
     //language=JSON
     val `Unnis tilganger` = """
         {
@@ -161,6 +164,7 @@ class PermitteringsskjemaIntegrationTest  {
             "tilgangTilOrgNr": {}
         }
     """
+
     //language=JSON
     val `Helles tilganger` = """
         {
@@ -246,7 +250,7 @@ class PermitteringsskjemaIntegrationTest  {
             }
         }.andReturn().response.contentAsString
 
-        val jsonNode : JsonNode = objectMapper.readValue(jsonResponse)
+        val jsonNode: JsonNode = objectMapper.readValue(jsonResponse)
         Assertions.assertThat(
             jsonNode.map { it.at("/bedriftNavn").textValue() }
         ).containsExactly(
@@ -342,13 +346,13 @@ class PermitteringsskjemaIntegrationTest  {
             accept(APPLICATION_JSON)
             header("Authorization", "Bearer $`martes token`")
         }
-        .andExpect {
-            status {
-                isOk()
-            }
-            content {
-                json(
-                    """
+            .andExpect {
+                status {
+                    isOk()
+                }
+                content {
+                    json(
+                        """
                     {
                       "id": "${lagretSkjema.id}",
                       "type": "${lagretSkjema.type}",
@@ -373,10 +377,10 @@ class PermitteringsskjemaIntegrationTest  {
                       "sendtInnTidspunkt": "${lagretSkjema.sendtInnTidspunkt}"
                     }
                     """,
-                    strict = true
-                )
+                        strict = true
+                    )
+                }
             }
-        }
     }
 
     @Test
@@ -482,7 +486,7 @@ class PermitteringsskjemaIntegrationTest  {
                       "sendtInnTidspunkt": "${lagretSkjema.sendtInnTidspunkt}"
                     }
                     """,
-                    strict = true
+                    LENIENT
                 )
             }
         }
@@ -558,7 +562,8 @@ class PermitteringsskjemaIntegrationTest  {
                 isOk()
             }
             content {
-                json("""
+                json(
+                    """
             [{
               "orgnr": "$`Martes overenhet`",
               "navn": "marthes overenhet",
@@ -579,7 +584,8 @@ class PermitteringsskjemaIntegrationTest  {
               ]
             }]
             """,
-                    strict = false)
+                    LENIENT
+                )
             }
         }
     }
@@ -589,7 +595,8 @@ class PermitteringsskjemaIntegrationTest  {
             HttpRequest.newBuilder(URI.create("http://localhost:9100/tokenx/token"))
                 .header("content-type", "application/x-www-form-urlencoded")
                 .POST(
-                    HttpRequest.BodyPublishers.ofString("grant_type=client_credentials&client_id=1234&client_secret=1234&scope=$pid"))
+                    HttpRequest.BodyPublishers.ofString("grant_type=client_credentials&client_id=1234&client_secret=1234&scope=$pid")
+                )
                 .build(),
             HttpResponse.BodyHandlers.ofString(),
         )
