@@ -38,9 +38,9 @@ data class Permitteringsskjema(
 }
 
 enum class SkjemaType(val merkelapp: String, val tittel: String, val beskjedTekst: String) {
-    MASSEOPPSIGELSE("Nedbemanning", "Melding om oppsigelse", "Nav har mottatt din melding om oppsigelse. Vi kontakter deg snart"),
-    PERMITTERING_UTEN_LØNN("Permittering", "Melding om permittering", "Nav har mottatt din melding om permittering. Vi kontakter deg snart"),
-    INNSKRENKNING_I_ARBEIDSTID("Innskrenking av arbeidstid", "Melding om innskrenking av arbeidstid", "Nav har mottatt din melding om innskrenking av arbeidstid. Vi kontakter deg snart"),
+    MASSEOPPSIGELSE("Nedbemanning", "Melding om oppsigelse", "Nav har mottatt deres melding om oppsigelse. Vi tar kontakt snart."),
+    PERMITTERING_UTEN_LØNN("Permittering", "Melding om permittering", "Nav har mottatt deres melding om permittering. Vi tar kontakt snart."),
+    INNSKRENKNING_I_ARBEIDSTID("Innskrenking av arbeidstid", "Melding om innskrenking av arbeidstid", "Nav har mottatt deres melding om innskrenking av arbeidstid. Vi tar kontakt snart."),
 }
 
 enum class Årsakskode(val navn: String) {
