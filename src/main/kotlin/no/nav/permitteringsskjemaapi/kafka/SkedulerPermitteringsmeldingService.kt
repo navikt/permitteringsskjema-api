@@ -3,6 +3,7 @@ package no.nav.permitteringsskjemaapi.kafka
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.runBlocking
 import no.nav.permitteringsskjemaapi.notifikasjon.ProdusentApiKlient
+import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.ISO8601DateTime
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import no.nav.permitteringsskjemaapi.util.urlTilPermitteringsløsningFrontend
 import org.springframework.data.domain.Pageable
@@ -25,21 +26,30 @@ class SkedulerPermitteringsmeldingService(
     )
     fun scheduleFixedRateTask() {
         permitteringsmeldingKafkaRepository.fetchQueueItems(Pageable.ofSize(100)).forEach { queueItem ->
-            val skjema = permitteringsskjemaRepository.findById(queueItem.skjemaId)
-                ?: throw RuntimeException("skjema med id ${queueItem.skjemaId} finnes ikke")
-
             runBlocking {
+                val skjema = permitteringsskjemaRepository.findById(queueItem.skjemaId)
+                    ?: throw RuntimeException("skjema med id ${queueItem.skjemaId} finnes ikke")
+
                 produsentApiKlient.opprettNySak(
-                    grupperingsid = skjema.id.toString(),
                     tittel = skjema.type.tittel,
+                    grupperingsid = skjema.id.toString(),
                     merkelapp = skjema.type.merkelapp,
                     virksomhetsnummer = skjema.bedriftNr,
                     lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
+                    tidspunkt = skjema.sendtInnTidspunkt.toString()
                 )
-            }
+                produsentApiKlient.opprettNyBeskjed(
+                    tekst = skjema.type.beskjedTekst,
+                    grupperingsid = skjema.id.toString(),
+                    merkelapp = skjema.type.merkelapp,
+                    virksomhetsnummer = skjema.bedriftNr,
+                    lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
+                    tidspunkt = skjema.sendtInnTidspunkt.toString()
+                )
 
-            permitteringsskjemaProdusent.sendTilKafkaTopic(skjema)
-            permitteringsmeldingKafkaRepository.delete(queueItem)
+                permitteringsskjemaProdusent.sendTilKafkaTopic(skjema)
+                permitteringsmeldingKafkaRepository.delete(queueItem)
+            }
         }
     }
 

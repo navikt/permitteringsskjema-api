@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.method
 import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
@@ -23,10 +23,10 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 )
 class AltinnServiceTest {
 
-    @MockBean
+    @MockitoBean
     lateinit var authenticatedUserHolder: AuthenticatedUserHolder
 
-    @MockBean
+    @MockitoBean
     lateinit var tokenXClient: TokenExchangeClient
 
     @Autowired

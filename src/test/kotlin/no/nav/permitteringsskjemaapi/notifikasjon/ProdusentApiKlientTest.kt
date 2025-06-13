@@ -5,16 +5,12 @@ import no.nav.permitteringsskjemaapi.fakes.FakeControllerContext
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = ["server.port=54058"])
-@ExtendWith(SpringExtension::class)
 @Import(FakeControllerContext::class)
 @ActiveProfiles("test")
 internal class ProdusentApiKlientTest {
@@ -25,13 +21,13 @@ internal class ProdusentApiKlientTest {
     lateinit var fakeResponseResolver: FakeControllerContext.FakeResponseResolver
 
     @Test
-    fun `Gyldig repsons fra Produsent api`() {
+    fun `NySakVellykket fra Produsent api`() = runBlocking {
         fakeResponseResolver.setResolver { //language=json
             """{
                 "data": {
                   "nySak": {
                     "__typename": "NySakVellykket",
-                    "id": "$nySakId"
+                    "id": "42"
                     }
                 },
                 "errors": []
@@ -39,22 +35,20 @@ internal class ProdusentApiKlientTest {
             """.trimIndent()
         }
 
-        runBlocking {
-            assertDoesNotThrow {
-                produsentApiKlient.opprettNySak(
-                    grupperingsid = "grupperingsid",
-                    merkelapp = "merkelapp",
-                    virksomhetsnummer = "1234",
-                    tittel = "tittel",
-                    lenke = "lenke",
-                    null
-                )
-            }
+        assertDoesNotThrow {
+            produsentApiKlient.opprettNySak(
+                grupperingsid = "grupperingsid",
+                merkelapp = "merkelapp",
+                virksomhetsnummer = "1234",
+                tittel = "tittel",
+                lenke = "lenke",
+                null
+            )
         }
     }
 
     @Test
-    fun `Duplikat grupperings kaster ikke exception`() {
+    fun `DuplikatGrupperingsid kaster ikke exception`() = runBlocking {
         fakeResponseResolver.setResolver { //language=json
             """{
                 "data": {
@@ -68,22 +62,20 @@ internal class ProdusentApiKlientTest {
             """.trimIndent()
         }
 
-        runBlocking {
-            assertDoesNotThrow {
-                produsentApiKlient.opprettNySak(
-                    grupperingsid = "grupperingsid",
-                    merkelapp = "merkelapp",
-                    virksomhetsnummer = "1234",
-                    tittel = "tittel",
-                    lenke = "lenke",
-                    null
-                )
-            }
+        assertDoesNotThrow {
+            produsentApiKlient.opprettNySak(
+                grupperingsid = "grupperingsid",
+                merkelapp = "merkelapp",
+                virksomhetsnummer = "1234",
+                tittel = "tittel",
+                lenke = "lenke",
+                null
+            )
         }
     }
 
     @Test
-    fun `Ugyldige responser kaster exception`() {
+    fun `NySak Error responser kaster exception`() = runBlocking {
         val ugyldigeResponsTyper = listOf(
             "UgyldigMerkelapp",
             "UgyldigMottaker",
@@ -106,21 +98,107 @@ internal class ProdusentApiKlientTest {
                 """.trimIndent()
             }
 
-            runBlocking {
-                assertThrows<Exception> {
-                    produsentApiKlient.opprettNySak(
-                        grupperingsid = "grupperingsid",
-                        merkelapp = "merkelapp",
-                        virksomhetsnummer = "1234",
-                        tittel = "tittel",
-                        lenke = "lenke",
-                        null
-                    )
+            assertThrows<Exception> {
+                produsentApiKlient.opprettNySak(
+                    grupperingsid = "grupperingsid",
+                    merkelapp = "merkelapp",
+                    virksomhetsnummer = "1234",
+                    tittel = "tittel",
+                    lenke = "lenke",
+                    null
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `NyBeskjedVellykket repsons fra Produsent api`() = runBlocking {
+        fakeResponseResolver.setResolver { //language=json
+            """{
+                "data": {
+                  "nyBeskjed": {
+                    "__typename": "NyBeskjedVellykket",
+                    "id": "42"
+                    }
+                },
+                "errors": []
                 }
+            """.trimIndent()
+        }
+
+        assertDoesNotThrow {
+            produsentApiKlient.opprettNyBeskjed(
+                grupperingsid = "grupperingsid",
+                merkelapp = "merkelapp",
+                virksomhetsnummer = "1234",
+                tekst = "tittel",
+                lenke = "lenke",
+                null
+            )
+        }
+    }
+
+    @Test
+    fun `DuplikatEksternIdOgMerkelapp kaster ikke exception`() = runBlocking {
+        fakeResponseResolver.setResolver { //language=json
+            """{
+                "data": {
+                  "nyBeskjed": {
+                    "__typename": "DuplikatEksternIdOgMerkelapp",
+                    "feilmelding": "Her er en feilmelding"
+                    }
+                },
+                "errors": []
+                }
+            """.trimIndent()
+        }
+
+        assertDoesNotThrow {
+            produsentApiKlient.opprettNyBeskjed(
+                grupperingsid = "grupperingsid",
+                merkelapp = "merkelapp",
+                virksomhetsnummer = "1234",
+                tekst = "tittel",
+                lenke = "lenke",
+                null
+            )
+        }
+    }
+
+    @Test
+    fun `NyBeskjed Error responser kaster exception`() = runBlocking {
+        val ugyldigeResponsTyper = listOf(
+            "UgyldigMerkelapp",
+            "UgyldigMottaker",
+            "UkjentProdusent",
+            "EnHeltUkjentResponsType",
+        )
+
+        for (responseType in ugyldigeResponsTyper) {
+            fakeResponseResolver.setResolver { //language=json
+                """{
+                    "data": {
+                      "nyBeskjed": {
+                        "__typename": $responseType,
+                        "feilmelding": "Her er en feilmelding"
+                        }
+                    },
+                    "errors": []
+                    }
+                """.trimIndent()
+            }
+
+            assertThrows<Exception> {
+                produsentApiKlient.opprettNyBeskjed(
+                    grupperingsid = "grupperingsid",
+                    merkelapp = "merkelapp",
+                    virksomhetsnummer = "1234",
+                    tekst = "tittel",
+                    lenke = "lenke",
+                    null
+                )
             }
         }
     }
 }
-
-val nySakId: String = UUID.randomUUID().toString()
 
