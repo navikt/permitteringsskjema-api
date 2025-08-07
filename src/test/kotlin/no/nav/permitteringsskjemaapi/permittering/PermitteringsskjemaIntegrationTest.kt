@@ -23,6 +23,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.json.JsonCompareMode
 import org.springframework.test.json.JsonCompareMode.LENIENT
+import org.springframework.test.json.JsonCompareMode.STRICT
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.*
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
@@ -316,7 +317,7 @@ class PermitteringsskjemaIntegrationTest {
                       "sendtInnTidspunkt": "${lagretSkjema.sendtInnTidspunkt}"
                     }
                     """,
-                    strict = true
+                    compareMode = STRICT
                 )
             }
         }
@@ -377,7 +378,7 @@ class PermitteringsskjemaIntegrationTest {
                       "sendtInnTidspunkt": "${lagretSkjema.sendtInnTidspunkt}"
                     }
                     """,
-                        strict = true
+                        compareMode=STRICT
                     )
                 }
             }
