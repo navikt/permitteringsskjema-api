@@ -33,19 +33,12 @@ class PermitteringsskjemaController(
 
     @GetMapping("/skjemaV2/{id}")
     fun hentById(@PathVariable id: UUID): PermitteringsskjemaV2DTO? {
-        val fnr = fnrExtractor.autentisertBruker()
-
-        val permitteringsskjemaOpprettetAvBruker = repository.findByIdAndOpprettetAv(id, fnr)
-        if (permitteringsskjemaOpprettetAvBruker != null) {
-            return permitteringsskjemaOpprettetAvBruker.tilDTO()
-        }
-
-        val permitteringsskjemaOpprettetAvAnnenBruker = repository.findById(id)
-        if (permitteringsskjemaOpprettetAvAnnenBruker != null) {
-            val orgnr = permitteringsskjemaOpprettetAvAnnenBruker.bedriftNr
+        val permitteringsSkjema = repository.findById(id)
+        if (permitteringsSkjema != null) {
+            val orgnr = permitteringsSkjema.bedriftNr
             val harInnsynIVirksomhet = altinnService.harTilgang(orgnr, INNSYN_ALLE_PERMITTERINGSSKJEMA)
             if (harInnsynIVirksomhet) {
-                return permitteringsskjemaOpprettetAvAnnenBruker.tilDTO()
+                return permitteringsSkjema.tilDTO()
             } else {
                 log.warn("Bruker forsoker hente skjema uten tilgang")
             }
@@ -55,16 +48,12 @@ class PermitteringsskjemaController(
 
     @GetMapping("/skjemaV2")
     fun hentAlle(): List<PermitteringsskjemaV2DTO> {
-        val fnr = fnrExtractor.autentisertBruker()
-
         val alleOrgnrMedInnsynTilgang = altinnService.hentAlleOrgnr(INNSYN_ALLE_PERMITTERINGSSKJEMA)
-        val skjemaHentetBasertPåInnsynTilgang = alleOrgnrMedInnsynTilgang.flatMap {
+        val skjemaer = alleOrgnrMedInnsynTilgang.flatMap {
             repository.findAllByBedriftNr(it)
         }.toSet()
 
-        val skjemaBrukerenHarOpprettet = repository.findAllByOpprettetAv(fnr).toSet()
-
-        return (skjemaHentetBasertPåInnsynTilgang + skjemaBrukerenHarOpprettet)
+        return (skjemaer)
             .map { it.tilDTO() }
             .sortedBy { it.sendtInnTidspunkt }.reversed()
     }
@@ -74,8 +63,7 @@ class PermitteringsskjemaController(
     fun sendInn(@Valid @RequestBody skjema: PermitteringsskjemaV2DTO): PermitteringsskjemaV2DTO {
         val fnr = fnrExtractor.autentisertBruker()
 
-        // Her kommer det på sikt en ny ressursid vi skal sjekke mot
-        val kanSendeInn = altinnService.hentAlleOrgnr().any { it == skjema.bedriftNr }
+        val kanSendeInn = altinnService.hentAlleOrgnr(INNSYN_ALLE_PERMITTERINGSSKJEMA).any { it == skjema.bedriftNr }
         if (!kanSendeInn) {
             throw IkkeTilgangException()
         }

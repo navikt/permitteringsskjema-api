@@ -19,9 +19,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.http.ResponseEntity.notFound
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.springframework.test.json.JsonCompareMode
 import org.springframework.test.json.JsonCompareMode.LENIENT
 import org.springframework.test.json.JsonCompareMode.STRICT
 import org.springframework.test.web.client.MockRestServiceServer
@@ -220,13 +220,13 @@ class PermitteringsskjemaIntegrationTest {
                 bedriftNavn = "sendt inn 10 min siden",
                 bedriftNr = `En annen BEDR`,
                 sendtInnTidspunkt = now.minus(10, ChronoUnit.MINUTES),
-                opprettetAv = `Marte med lesetilganger`,
+                opprettetAv = `Helle helt annen person`,
             )
         )
         repository.save(
             testSkjema(
                 bedriftNavn = "sendt inn 2 min siden",
-                bedriftNr = `En annen BEDR`,
+                bedriftNr = `Martes andre BEDR`,
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
                 opprettetAv = `Marte med lesetilganger`,
             )
@@ -258,13 +258,13 @@ class PermitteringsskjemaIntegrationTest {
             "sendt inn 1 min siden",
             "sendt inn 2 min siden",
             "sendt inn 5 min siden",
-            "sendt inn 10 min siden",
         )
     }
 
 
+    // Vi har endret tilgangsstyringen slik at kun brukere med enkeltrettigheten "nav_permittering-og-nedbemmaning_innsyn-i-alle-innsendte-meldinger" kan hente skjemaer.
     @Test
-    fun `GET skjemaV2 by id henter skjema lagret av bruker`() {
+    fun `GET skjemaV2 by id henter ikke lenger skjema som tidligere er lagret av bruker`() {
         val lagretSkjema = repository.save(
             testSkjema(
                 sendtInnTidspunkt = now.minus(2, ChronoUnit.MINUTES),
@@ -288,37 +288,7 @@ class PermitteringsskjemaIntegrationTest {
             header("Authorization", "Bearer $`unnis token`")
         }.andExpect {
             status {
-                isOk()
-            }
-            content {
-                json(
-                    """
-                    {
-                      "id": "${lagretSkjema.id}",
-                      "type": "${lagretSkjema.type}",
-                      "bedriftNr": "${lagretSkjema.bedriftNr}",
-                      "bedriftNavn": "${lagretSkjema.bedriftNavn}",
-                      "kontaktNavn": "${lagretSkjema.kontaktNavn}",
-                      "kontaktEpost": "${lagretSkjema.kontaktEpost}",
-                      "kontaktTlf": "${lagretSkjema.kontaktTlf}",
-                      "antallBerørt": ${lagretSkjema.antallBerørt},
-                      "årsakskode": "${lagretSkjema.årsakskode}",
-                      "årsakstekst": "${lagretSkjema.årsakskode.navn}",
-                      "yrkeskategorier": [
-                        {
-                          "konseptId": ${lagretSkjema.yrkeskategorier.first().konseptId},
-                          "label": "${lagretSkjema.yrkeskategorier.first().label}",
-                          "styrk08": "${lagretSkjema.yrkeskategorier.first().styrk08}"
-                        }
-                      ],
-                      "ukjentSluttDato": ${lagretSkjema.ukjentSluttDato},
-                      "sluttDato": "${lagretSkjema.sluttDato}",
-                      "startDato": "${lagretSkjema.startDato}",
-                      "sendtInnTidspunkt": "${lagretSkjema.sendtInnTidspunkt}"
-                    }
-                    """,
-                    compareMode = STRICT
-                )
+                notFound()
             }
         }
     }
@@ -416,22 +386,22 @@ class PermitteringsskjemaIntegrationTest {
 
     @Test
     fun `POST skjemaV2 lagrer og returnerer og starter journalføring og kafka send`() {
-        val lagretSkjema by lazy { repository.findAllByOpprettetAv(`Unni uten lesetilganger`).first() }
+        val lagretSkjema by lazy { repository.findAllByOpprettetAv(`Marte med lesetilganger`).first() }
 
         altinnTilgangerServer.expect {
             requestTo("http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
             method(POST)
-            header("Authorization", "Bearer $`unnis token`")
+            header("Authorization", "Bearer $`martes token`")
         }.andRespond(
             withSuccess(
-                `Unnis tilganger`,
+                `Martes tilganger`,
                 APPLICATION_JSON
             )
         )
         mockMvc.post("/skjemaV2") {
             accept = APPLICATION_JSON
             contentType = APPLICATION_JSON
-            header("Authorization", "Bearer $`unnis token`")
+            header("Authorization", "Bearer $`martes token`")
             content = """
                 {
                   "yrkeskategorier": [
