@@ -35,9 +35,9 @@ class PermitteringsmeldingKafkaRepositoryTest {
         val id2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001")
         val id3 = UUID.fromString("123e4567-e89b-12d3-a456-426614174002")
 
-        permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(id1))
-        permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(id2))
-        permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(id3))
+        permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(id1, QueueEventType.INNSENDT))
+        permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(id2, QueueEventType.INNSENDT))
+        permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(id3, QueueEventType.INNSENDT))
 
         val result = permitteringsmeldingKafkaRepository.fetchQueueItems(Pageable.ofSize(10))
         assertEquals(listOf(id1, id2, id3), result.map { it.skjemaId } )

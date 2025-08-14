@@ -21,7 +21,6 @@ import org.springframework.http.HttpMethod.POST
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.springframework.test.json.JsonCompareMode
 import org.springframework.test.json.JsonCompareMode.LENIENT
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.*
@@ -492,7 +491,7 @@ class PermitteringsskjemaIntegrationTest {
         }
 
         verify(journalføringService).startJournalføring(skjemaid = lagretSkjema.id)
-        verify(skedulerPermitteringsmeldingService).scheduleSend(skjemaid = lagretSkjema.id)
+        verify(skedulerPermitteringsmeldingService).scheduleSendInnsendt(lagretSkjema.id)
     }
 
     @Test

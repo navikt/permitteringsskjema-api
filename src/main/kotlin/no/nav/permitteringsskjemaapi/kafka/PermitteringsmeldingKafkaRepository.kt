@@ -13,22 +13,29 @@ interface PermitteringsmeldingKafkaRepository : JpaRepository<Permitteringsmeldi
     fun fetchQueueItems(pageable: Pageable): List<PermitteringsmeldingKafkaEntry>
 }
 
+enum class QueueEventType { INNSENDT, TRUKKET }
+
 @Entity
 @Table(name = "deferred_kafka_queue")
 class PermitteringsmeldingKafkaEntry() {
-    constructor(skjemaId: UUID): this() {
+
+    constructor(skjemaId: UUID, eventType: QueueEventType) : this() {
         this.skjemaId = skjemaId
+        this.eventType = eventType
     }
 
-    @field:Id
-    @field:Column(name = "skjema_id")
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
+    var id: UUID? = null  // generated av DB
+
+    @Column(name = "skjema_id", nullable = false)
     lateinit var skjemaId: UUID
 
-    @field:Column(name = "queue_position", insertable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "event_type", nullable = false)
+    lateinit var eventType: QueueEventType
+
+    @Column(name = "queue_position", insertable = false, updatable = false)
     var queuePosition: Int? = null
-
-    override fun equals(other: Any?) =
-        other is PermitteringsmeldingKafkaEntry && this.skjemaId == other.skjemaId
-
-    override fun hashCode() = skjemaId.hashCode()
 }

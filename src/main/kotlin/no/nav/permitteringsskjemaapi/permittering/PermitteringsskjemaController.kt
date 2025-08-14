@@ -74,6 +74,8 @@ class PermitteringsskjemaController(
 
         val oppdatertSkjema = repository.setTrukketTidspunkt(id, fnr) ?: throw IkkeFunnetException()
 
+        skedulerPermitteringsmeldingService.scheduleSendTrukket(id)
+
         // Opprette beskjed på sak når permittering/masseoppsigelse/innskrenking er trukket - ikke ekstern varsling
         // Journalfør i Joark at skjemaet er trukket – opprett ny journalpost på saken og ferdigstill den.
         // Send ny melding på kafka med skjemaId og trukketTidspunkt
@@ -114,7 +116,7 @@ class PermitteringsskjemaController(
         val id = UUID.randomUUID()
         return repository.save(skjema.tilDomene(id, fnr)).tilDTO().also {
             journalføringService.startJournalføring(id)
-            skedulerPermitteringsmeldingService.scheduleSend(id)
+            skedulerPermitteringsmeldingService.scheduleSendInnsendt(id)
         }
     }
 }
