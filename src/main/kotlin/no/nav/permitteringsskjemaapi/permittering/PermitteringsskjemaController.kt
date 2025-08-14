@@ -53,6 +53,33 @@ class PermitteringsskjemaController(
         throw IkkeFunnetException()
     }
 
+    @Transactional
+    @PostMapping("/skjemaV2/{id}/trekk")
+    fun trekk(@PathVariable id: UUID): PermitteringsskjemaV2DTO {
+        val fnr = fnrExtractor.autentisertBruker()
+
+        // Legge til permitteringsskjemaOpprettetAvAnnenBruker
+        val skjema = repository.findByIdAndOpprettetAv(id, fnr) ?: throw IkkeTilgangException()
+
+        if (!skjema.ukjentSluttDato) {
+            val today = LocalDate.now()
+            if (skjema.startDato <= today) {
+                throw IllegalStateException("Skjema kan ikke trekkes etter startdato")
+            }
+        }
+
+        if (skjema.trukketTidspunkt != null) {
+            throw IllegalStateException("Skjema er allerede trukket")
+        }
+
+        val oppdatertSkjema = repository.setTrukketTidspunkt(id, fnr) ?: throw IkkeFunnetException()
+
+        // Opprette beskjed på sak når permittering/masseoppsigelse/innskrenking er trukket - ikke ekstern varsling
+        // Journalfør i Joark at skjemaet er trukket – opprett ny journalpost på saken og ferdigstill den.
+        // Send ny melding på kafka med skjemaId og trukketTidspunkt
+        return oppdatertSkjema.tilDTO()
+    }
+
     @GetMapping("/skjemaV2")
     fun hentAlle(): List<PermitteringsskjemaV2DTO> {
         val fnr = fnrExtractor.autentisertBruker()
@@ -117,6 +144,7 @@ data class PermitteringsskjemaV2DTO(
     val ukjentSluttDato: Boolean = false,
 
     val sendtInnTidspunkt: Instant?,
+    val trukketTidspunkt: Instant? = null,
 ) {
 
     fun tilDomene(uuid: UUID, inloggetBruker: String): Permitteringsskjema {
@@ -142,6 +170,7 @@ data class PermitteringsskjemaV2DTO(
             yrkeskategorier = yrkeskategorier,
             opprettetAv = inloggetBruker,
             sendtInnTidspunkt = Instant.now().truncatedTo(ChronoUnit.MICROS),
+            trukketTidspunkt = trukketTidspunkt,
         )
     }
 }
@@ -170,6 +199,7 @@ private fun Permitteringsskjema.tilDTO(): PermitteringsskjemaV2DTO {
         sluttDato = sluttDato,
         ukjentSluttDato = ukjentSluttDato,
 
-        sendtInnTidspunkt = sendtInnTidspunkt
+        sendtInnTidspunkt = sendtInnTidspunkt,
+        trukketTidspunkt = trukketTidspunkt,
     )
 }

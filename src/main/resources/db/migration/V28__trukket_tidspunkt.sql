@@ -1,0 +1,1 @@
+alter table permitteringsskjema_v2 add column trukket_tidspunkt timestamp;

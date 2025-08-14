@@ -9,6 +9,8 @@ import java.math.BigDecimal
 import java.sql.Date
 import java.sql.PreparedStatement
 import java.sql.Timestamp
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 @Repository
@@ -59,6 +61,25 @@ class PermitteringsskjemaRepository(
             """,
             mapOf("opprettet_av" to fnr)
         ).map { it.toPermitteringsskjema()}
+    }
+
+    fun setTrukketTidspunkt(id: UUID, opprettetAv: String): Permitteringsskjema? {
+        val rows = namedParameterJdbcTemplate.queryForList(
+            """
+        update permitteringsskjema_v2
+        set trukket_tidspunkt = :tidspunkt
+        where id = :id
+          and opprettet_av = :opprettet_av
+          and trukket_tidspunkt is null
+        returning *
+        """.trimIndent(),
+            mapOf(
+                "id" to id,
+                "opprettet_av" to opprettetAv,
+                "tidspunkt" to Timestamp.from(Instant.now().truncatedTo(ChronoUnit.MICROS))
+            )
+        )
+        return rows.firstOrNull()?.toPermitteringsskjema()
     }
 
     fun save(skjema: Permitteringsskjema): Permitteringsskjema {
@@ -124,6 +145,7 @@ class PermitteringsskjemaRepository(
         sluttDato = (this["slutt_dato"] as Date?)?.toLocalDate(),
         ukjentSluttDato = this["ukjent_slutt_dato"] as Boolean,
         sendtInnTidspunkt = (this["sendt_inn_tidspunkt"] as Timestamp).toInstant(),
+        trukketTidspunkt = (this["trukket_tidspunkt"] as Timestamp?)?.toInstant(),
         opprettetAv = this["opprettet_av"] as String,
     )
 }

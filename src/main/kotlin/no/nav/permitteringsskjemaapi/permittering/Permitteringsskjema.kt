@@ -25,6 +25,8 @@ data class Permitteringsskjema(
     val ukjentSluttDato: Boolean,
 
     val sendtInnTidspunkt: Instant,
+    val trukketTidspunkt: Instant? = null,
+
     val opprettetAv: String,
 ) {
     val fritekst = """
