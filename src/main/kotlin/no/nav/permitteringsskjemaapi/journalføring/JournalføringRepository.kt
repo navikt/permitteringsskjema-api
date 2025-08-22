@@ -29,4 +29,5 @@ interface JournalføringRepository : JpaRepository<Journalføring, UUID> {
         limit 1
     """)
     fun oldestInsertionTimeNotCompleted(): Optional<String>
+    fun findBySkjemaid(skjemaid: UUID): List<Journalføring>
 }

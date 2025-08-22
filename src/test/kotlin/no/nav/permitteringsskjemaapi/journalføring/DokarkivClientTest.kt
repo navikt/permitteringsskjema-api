@@ -62,7 +62,7 @@ class DokarkivClientTest {
         ukjentSluttDato = false,
         type = SkjemaType.INNSKRENKNING_I_ARBEIDSTID,
         yrkeskategorier = listOf(Yrkeskategori(1, "hey", "hey")),
-        årsakskode = Årsakskode.MANGEL_PÅ_ARBEID,
+        årsakskode = Årsakskode.MANGEL_PÅ_ARBEID
     )
 
     @Test

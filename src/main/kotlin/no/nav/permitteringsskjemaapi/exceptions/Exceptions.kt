@@ -11,5 +11,9 @@ class IkkeTilgangException : RuntimeException()
 
 class SkjemaErAvbruttException : RuntimeException("Skjema er avbrutt")
 
+class StartdatoPassertException : RuntimeException("Skjema kan ikke trekkes etter startdato")
+
+class AlleredeTrukketException : RuntimeException("Skjema er allerede trukket")
+
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 class PermitteringsApiException(message: String?) : RuntimeException(message)
