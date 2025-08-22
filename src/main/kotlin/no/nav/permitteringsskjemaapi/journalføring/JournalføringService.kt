@@ -5,6 +5,7 @@ import no.nav.permitteringsskjemaapi.config.X_CORRELATION_ID
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.journalføring.Journalføring.State
 import no.nav.permitteringsskjemaapi.journalføring.NorgClient.Companion.OSLO_ARBEIDSLIVSENTER_KODE
+import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import org.slf4j.MDC
 import org.springframework.scheduling.annotation.Scheduled
@@ -29,9 +30,9 @@ class JournalføringService(
 
     private val log = logger()
 
-    fun startJournalføring(skjemaid: UUID) {
-        log.info("startJournalføring skjemaid=$skjemaid")
-        journalføringRepository.save(Journalføring(skjemaid = skjemaid))
+    fun startJournalføring(skjemaid: UUID, hendelseType: HendelseType = HendelseType.INNSENDT) {
+        log.info("startJournalføring skjemaid=$skjemaid, hendelseType=$hendelseType")
+        journalføringRepository.save(Journalføring(skjemaid = skjemaid, hendelseType = hendelseType))
     }
 
     @Transactional
@@ -81,7 +82,11 @@ class JournalføringService(
             skjema.id
         )
 
-        val dokumentPdfAsBytes = dokgenClient.genererPdf(skjema)
+        val dokumentPdfAsBytes = when (journalføring.hendelseType) {
+            HendelseType.TRUKKET -> dokgenClient.genererTrukketPdf(skjema)
+            HendelseType.INNSENDT -> dokgenClient.genererPdf(skjema)
+        }
+
         log.info("Genererte pdf ({} bytes) for skjema {}", dokumentPdfAsBytes.size, skjema.id)
 
         // kall dokarkiv med journalpost og hent id

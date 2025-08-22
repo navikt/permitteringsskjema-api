@@ -31,7 +31,7 @@
     "trukketTidspunkt": {
       "type": ["string", "null"],
       "format": "date-time",
-      "description": "Tidspunkt (UTC, ISO-8601) når skjemaet ble trukket tilbake. Bare satt dersom eventType = 'TRUKKET'. Ellers null."
+      "description": "Tidspunkt (UTC, ISO-8601) når skjemaet ble trukket tilbake."
     },
     "startDato": {
       "type": "string",

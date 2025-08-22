@@ -5,8 +5,10 @@ import jakarta.validation.Valid
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.config.INNSYN_ALLE_PERMITTERINGSSKJEMA
 import no.nav.permitteringsskjemaapi.config.logger
+import no.nav.permitteringsskjemaapi.exceptions.AlleredeTrukketException
 import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException
 import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException
+import no.nav.permitteringsskjemaapi.exceptions.StartdatoPassertException
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.SkedulerPermitteringsmeldingService
 import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
@@ -58,28 +60,30 @@ class PermitteringsskjemaController(
     fun trekk(@PathVariable id: UUID): PermitteringsskjemaV2DTO {
         val fnr = fnrExtractor.autentisertBruker()
 
-        // Legge til permitteringsskjemaOpprettetAvAnnenBruker
-        val skjema = repository.findByIdAndOpprettetAv(id, fnr) ?: throw IkkeTilgangException()
+        val skjema = repository.findById(id) ?: throw IkkeFunnetException()
 
-        if (!skjema.ukjentSluttDato) {
-            val today = LocalDate.now()
-            if (skjema.startDato <= today) {
-                throw IllegalStateException("Skjema kan ikke trekkes etter startdato")
-            }
+        val harTilgang = altinnService.harTilgang(skjema.bedriftNr, INNSYN_ALLE_PERMITTERINGSSKJEMA)
+
+        if (!harTilgang) {
+            throw IkkeTilgangException()
+        }
+
+        val today = LocalDate.now()
+        // Trekk er kun mulig frem til dagen før startdato (23:59:59)
+        if (skjema.startDato <= today) {
+            throw StartdatoPassertException()
         }
 
         if (skjema.trukketTidspunkt != null) {
-            throw IllegalStateException("Skjema er allerede trukket")
+            throw AlleredeTrukketException()
         }
 
         val oppdatertSkjema = repository.setTrukketTidspunkt(id, fnr) ?: throw IkkeFunnetException()
 
-        skedulerPermitteringsmeldingService.scheduleSendTrukket(id)
-
-        // Opprette beskjed på sak når permittering/masseoppsigelse/innskrenking er trukket - ikke ekstern varsling
-        // Journalfør i Joark at skjemaet er trukket – opprett ny journalpost på saken og ferdigstill den.
-        // Send ny melding på kafka med skjemaId og trukketTidspunkt
-        return oppdatertSkjema.tilDTO()
+        return oppdatertSkjema.tilDTO().also {
+            journalføringService.startJournalføring(id, HendelseType.TRUKKET)
+            skedulerPermitteringsmeldingService.scheduleSendTrukket(id)
+        }
     }
 
     @GetMapping("/skjemaV2")
@@ -115,7 +119,7 @@ class PermitteringsskjemaController(
          */
         val id = UUID.randomUUID()
         return repository.save(skjema.tilDomene(id, fnr)).tilDTO().also {
-            journalføringService.startJournalføring(id)
+            journalføringService.startJournalføring(id, HendelseType.INNSENDT)
             skedulerPermitteringsmeldingService.scheduleSendInnsendt(id)
         }
     }

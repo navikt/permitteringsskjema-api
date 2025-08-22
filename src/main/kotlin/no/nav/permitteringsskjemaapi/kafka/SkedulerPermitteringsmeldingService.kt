@@ -3,6 +3,7 @@ package no.nav.permitteringsskjemaapi.kafka
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.runBlocking
 import no.nav.permitteringsskjemaapi.notifikasjon.ProdusentApiKlient
+import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import no.nav.permitteringsskjemaapi.util.urlTilPermitteringsløsningFrontend
 import org.springframework.data.domain.Pageable
@@ -29,14 +30,22 @@ class SkedulerPermitteringsmeldingService(
                 val skjema = permitteringsskjemaRepository.findById(queueItem.skjemaId)
                     ?: throw RuntimeException("skjema med id ${queueItem.skjemaId} finnes ikke")
 
-                when (queueItem.eventType) {
-                    QueueEventType.TRUKKET -> {
+                when (queueItem.hendelseType) {
+                    HendelseType.TRUKKET -> {
                         permitteringsskjemaProdusent.sendTilKafkaTopic(skjema)
                         permitteringsmeldingKafkaRepository.delete(queueItem)
+                        produsentApiKlient.opprettNyBeskjed(
+                            tekst = skjema.type.trukketTekst,
+                            grupperingsid = skjema.id.toString(),
+                            merkelapp = skjema.type.merkelapp,
+                            virksomhetsnummer = skjema.bedriftNr,
+                            lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
+                            tidspunkt = (skjema.trukketTidspunkt).toString()
+                        )
                         return@runBlocking
                     }
 
-                    QueueEventType.INNSENDT -> {
+                    HendelseType.INNSENDT -> {
                         produsentApiKlient.opprettNySak(
                             tittel = skjema.type.tittel,
                             grupperingsid = skjema.id.toString(),
@@ -63,9 +72,9 @@ class SkedulerPermitteringsmeldingService(
     }
 
     fun scheduleSendInnsendt(skjemaId: UUID) =
-        permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(skjemaId, QueueEventType.INNSENDT))
+        permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(skjemaId, HendelseType.INNSENDT))
 
 
     fun scheduleSendTrukket(skjemaId: UUID) =
-        permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(skjemaId, QueueEventType.TRUKKET))
+        permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(skjemaId, HendelseType.TRUKKET))
 }

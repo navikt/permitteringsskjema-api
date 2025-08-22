@@ -98,6 +98,16 @@ class PermitteringExceptionHandler(private val authenticatedUserHolder: Authenti
         return logAndHandle(HttpStatus.BAD_REQUEST, e, req)
     }
 
+    @ExceptionHandler(value = [StartdatoPassertException::class])
+    protected fun startdatoPassert(e: Exception, req: WebRequest): ResponseEntity<Any>? {
+        return logAndHandle(HttpStatus.BAD_REQUEST, e, req)
+    }
+
+    @ExceptionHandler(value = [AlleredeTrukketException::class])
+    protected fun alleredeTrukket(e: Exception, req: WebRequest): ResponseEntity<Any>? {
+        return logAndHandle(HttpStatus.CONFLICT, e, req)
+    }
+
     private fun logAndHandle(
         status: HttpStatusCode,
         e: Exception,

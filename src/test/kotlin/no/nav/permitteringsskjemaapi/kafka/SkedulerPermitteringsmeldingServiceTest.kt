@@ -55,7 +55,7 @@ class SkedulerPermitteringsmeldingServiceTest {
         årsakskode = Årsakskode.MANGEL_PÅ_ARBEID,
     )
 
-    private val queueItem = PermitteringsmeldingKafkaEntry(skjema.id, QueueEventType.INNSENDT)
+    private val queueItem = PermitteringsmeldingKafkaEntry(skjema.id, HendelseType.INNSENDT)
 
 
     @Test

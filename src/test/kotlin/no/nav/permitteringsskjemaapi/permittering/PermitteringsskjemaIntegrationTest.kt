@@ -589,6 +589,145 @@ class PermitteringsskjemaIntegrationTest {
         }
     }
 
+    @Test
+    fun `POST skjemaV2 id trekk trekker melding og trigger sideeffekter`() {
+        val lagretSkjema = repository.save(
+            testSkjema(
+                bedriftNr = `Martes andre BEDR`,
+                opprettetAv = `Unni uten lesetilganger`,
+                startDato = LocalDate.now().plusDays(2),
+                ukjentSluttDato = false,
+                sendtInnTidspunkt = now.minus(1, ChronoUnit.MINUTES),
+            )
+        )
+
+        altinnTilgangerServer.expect {
+            requestTo("http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
+            method(POST)
+            header("Authorization", "Bearer $`martes token`")
+        }.andRespond(
+            withSuccess(`Martes tilganger`, APPLICATION_JSON)
+        )
+
+        val responseBody = mockMvc.post("/skjemaV2/${lagretSkjema.id}/trekk") {
+            accept = APPLICATION_JSON
+            contentType = APPLICATION_JSON
+            header("Authorization", "Bearer $`martes token`")
+        }.andExpect {
+            status { isOk() }
+        }.andReturn().response.contentAsString
+
+        val json = objectMapper.readTree(responseBody)
+        Assertions.assertThat(json.path("id").textValue())
+            .isEqualTo(lagretSkjema.id.toString())
+        Assertions.assertThat(json.path("trukketTidspunkt").textValue())
+            .isNotNull()
+
+        verify(journalføringService).startJournalføring(lagretSkjema.id, HendelseType.TRUKKET)
+        verify(skedulerPermitteringsmeldingService).scheduleSendTrukket(lagretSkjema.id)
+
+        val persisted = repository.findById(lagretSkjema.id)!!
+        Assertions.assertThat(persisted.trukketTidspunkt).isNotNull()
+    }
+
+    @Test
+    fun `POST skjemaV2 id trekk gir 403 når oppretter mangler Altinn-tilgang`() {
+        val lagretSkjema = repository.save(
+            testSkjema(
+                bedriftNr = `Martes andre BEDR`,
+                opprettetAv = `Unni uten lesetilganger`,
+                startDato = LocalDate.now().plusDays(3),
+                ukjentSluttDato = false,
+            )
+        )
+
+        // Unni har ingen tilganger
+        altinnTilgangerServer.expect {
+            requestTo("http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
+            method(POST)
+            header("Authorization", "Bearer $`unnis token`")
+        }.andRespond(withSuccess(`Unnis tilganger`, APPLICATION_JSON))
+
+        mockMvc.post("/skjemaV2/${lagretSkjema.id}/trekk") {
+            accept = APPLICATION_JSON
+            contentType = APPLICATION_JSON
+            header("Authorization", "Bearer $`unnis token`")
+        }.andExpect {
+            status { isForbidden() }
+        }
+
+        verifyNoInteractions(journalføringService)
+        verifyNoInteractions(skedulerPermitteringsmeldingService)
+    }
+
+    @Test
+    fun `POST skjemaV2 id trekk feiler naar allerede trukket`() {
+        val lagretSkjema = repository.save(
+            testSkjema(
+                bedriftNr = `Martes andre BEDR`,
+                opprettetAv = `Unni uten lesetilganger`,
+                startDato = LocalDate.now().plusDays(5),
+                ukjentSluttDato = false,
+            )
+        )
+
+        // Gi Marte Altinn-tilgang og la Marte trekke
+        altinnTilgangerServer.expect {
+            requestTo("http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
+            method(POST)
+            header("Authorization", "Bearer $`martes token`")
+        }.andRespond(withSuccess(`Martes tilganger`, APPLICATION_JSON))
+
+        mockMvc.post("/skjemaV2/${lagretSkjema.id}/trekk") {
+            accept = APPLICATION_JSON
+            contentType = APPLICATION_JSON
+            header("Authorization", "Bearer $`martes token`")
+        }.andExpect {
+            status { isOk() }
+        }
+
+        mockMvc.post("/skjemaV2/${lagretSkjema.id}/trekk") {
+            accept = APPLICATION_JSON
+            contentType = APPLICATION_JSON
+            header("Authorization", "Bearer $`martes token`")
+        }.andExpect {
+            status { isConflict() }
+        }
+
+        verify(journalføringService, times(1)).startJournalføring(lagretSkjema.id, HendelseType.TRUKKET)
+        verify(skedulerPermitteringsmeldingService, times(1)).scheduleSendTrukket(lagretSkjema.id)
+    }
+
+
+    @Test
+    fun `POST skjemaV2 id trekk feiler naar startDato er passert`() {
+        val lagretSkjema = repository.save(
+            testSkjema(
+                bedriftNr = `Martes andre BEDR`,
+                opprettetAv = `Unni uten lesetilganger`,
+                startDato = LocalDate.now(),    // passert/i dag
+                ukjentSluttDato = false
+            )
+        )
+
+        altinnTilgangerServer.expect {
+            requestTo("http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger")
+            method(POST)
+            header("Authorization", "Bearer $`martes token`")
+        }.andRespond(withSuccess(`Martes tilganger`, APPLICATION_JSON))
+
+        mockMvc.post("/skjemaV2/${lagretSkjema.id}/trekk") {
+            accept = APPLICATION_JSON
+            contentType = APPLICATION_JSON
+            header("Authorization", "Bearer $`martes token`")
+        }.andExpect {
+            status { isBadRequest() } // 400 for StartdatoPassertException
+        }
+
+        verifyNoInteractions(journalføringService)
+        verifyNoInteractions(skedulerPermitteringsmeldingService)
+    }
+
     private fun token(pid: String): String {
         val response = client.send(
             HttpRequest.newBuilder(URI.create("http://localhost:9100/tokenx/token"))

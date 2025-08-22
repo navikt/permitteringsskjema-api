@@ -2,6 +2,7 @@ package no.nav.permitteringsskjemaapi.permittering
 
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -74,5 +75,10 @@ class PermitteringsskjemaRepositoryTest {
         assertNotNull(readback.yrkeskategorier)
         assertNotNull(readback.årsakskode)
         assertNotNull(readback.årsakstekst)
+        assertNull(readback.trukketTidspunkt)
+
+        permitteringsskjemaRepository.setTrukketTidspunkt(initial.id, "12345678910")
+        val etterTrukketReadback = permitteringsskjemaRepository.findById(initial.id)!!
+        assertNotNull(etterTrukketReadback.trukketTidspunkt)
     }
 }

@@ -65,6 +65,25 @@ class DokgenClientTest {
     }
 
     @Test
+    fun pdfResultIsAcceptedForTrukketSkjema() {
+        val trukketSkjema = skjema.copy(
+            trukketTidspunkt = Instant.parse("2011-01-01T01:01:01Z")
+        )
+
+        server.expect(requestTo("/template/permittering-trukket/create-pdf"))
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(
+                withSuccess(
+                    pdfExample.contentAsByteArray,
+                    org.springframework.http.MediaType.APPLICATION_PDF
+                )
+            )
+
+        val bytes = dokgenClient.genererTrukketPdf(trukketSkjema)
+        assertTrue(bytes.isNotEmpty(), "Expected non-empty PDF for trukket skjema")
+    }
+
+    @Test
     fun htmlResultIsRejected() {
         server.expect(requestTo("/template/permittering/create-pdf"))
             .andExpect(method(HttpMethod.POST))

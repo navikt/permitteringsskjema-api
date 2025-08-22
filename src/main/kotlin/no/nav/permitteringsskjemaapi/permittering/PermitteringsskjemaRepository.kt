@@ -63,20 +63,20 @@ class PermitteringsskjemaRepository(
         ).map { it.toPermitteringsskjema()}
     }
 
-    fun setTrukketTidspunkt(id: UUID, opprettetAv: String): Permitteringsskjema? {
+    fun setTrukketTidspunkt(id: UUID, trukketAv: String): Permitteringsskjema? {
         val rows = namedParameterJdbcTemplate.queryForList(
             """
         update permitteringsskjema_v2
-        set trukket_tidspunkt = :tidspunkt
+        set trukket_tidspunkt = :tidspunkt,
+        trukket_av = :trukket_av
         where id = :id
-          and opprettet_av = :opprettet_av
           and trukket_tidspunkt is null
         returning *
         """.trimIndent(),
             mapOf(
                 "id" to id,
-                "opprettet_av" to opprettetAv,
-                "tidspunkt" to Timestamp.from(Instant.now().truncatedTo(ChronoUnit.MICROS))
+                "tidspunkt" to Timestamp.from(Instant.now().truncatedTo(ChronoUnit.MICROS)),
+                "trukket_av" to trukketAv
             )
         )
         return rows.firstOrNull()?.toPermitteringsskjema()

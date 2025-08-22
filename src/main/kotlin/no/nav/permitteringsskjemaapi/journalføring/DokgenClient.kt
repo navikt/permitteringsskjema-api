@@ -13,15 +13,16 @@ import java.time.Instant
 import java.time.LocalDate
 import javax.net.ssl.SSLHandshakeException
 
-fun interface DokgenClient {
+interface DokgenClient {
     fun genererPdf(skjema: Permitteringsskjema): ByteArray
+    fun genererTrukketPdf(skjema: Permitteringsskjema): ByteArray
 }
 
 @Component
 class DokgenClientImpl(
     @Value("\${permittering-dokgen.baseUrl}") dokgenBaseUrl: String,
     restTemplateBuilder: RestTemplateBuilder
-): DokgenClient {
+) : DokgenClient {
     private val restTemplate = restTemplateBuilder
         .rootUri(dokgenBaseUrl)
         .additionalInterceptors(
@@ -38,7 +39,7 @@ class DokgenClientImpl(
         .build()
 
     override fun genererPdf(skjema: Permitteringsskjema): ByteArray {
-        val templateVariables = TemplateVariables(
+        val payload = TemplateVariables(
             bedriftsnummer = skjema.bedriftNr,
             bedriftNavn = skjema.bedriftNavn,
             sendtInnTidspunkt = skjema.sendtInnTidspunkt,
@@ -51,9 +52,33 @@ class DokgenClientImpl(
             fritekst = skjema.fritekst,
             antallBerorte = skjema.antallBerørt
         )
-        val bytes = restTemplate.postForObject("/template/permittering/create-pdf", templateVariables, ByteArray::class.java)!!
-        check(bytes.sliceArray(0..3).contentEquals("%PDF".toByteArray())) {
-            "Body fra dokgen mangler PDF-header '%PDF'. Html feilmelding?"
+        return postPdf("/template/permittering/create-pdf", payload)
+    }
+
+    override fun genererTrukketPdf(skjema: Permitteringsskjema): ByteArray {
+        val payload = TemplateVariables(
+            bedriftsnummer = skjema.bedriftNr,
+            bedriftNavn = skjema.bedriftNavn,
+            sendtInnTidspunkt = skjema.sendtInnTidspunkt,
+            type = skjema.type,
+            kontaktNavn = skjema.kontaktNavn,
+            kontaktTlf = skjema.kontaktTlf,
+            kontaktEpost = skjema.kontaktEpost,
+            startDato = skjema.startDato,
+            sluttDato = skjema.sluttDato,
+            fritekst = skjema.fritekst,
+            antallBerorte = skjema.antallBerørt,
+            trukketTidspunkt = skjema.trukketTidspunkt ?: Instant.now(),
+            )
+        return postPdf("/template/permittering-trukket/create-pdf", payload)
+    }
+
+    private fun postPdf(path: String, payload: Any): ByteArray {
+        val bytes = restTemplate.postForObject(path, payload, ByteArray::class.java)
+            ?: error("Dokgen returnerte tom body for $path")
+        // Valider PDF-header
+        check(bytes.size >= 4 && bytes.sliceArray(0..3).contentEquals("%PDF".toByteArray())) {
+            "Body fra dokgen mangler PDF-header '%PDF'. Html-feil?"
         }
         return bytes
     }
@@ -64,6 +89,7 @@ class DokgenClientImpl(
 
         @JsonFormat(shape = JsonFormat.Shape.STRING)
         val sendtInnTidspunkt: Instant,
+
         val type: SkjemaType,
         val kontaktNavn: String,
         val kontaktTlf: String,
@@ -74,7 +100,9 @@ class DokgenClientImpl(
 
         @JsonFormat(pattern = "yyyy-MM-dd")
         val sluttDato: LocalDate?,
+
         val fritekst: String,
         val antallBerorte: Int = 0,
+        val trukketTidspunkt: Instant? = null,
     )
 }

@@ -1,6 +1,7 @@
 package no.nav.permitteringsskjemaapi.kafka
 
 import jakarta.persistence.*
+import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
@@ -13,15 +14,13 @@ interface PermitteringsmeldingKafkaRepository : JpaRepository<Permitteringsmeldi
     fun fetchQueueItems(pageable: Pageable): List<PermitteringsmeldingKafkaEntry>
 }
 
-enum class QueueEventType { INNSENDT, TRUKKET }
-
 @Entity
 @Table(name = "deferred_kafka_queue")
 class PermitteringsmeldingKafkaEntry() {
 
-    constructor(skjemaId: UUID, eventType: QueueEventType) : this() {
+    constructor(skjemaId: UUID, hendelseType: HendelseType) : this() {
         this.skjemaId = skjemaId
-        this.eventType = eventType
+        this.hendelseType = hendelseType
     }
 
     @Id
@@ -33,8 +32,8 @@ class PermitteringsmeldingKafkaEntry() {
     lateinit var skjemaId: UUID
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "event_type", nullable = false)
-    lateinit var eventType: QueueEventType
+    @Column(name = "hendelse_type", nullable = false)
+    lateinit var hendelseType: HendelseType
 
     @Column(name = "queue_position", insertable = false, updatable = false)
     var queuePosition: Int? = null

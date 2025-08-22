@@ -2,6 +2,7 @@ package no.nav.permitteringsskjemaapi.journalføring
 
 import jakarta.transaction.Transactional
 import no.nav.permitteringsskjemaapi.journalføring.Journalføring.State.*
+import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import no.nav.permitteringsskjemaapi.timeline
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.Assertions.*
@@ -35,11 +36,12 @@ class JournalføringRepositoryTest {
         /* Lagre og lese start-state */
         val eksempelId = UUID.randomUUID()!!
         val nyState = Journalføring(
-            skjemaid = eksempelId
+            skjemaid = eksempelId,
+            hendelseType = HendelseType.INNSENDT,
         )
 
         journalføringRepository.save(nyState)
-        val nyStateReadBack = journalføringRepository.findById(eksempelId).get()
+        val nyStateReadBack = journalføringRepository.findBySkjemaid(eksempelId).single()
 
         assertEquals(eksempelId, nyStateReadBack.skjemaid)
         assertEquals(NY, nyStateReadBack.state)
@@ -56,7 +58,7 @@ class JournalføringRepositoryTest {
         nyStateReadBack.state = JOURNALFORT
         journalføringRepository.save(nyStateReadBack)
 
-        val journalførtStateReadBack = journalføringRepository.findById(eksempelId).get()
+        val journalførtStateReadBack = journalføringRepository.findBySkjemaid(eksempelId).single()
 
         assertNotNull(journalførtStateReadBack.journalført)
         assertEquals(JOURNALFORT, journalførtStateReadBack.state)
@@ -73,7 +75,7 @@ class JournalføringRepositoryTest {
         journalførtStateReadBack.state = FERDIG
 
         journalføringRepository.save(journalførtStateReadBack)
-        val ferdigStateReadback = journalføringRepository.findById(eksempelId).get()
+        val ferdigStateReadback = journalføringRepository.findBySkjemaid(eksempelId).single()
         assertEquals(FERDIG, ferdigStateReadback.state)
 
         assertNotNull(ferdigStateReadback.journalført)
@@ -212,7 +214,7 @@ class JournalføringRepositoryTest {
             delayUntil: Instant? = null,
         ): Journalføring {
             val id = UUID.randomUUID()
-            return Journalføring(skjemaid = id).also {
+            return Journalføring(skjemaid = id, hendelseType = HendelseType.INNSENDT).also {
                 it.state = state
                 it.delayedUntil = delayUntil
                 save(it)
