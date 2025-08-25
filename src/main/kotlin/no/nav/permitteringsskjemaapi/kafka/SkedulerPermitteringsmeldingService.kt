@@ -3,7 +3,6 @@ package no.nav.permitteringsskjemaapi.kafka
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.runBlocking
 import no.nav.permitteringsskjemaapi.notifikasjon.ProdusentApiKlient
-import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.ISO8601DateTime
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import no.nav.permitteringsskjemaapi.util.urlTilPermitteringsløsningFrontend
 import org.springframework.data.domain.Pageable

@@ -1,6 +1,5 @@
 package no.nav.permitteringsskjemaapi.altinn
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.permitteringsskjemaapi.tokenx.TokenExchangeClient
@@ -30,7 +29,7 @@ class AltinnService(
         .maximumSize(10000)
         .expireAfterWrite(10, TimeUnit.MINUTES)
         .recordStats()
-        .build<String, AltinnTilganger>()
+        .build<String, AltinnTilgangerResponse>()
 
     internal val restTemplate = restTemplateBuilder
         .additionalInterceptors(
@@ -44,18 +43,18 @@ class AltinnService(
         )
         .build()
 
-    fun hentAlleOrgnr() = hentAltinnTilganger().hierarki.flatMap { flatten(it) { o -> o.orgnr } }.toSet()
-    fun hentAlleOrgnr(tilgang: String) = hentAltinnTilganger().tilgangTilOrgNr[tilgang] ?: emptySet()
+    fun hentAlleOrgnr(tilgang: String) = hentAltinnTilganger(tilgang).tilgangTilOrgNr[tilgang] ?: emptySet()
 
-    fun harTilgang(orgnr: String, tjeneste: String) = hentAltinnTilganger().orgNrTilTilganger[orgnr]?.contains(tjeneste) ?: false
+    fun harTilgang(orgnr: String, tilgang: String) =
+        hentAltinnTilganger(tilgang).orgNrTilTilganger[orgnr]?.contains(tilgang) ?: false
 
-    fun hentAltinnTilganger() = cache.getIfPresent(authenticatedUserHolder.token) ?: run {
-        hentAltinnTilgangerFraProxy().also {
+    fun hentAltinnTilganger(tilgang: String) = cache.getIfPresent(authenticatedUserHolder.token) ?: run {
+        hentAltinnTilgangerFraProxy(tilgang).also {
             cache.put(authenticatedUserHolder.token, it)
         }
     }
 
-    private fun hentAltinnTilgangerFraProxy(): AltinnTilganger {
+    private fun hentAltinnTilgangerFraProxy(tilgang: String): AltinnTilgangerResponse {
         val token = tokenExchangeClient.exchange(
             authenticatedUserHolder.token,
             "$naisCluster:fager:arbeidsgiver-altinn-tilganger"
@@ -68,13 +67,27 @@ class AltinnService(
                 .headers {
                     it.setBearerAuth(token.access_token!!)
                 }
-                .build(),
-            AltinnTilganger::class.java
+                .body(
+                    AltinnTilgangerRequest(
+                        filter = AltinnTilgangerFilter(
+                            altinn3Tilganger = listOf(tilgang)
+                        )
+                    )
+                ),
+            AltinnTilgangerResponse::class.java
         )
 
         return response.body!! // response != 200 => throws
     }
 }
+
+data class AltinnTilgangerRequest(
+    val filter: AltinnTilgangerFilter
+)
+
+data class AltinnTilgangerFilter(
+    val altinn3Tilganger: List<String>
+)
 
 data class AltinnTilgang(
     val orgnr: String,
@@ -84,16 +97,9 @@ data class AltinnTilgang(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class AltinnTilganger(
+data class AltinnTilgangerResponse(
     val isError: Boolean,
     val hierarki: List<AltinnTilgang>,
     val orgNrTilTilganger: Map<String, Set<String>>,
     val tilgangTilOrgNr: Map<String, Set<String>>,
 )
-
-private fun <T> flatten(
-    altinnTilgang: AltinnTilgang,
-    mapFn: (AltinnTilgang) -> T
-): Set<T> = setOf(
-    mapFn(altinnTilgang)
-) + altinnTilgang.underenheter.flatMap { flatten(it, mapFn) }
