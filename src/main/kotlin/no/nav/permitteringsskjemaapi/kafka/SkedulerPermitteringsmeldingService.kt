@@ -41,7 +41,8 @@ class SkedulerPermitteringsmeldingService(
                             merkelapp = skjema.type.merkelapp,
                             virksomhetsnummer = skjema.bedriftNr,
                             lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
-                            tidspunkt = (skjema.trukketTidspunkt).toString()
+                            tidspunkt = (skjema.trukketTidspunkt).toString(),
+                            eksternId = "${skjema.id}-trukket",
                         )
                         return@runBlocking
                     }

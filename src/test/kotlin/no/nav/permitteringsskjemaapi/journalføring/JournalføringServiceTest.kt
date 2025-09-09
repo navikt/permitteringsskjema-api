@@ -89,7 +89,7 @@ class JournalføringServiceTest {
 
         @Primary
         @Bean
-        fun dokarkivClient() = DokarkivClient { skjema, _enhet, _pdf -> when (skjema.bedriftNr) {
+        fun dokarkivClient() = DokarkivClient { skjema, _enhet, _pdf, _hendelseType -> when (skjema.bedriftNr) {
             `Orgnr Sarpsborg vask og rens AS` -> `Journalpost-id Sarpsborg vask og rens AS`
             `Orgnr Stockholm NUF` -> `Journalpost-id Stockholm NUF`
             else -> throw RuntimeException()

@@ -103,6 +103,7 @@ class JournalføringService(
             skjema = skjema,
             behandlendeEnhet = behandlendeEnhet,
             dokumentPdfAsBytes = dokumentPdfAsBytes,
+            hendelseType = journalføring.hendelseType,
         )
         log.info("Opprettet journalpost med id {} for skjema {}", journalpostid, skjema.id)
 

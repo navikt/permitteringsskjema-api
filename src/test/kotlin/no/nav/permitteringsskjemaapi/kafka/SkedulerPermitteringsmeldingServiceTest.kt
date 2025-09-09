@@ -100,7 +100,8 @@ class SkedulerPermitteringsmeldingServiceTest {
                 virksomhetsnummer = anyString(),
                 tekst = anyString(),
                 lenke = anyString(),
-                tidspunkt = any()
+                tidspunkt = any(),
+                eksternId = anyString(),
             )
 
         verify(permitteringsmeldingKafkaRepository, never()).delete(org.mockito.kotlin.any())
@@ -136,7 +137,8 @@ class SkedulerPermitteringsmeldingServiceTest {
                 merkelapp = skjema.type.merkelapp,
                 virksomhetsnummer = skjema.bedriftNr,
                 lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
-                tidspunkt = skjema.sendtInnTidspunkt.toString()
+                tidspunkt = skjema.sendtInnTidspunkt.toString(),
+                eksternId = skjema.id.toString(),
             )
         ).thenThrow(RuntimeException("opprettNyBeskjed feilet"))
 
@@ -161,7 +163,8 @@ class SkedulerPermitteringsmeldingServiceTest {
                 merkelapp = skjema.type.merkelapp,
                 virksomhetsnummer = skjema.bedriftNr,
                 lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
-                tidspunkt = skjema.sendtInnTidspunkt.toString()
+                tidspunkt = skjema.sendtInnTidspunkt.toString(),
+                eksternId = skjema.id.toString(),
             )
 
         verify(permitteringsmeldingKafkaRepository, never()).delete(org.mockito.kotlin.any())
@@ -186,7 +189,8 @@ class SkedulerPermitteringsmeldingServiceTest {
                 merkelapp = skjema.type.merkelapp,
                 virksomhetsnummer = skjema.bedriftNr,
                 lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
-                tidspunkt = skjema.sendtInnTidspunkt.toString()
+                tidspunkt = skjema.sendtInnTidspunkt.toString(),
+                eksternId = skjema.id.toString(),
             )
         ).thenReturn(Unit)
 
@@ -209,7 +213,8 @@ class SkedulerPermitteringsmeldingServiceTest {
                 merkelapp = skjema.type.merkelapp,
                 virksomhetsnummer = skjema.bedriftNr,
                 lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
-                tidspunkt = skjema.sendtInnTidspunkt.toString()
+                tidspunkt = skjema.sendtInnTidspunkt.toString(),
+                eksternId = skjema.id.toString(),
             )
 
         verify(permitteringsmeldingKafkaRepository, times(1)).delete(queueItem)

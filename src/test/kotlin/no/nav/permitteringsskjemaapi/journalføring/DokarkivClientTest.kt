@@ -1,6 +1,7 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
 import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
+import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.permittering.SkjemaType
 import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
@@ -78,7 +79,7 @@ class DokarkivClientTest {
             .andExpect(jsonPath("$.avsenderMottaker.id").value(skjema.bedriftNr!!))
             .andExpect(jsonPath("$.avsenderMottaker.navn").value(skjema.bedriftNavn!!))
             .andExpect(jsonPath("$.avsenderMottaker.idType").value("ORGNR"))
-            .andExpect(jsonPath("$.eksternReferanseId").value("PRM-${skjema.id}"))
+            .andExpect(jsonPath("$.eksternReferanseId").value("PRM-${skjema.id}-INNSENDT"))
             .andExpect(jsonPath("$.journalfoerendeEnhet").value(behandlendeEnhet))
             .andExpect(jsonPath("$.dokumenter[0].brevkode").value("NAV 76-08.03"))
             .andExpect(jsonPath("$.dokumenter[0].tittel").value("Arbeidsgivers meldeplikt til NAV ved masseoppsigelser, permitteringer uten lønn og innskrenking i arbeidstiden"))
@@ -93,7 +94,12 @@ class DokarkivClientTest {
                 )
             )
 
-        val journalpostid = dokarkivClient.opprettjournalPost(skjema, behandlendeEnhet, pdfContent.toByteArray())
+        val journalpostid = dokarkivClient.opprettjournalPost(
+            skjema,
+            behandlendeEnhet,
+            pdfContent.toByteArray(),
+            HendelseType.INNSENDT
+        )
         assertEquals("42", journalpostid)
     }
 }
