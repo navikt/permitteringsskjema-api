@@ -12,6 +12,8 @@ interface PermitteringsmeldingKafkaRepository : JpaRepository<Permitteringsmeldi
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query(value = "select r from PermitteringsmeldingKafkaEntry r order by r.queuePosition")
     fun fetchQueueItems(pageable: Pageable): List<PermitteringsmeldingKafkaEntry>
+
+    fun existsBySkjemaIdAndHendelseType(skjemaId: UUID, hendelseType: HendelseType): Boolean
 }
 
 @Entity

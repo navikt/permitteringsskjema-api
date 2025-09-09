@@ -10,7 +10,8 @@ alter table journalforing
   add constraint journalforing_pkey primary key (id);
 
 create index if not exists idx_journalforing_skjema on journalforing (skjema_id);
-create index if not exists idx_journalforing_skjema_event on journalforing (skjema_id, hendelse_type);
+-- Sørg for idempotent opprettelse av journalførings-arbeid per (skjema_id, hendelse_type)
+create unique index if not exists ux_journalforing_skjema_event on journalforing (skjema_id, hendelse_type);
 
 create unique index if not exists ux_journalforing_skjema_jp_event
     on journalforing (skjema_id, journalpost_id, hendelse_type);

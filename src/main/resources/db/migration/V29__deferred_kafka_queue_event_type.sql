@@ -8,4 +8,5 @@ update deferred_kafka_queue set id = gen_random_uuid() where id is null;
 alter table deferred_kafka_queue
     add constraint deferred_kafka_queue_pkey primary key (id);
 
-create index if not exists idx_dkq_skjema_event on deferred_kafka_queue (skjema_id, hendelse_type);
+-- Sørg for idempotent kø per (skjema_id, hendelse_type)
+create unique index if not exists ux_dkq_skjema_event on deferred_kafka_queue (skjema_id, hendelse_type);

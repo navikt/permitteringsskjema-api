@@ -4,6 +4,7 @@ import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
+import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import java.time.Instant
 import java.util.*
 
@@ -30,4 +31,8 @@ interface JournalføringRepository : JpaRepository<Journalføring, UUID> {
     """)
     fun oldestInsertionTimeNotCompleted(): Optional<String>
     fun findBySkjemaid(skjemaid: UUID): List<Journalføring>
+
+    fun findFirstBySkjemaidOrderByRowInsertedAtDesc(skjemaid: UUID): Journalføring?
+
+    fun existsBySkjemaidAndHendelseType(skjemaid: UUID, hendelseType: HendelseType): Boolean
 }

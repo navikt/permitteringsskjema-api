@@ -8,6 +8,7 @@ import no.nav.permitteringsskjemaapi.journalføring.NorgClient.Companion.OSLO_AR
 import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import org.slf4j.MDC
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
@@ -32,7 +33,15 @@ class JournalføringService(
 
     fun startJournalføring(skjemaid: UUID, hendelseType: HendelseType = HendelseType.INNSENDT) {
         log.info("startJournalføring skjemaid=$skjemaid, hendelseType=$hendelseType")
-        journalføringRepository.save(Journalføring(skjemaid = skjemaid, hendelseType = hendelseType))
+        if (journalføringRepository.existsBySkjemaidAndHendelseType(skjemaid, hendelseType)) {
+            log.info("Journalføring jobb finnes allerede for skjema {} og hendelse {}", skjemaid, hendelseType)
+            return
+        }
+        try {
+            journalføringRepository.save(Journalføring(skjemaid = skjemaid, hendelseType = hendelseType))
+        } catch (_: DataIntegrityViolationException) {
+            log.info("Journalføring jobb ble opprettet i annen tråd for skjema {} og hendelse {}", skjemaid, hendelseType)
+        }
     }
 
     @Transactional

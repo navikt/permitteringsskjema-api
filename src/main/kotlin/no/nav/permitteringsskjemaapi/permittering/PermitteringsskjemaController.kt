@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.*
 
@@ -61,7 +62,8 @@ class PermitteringsskjemaController(
             throw IkkeTilgangException()
         }
 
-        val today = LocalDate.now()
+        // Bruk Oslo-tid for å avgjøre om startdato er passert.
+        val today = LocalDate.now(ZoneId.of("Europe/Oslo"))
         // Trekk er kun mulig frem til dagen før startdato (23:59:59)
         if (skjema.startDato <= today) {
             throw StartdatoPassertException()

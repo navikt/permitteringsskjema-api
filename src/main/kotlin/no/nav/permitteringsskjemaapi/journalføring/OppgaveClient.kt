@@ -81,7 +81,8 @@ private class OppgaveRequest(
         fun opprett(skjema: Permitteringsskjema, journalført: Journalført) = OppgaveRequest(
             journalpostId = journalført.journalpostId,
             orgnr = skjema.bedriftNr,
-            aktivDato = skjema.sendtInnTidspunkt.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) },
+            // Bruk Oslo-tid for å tolke Instant til lokal dato
+            aktivDato = skjema.sendtInnTidspunkt.let { LocalDate.ofInstant(it, ZoneId.of("Europe/Oslo")) },
             tildeltEnhetsnr = journalført.behandlendeEnhet,
         )
     }

@@ -41,7 +41,7 @@ class JournalføringRepositoryTest {
         )
 
         journalføringRepository.save(nyState)
-        val nyStateReadBack = journalføringRepository.findBySkjemaid(eksempelId).single()
+        val nyStateReadBack = journalføringRepository.findFirstBySkjemaidOrderByRowInsertedAtDesc(eksempelId)!!
 
         assertEquals(eksempelId, nyStateReadBack.skjemaid)
         assertEquals(NY, nyStateReadBack.state)
@@ -58,7 +58,7 @@ class JournalføringRepositoryTest {
         nyStateReadBack.state = JOURNALFORT
         journalføringRepository.save(nyStateReadBack)
 
-        val journalførtStateReadBack = journalføringRepository.findBySkjemaid(eksempelId).single()
+        val journalførtStateReadBack = journalføringRepository.findFirstBySkjemaidOrderByRowInsertedAtDesc(eksempelId)!!
 
         assertNotNull(journalførtStateReadBack.journalført)
         assertEquals(JOURNALFORT, journalførtStateReadBack.state)
@@ -75,7 +75,7 @@ class JournalføringRepositoryTest {
         journalførtStateReadBack.state = FERDIG
 
         journalføringRepository.save(journalførtStateReadBack)
-        val ferdigStateReadback = journalføringRepository.findBySkjemaid(eksempelId).single()
+        val ferdigStateReadback = journalføringRepository.findFirstBySkjemaidOrderByRowInsertedAtDesc(eksempelId)!!
         assertEquals(FERDIG, ferdigStateReadback.state)
 
         assertNotNull(ferdigStateReadback.journalført)

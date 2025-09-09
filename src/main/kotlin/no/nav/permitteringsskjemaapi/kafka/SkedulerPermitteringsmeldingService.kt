@@ -6,6 +6,7 @@ import no.nav.permitteringsskjemaapi.notifikasjon.ProdusentApiKlient
 import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import no.nav.permitteringsskjemaapi.util.urlTilPermitteringsløsningFrontend
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -71,10 +72,22 @@ class SkedulerPermitteringsmeldingService(
         }
     }
 
-    fun scheduleSendInnsendt(skjemaId: UUID) =
-        permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(skjemaId, HendelseType.INNSENDT))
+    fun scheduleSendInnsendt(skjemaId: UUID) {
+        if (permitteringsmeldingKafkaRepository.existsBySkjemaIdAndHendelseType(skjemaId, HendelseType.INNSENDT)) return
+        try {
+            permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(skjemaId, HendelseType.INNSENDT))
+        } catch (_: DataIntegrityViolationException) {
+            // unique constraint race på (skjemaId, INNSENDT)
+        }
+    }
 
 
-    fun scheduleSendTrukket(skjemaId: UUID) =
-        permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(skjemaId, HendelseType.TRUKKET))
+    fun scheduleSendTrukket(skjemaId: UUID) {
+        if (permitteringsmeldingKafkaRepository.existsBySkjemaIdAndHendelseType(skjemaId, HendelseType.TRUKKET)) return
+        try {
+            permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(skjemaId, HendelseType.TRUKKET))
+        } catch (_: DataIntegrityViolationException) {
+            // unique constraint race på (skjemaId, TRUKKET)
+        }
+    }
 }

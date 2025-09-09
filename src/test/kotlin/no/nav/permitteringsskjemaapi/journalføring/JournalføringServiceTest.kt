@@ -132,7 +132,7 @@ class JournalføringServiceTest {
         }
 
         transaction {
-            val journalføring = journalføringRepository.findBySkjemaid(id).single()
+            val journalføring = journalføringRepository.findFirstBySkjemaidOrderByRowInsertedAtDesc(id)!!
             assertEquals(JOURNALFORT, journalføring.state)
             assertEquals(`Sarpsborgs kommunenummer`, journalføring.journalført!!.kommunenummer)
             assertEquals(`Behandlende enhet i Sarpsborg`, journalføring.journalført!!.behandlendeEnhet)
@@ -144,7 +144,7 @@ class JournalføringServiceTest {
         }
 
         transaction {
-            val journalføring = journalføringRepository.findBySkjemaid(id).single()
+            val journalføring = journalføringRepository.findFirstBySkjemaidOrderByRowInsertedAtDesc(id)!!
             assertEquals(FERDIG, journalføring.state)
             assertEquals(`Oppgave-id Sarpsbort vask og rens AS`, journalføring.oppgave!!.oppgaveId)
         }
@@ -163,7 +163,7 @@ class JournalføringServiceTest {
         }
 
         transaction {
-            val journalføring = journalføringRepository.findBySkjemaid(id).single()
+            val journalføring = journalføringRepository.findFirstBySkjemaidOrderByRowInsertedAtDesc(id)!!
             assertEquals(NY, journalføring.state)
             assertNull(journalføring.journalført)
         }
@@ -173,7 +173,7 @@ class JournalføringServiceTest {
         }
 
         transaction {
-            val journalføring = journalføringRepository.findBySkjemaid(id).single()
+            val journalføring = journalføringRepository.findFirstBySkjemaidOrderByRowInsertedAtDesc(id)!!
             assertEquals(JOURNALFORT, journalføring.state)
             assertEquals(`Sarpsborgs kommunenummer`, journalføring.journalført!!.kommunenummer)
             assertEquals(`Behandlende enhet i Sarpsborg`, journalføring.journalført!!.behandlendeEnhet)
@@ -185,7 +185,7 @@ class JournalføringServiceTest {
         }
 
         transaction {
-            val journalføring = journalføringRepository.findBySkjemaid(id).single()
+            val journalføring = journalføringRepository.findFirstBySkjemaidOrderByRowInsertedAtDesc(id)!!
             assertEquals(FERDIG, journalføring.state)
             assertEquals(`Oppgave-id Sarpsbort vask og rens AS`, journalføring.oppgave!!.oppgaveId)
         }
@@ -201,7 +201,7 @@ class JournalføringServiceTest {
         }
 
         transaction {
-            val journalføring = journalføringRepository.findBySkjemaid(id).single()
+            val journalføring = journalføringRepository.findFirstBySkjemaidOrderByRowInsertedAtDesc(id)!!
             assertEquals(JOURNALFORT, journalføring.state)
             assertEquals(null, journalføring.journalført!!.kommunenummer)
             assertEquals(NorgClient.OSLO_ARBEIDSLIVSENTER_KODE, journalføring.journalført!!.behandlendeEnhet)
@@ -213,7 +213,7 @@ class JournalføringServiceTest {
         }
 
         transaction {
-            val journalføring = journalføringRepository.findBySkjemaid(id).single()
+            val journalføring = journalføringRepository.findFirstBySkjemaidOrderByRowInsertedAtDesc(id)!!
             assertEquals(FERDIG, journalføring.state)
             assertEquals(`Oppgave-id Stockholm NUF`, journalføring.oppgave!!.oppgaveId)
         }
@@ -229,7 +229,7 @@ class JournalføringServiceTest {
         }
 
         transaction {
-            val journalføring = journalføringRepository.findBySkjemaid(id).single()
+            val journalføring = journalføringRepository.findFirstBySkjemaidOrderByRowInsertedAtDesc(id)!!
             assertEquals(FERDIG, journalføring.state)
             assertEquals(`Sarpsborgs kommunenummer`, journalføring.journalført!!.kommunenummer)
             assertEquals(`Behandlende enhet i Sarpsborg`, journalføring.journalført!!.behandlendeEnhet)
