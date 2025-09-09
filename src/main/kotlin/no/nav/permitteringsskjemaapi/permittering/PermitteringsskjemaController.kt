@@ -55,9 +55,9 @@ class PermitteringsskjemaController(
 
         val skjema = repository.findById(id) ?: throw IkkeFunnetException()
 
-        val harInnsynIVirksomhet = altinnService.harTilgang(skjema.bedriftNr, INNSYN_ALLE_PERMITTERINGSSKJEMA)
+        val kanTrekke = altinnService.hentAlleOrgnr(INNSYN_ALLE_PERMITTERINGSSKJEMA).any { it == skjema.bedriftNr }
 
-        if (!harInnsynIVirksomhet) {
+        if (!kanTrekke) {
             throw IkkeTilgangException()
         }
 
