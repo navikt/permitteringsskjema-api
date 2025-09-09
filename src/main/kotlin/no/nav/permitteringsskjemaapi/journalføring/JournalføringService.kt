@@ -133,7 +133,11 @@ class JournalføringService(
         val journalført = journalføring.journalført
             ?: throw RuntimeException("Skjema ${journalføring.skjemaid} må være journalført før oppgave kan opprettes")
 
-        val oppgaveId = oppgaveClient.lagOppgave(skjema, journalført)
+        val beskrivelse = when (journalføring.hendelseType) {
+            HendelseType.TRUKKET -> "Arbeidsgiver har kommet med nye eller utfyllende opplysninger"
+            HendelseType.INNSENDT -> "Varsel om massepermittering"
+        }
+        val oppgaveId = oppgaveClient.lagOppgave(skjema, journalført, beskrivelse)
 
         journalføring.oppgave = Oppgave(
             oppgaveId = oppgaveId,

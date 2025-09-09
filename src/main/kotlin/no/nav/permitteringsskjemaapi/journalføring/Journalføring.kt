@@ -11,8 +11,8 @@ class Journalføring() {
     constructor(skjemaid: UUID, hendelseType: HendelseType) : this() {
         this.skjemaid = skjemaid
         this.rowInsertedAt = Instant.now().toString()
-        // TRUKKET skal kun journalføres, ingen oppgave -> bruk NEEDS_JOURNALFORING_ONLY
-        this.state =  if (hendelseType == HendelseType.TRUKKET) State.NEEDS_JOURNALFORING_ONLY else State.NY
+        // Alle hendelser starter i NY; state machine avgjør videre flyt
+        this.state = State.NY
         this.hendelseType = hendelseType
     }
 

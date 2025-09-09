@@ -20,7 +20,11 @@ import javax.net.ssl.SSLHandshakeException
  */
 
 fun interface OppgaveClient {
-    fun lagOppgave(skjema: Permitteringsskjema, journalført: Journalført): String
+    fun lagOppgave(
+        skjema: Permitteringsskjema,
+        journalført: Journalført,
+        beskrivelse: String,
+    ): String
 }
 
 @Component
@@ -49,8 +53,12 @@ class OppgaveClientImpl(
         )
         .build()
 
-    override fun lagOppgave(skjema: Permitteringsskjema, journalført: Journalført): String {
-        val oppgaveRequest = OppgaveRequest.opprett(skjema, journalført)
+    override fun lagOppgave(
+        skjema: Permitteringsskjema,
+        journalført: Journalført,
+        beskrivelse: String,
+    ): String {
+        val oppgaveRequest = OppgaveRequest.opprett(skjema, journalført, beskrivelse)
 
         val response = restTemplate.postForObject("/api/v1/oppgaver", oppgaveRequest, OppgaveResponse::class.java)
             ?: throw RuntimeException("null body")
@@ -71,19 +79,24 @@ private class OppgaveRequest(
     @JsonFormat(pattern = "yyyy-MM-dd")
     val aktivDato: LocalDate,
     val tildeltEnhetsnr: String,
+    val beskrivelse: String,
 ) {
-    val beskrivelse: String = "Varsel om massepermittering"
     val tema: String = "PER"
     val prioritet: String = "HOY"
     val oppgavetype: String = "VURD_HENV"
 
     companion object {
-        fun opprett(skjema: Permitteringsskjema, journalført: Journalført) = OppgaveRequest(
+        fun opprett(
+            skjema: Permitteringsskjema,
+            journalført: Journalført,
+            beskrivelse: String,
+        ) = OppgaveRequest(
             journalpostId = journalført.journalpostId,
             orgnr = skjema.bedriftNr,
             // Bruk Oslo-tid for å tolke Instant til lokal dato
             aktivDato = skjema.sendtInnTidspunkt.let { LocalDate.ofInstant(it, ZoneId.of("Europe/Oslo")) },
             tildeltEnhetsnr = journalført.behandlendeEnhet,
+            beskrivelse = beskrivelse,
         )
     }
 }

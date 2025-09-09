@@ -97,7 +97,7 @@ class JournalføringServiceTest {
 
         @Primary
         @Bean
-        fun oppgaveClient() = OppgaveClient { _skjema, journalføring -> when (journalføring.journalpostId) {
+        fun oppgaveClient() = OppgaveClient { _skjema, journalføring, _beskrivelse -> when (journalføring.journalpostId) {
             `Journalpost-id Sarpsborg vask og rens AS` -> `Oppgave-id Sarpsbort vask og rens AS`
             `Journalpost-id Stockholm NUF` -> `Oppgave-id Stockholm NUF`
             else -> throw RuntimeException()

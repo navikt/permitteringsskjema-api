@@ -72,7 +72,7 @@ class OppgaveClientTest {
             )
         try {
             MDC.put(X_CORRELATION_ID, "XCORRID123")
-            val respons = oppgaveClient.lagOppgave(skjema, journalført)
+            val respons = oppgaveClient.lagOppgave(skjema, journalført, "Varsel om massepermittering")
             assertEquals("1234", respons)
         } finally {
             MDC.remove(X_CORRELATION_ID)
