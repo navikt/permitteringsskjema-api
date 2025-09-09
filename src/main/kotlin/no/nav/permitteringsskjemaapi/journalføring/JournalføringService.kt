@@ -41,7 +41,7 @@ class JournalføringService(
         try {
             MDC.put(X_CORRELATION_ID, UUID.randomUUID().toString())
 
-            log.info("Plukket ut skjema {} i tilstandsmaskinen for journalføring", journalføring.skjemaid)
+            log.info("Plukket ut skjema i tilstandsmaskinen for journalføring. {}", journalføring)
             // State machine
             when (journalføring.state) {
                 State.NY -> journalfør(journalføring, nesteState = State.JOURNALFORT)
