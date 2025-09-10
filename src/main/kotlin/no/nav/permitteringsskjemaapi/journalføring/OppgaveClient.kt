@@ -10,6 +10,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.client.ResourceAccessException
 import java.net.SocketException
 import java.time.LocalDate
 import java.time.ZoneId
@@ -33,7 +34,7 @@ class OppgaveClientImpl(
     private val restTemplate = restTemplateBuilder
         .rootUri(oppgaveBaseUrl)
         .additionalInterceptors(
-            ClientHttpRequestInterceptor { request, body, execution ->
+            { request, body, execution ->
                 request.headers.setBearerAuth(entraIdKlient.getToken(oppgaveScope))
                 execution.execute(request, body)
             },
@@ -42,6 +43,7 @@ class OppgaveClientImpl(
                 250L,
                 SocketException::class.java,
                 SSLHandshakeException::class.java,
+                ResourceAccessException::class.java,
                 HttpServerErrorException.BadGateway::class.java,
                 HttpServerErrorException.GatewayTimeout::class.java,
                 HttpServerErrorException.ServiceUnavailable::class.java,
