@@ -1,0 +1,64 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: permitteringsskjema-admin-trekk
+  namespace: permittering-og-nedbemanning
+  labels:
+    team: permittering-og-nedbemanning
+spec:
+  image: {{image}}
+  parallelism: 1
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 3600
+  resources:
+    requests:
+      memory: 512Mi
+    limits:
+      memory: 1024Mi
+  env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: dev-gcp
+    - name: ADMIN_TREKK_ENABLED
+      value: "true"
+    # Parameters to set when running the job:
+    - name: ADMIN_TREKK_SKJEMA_ID
+      value: "<UUID to withdraw>"
+    - name: ADMIN_TREKK_PERFORMED_BY
+      value: "system-admin"
+    - name: ADMIN_TREKK_DRY_RUN
+      value: "false"
+  gcp:
+    sqlInstances:
+      - name: permitteringsskjema-api
+        type: POSTGRES_16
+        tier: db-f1-micro
+        databases:
+          - name: permitteringsskjema-api-db
+            envVarPrefix: DATABASE
+  kafka:
+    pool: nav-dev
+  tokenx:
+    enabled: true
+  azure:
+    application:
+      enabled: true
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+    logging:
+      destinations:
+        - id: loki
+  accessPolicy:
+    outbound:
+      external:
+        - host: ereg-services.dev-fss-pub.nais.io
+        - host: norg2.dev-fss-pub.nais.io
+        - host: dokarkiv.dev-fss-pub.nais.io
+        - host: oppgave-q1.dev-fss-pub.nais.io
+      rules:
+        - application: permittering-dokgen
+        - application: arbeidsgiver-altinn-tilganger
+          namespace: fager
+        - application: notifikasjon-produsent-api
+          namespace: fager
