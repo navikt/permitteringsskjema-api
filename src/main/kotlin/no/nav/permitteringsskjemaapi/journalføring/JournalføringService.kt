@@ -38,7 +38,7 @@ class JournalføringService(
     fun utførJournalføring(now: Instant = Instant.now()): Boolean {
         val journalføring = journalføringRepository.findWork(now).getOrNull() ?: return false
         try {
-            MDC.put(X_CORRELATION_ID, UUID.randomUUID().toString())
+            MDC.put(X_CORRELATION_ID, journalføring.skjemaid.toString())
 
             log.info("Plukket ut skjema i tilstandsmaskinen for journalføring. {}", journalføring)
             // State machine
