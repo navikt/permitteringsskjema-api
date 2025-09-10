@@ -93,12 +93,14 @@ class ProdusentApiKlient(
         virksomhetsnummer: String,
         tekst: String,
         lenke: String,
-        tidspunkt: ISO8601DateTime? = null
+        tidspunkt: ISO8601DateTime? = null,
+        eksternId: String = grupperingsid,
     ) {
         val resultat = client.execute(
             OpprettNyBeskjed(
                 variables = OpprettNyBeskjed.Variables(
                     grupperingsid,
+                    eksternId,
                     merkelapp,
                     virksomhetsnummer,
                     tekst,

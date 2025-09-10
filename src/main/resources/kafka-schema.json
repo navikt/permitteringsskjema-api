@@ -28,6 +28,11 @@
       "type": "string",
       "description": "Timestamp fra backenden fra når bruker klikket på \"Send til NAV\". Eksempel: `2023-09-21T12:56:03.840448Z`."
     },
+    "trukketTidspunkt": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Tidspunkt (UTC, ISO-8601) når skjemaet ble trukket tilbake."
+    },
     "startDato": {
       "type": "string",
       "format": "date",

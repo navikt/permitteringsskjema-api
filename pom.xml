@@ -227,6 +227,7 @@
                 <version>${graphql-kotlin.version}</version>
                 <executions>
                     <execution>
+                        <id>generate-client</id>
                         <goals>
                             <goal>generate-client</goal>
                         </goals>
