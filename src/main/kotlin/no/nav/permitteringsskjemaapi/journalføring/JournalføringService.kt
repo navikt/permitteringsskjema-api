@@ -40,7 +40,11 @@ class JournalføringService(
         try {
             journalføringRepository.save(Journalføring(skjemaid = skjemaid, hendelseType = hendelseType))
         } catch (_: DataIntegrityViolationException) {
-            log.info("Journalføring jobb ble opprettet i annen tråd for skjema {} og hendelse {}", skjemaid, hendelseType)
+            log.info(
+                "Journalføring jobb ble opprettet i annen tråd for skjema {} og hendelse {}",
+                skjemaid,
+                hendelseType
+            )
         }
     }
 
@@ -107,6 +111,18 @@ class JournalføringService(
         )
         log.info("Opprettet journalpost med id {} for skjema {}", journalpostid, skjema.id)
 
+        /*
+            if (journalføring.hendelseType == HendelseType.TRUKKET) {
+                log.info("Avslutter sak i Dokarkiv for skjema {} (tema PER, idType ORGNR)", skjema.id)
+                dokarkivClient.avsluttSak(
+                    administrativEnhet = behandlendeEnhet,
+                    brukerId = skjema.bedriftNr,
+                    brukerIdType = "ORGNR",
+                    tema = "PER",
+                )
+            }
+         */
+
         journalføring.journalført = Journalført(
             journalpostId = journalpostid,
             journalfortAt = Instant.now().toString(),
@@ -120,7 +136,10 @@ class JournalføringService(
 
     private fun opprettoppgave(journalføring: Journalføring) {
         if (journalføring.oppgave != null) {
-            log.info("Oppretter ikke oppgave for skjema {}, da det ser ut til å allerede eksistere", journalføring.skjemaid)
+            log.info(
+                "Oppretter ikke oppgave for skjema {}, da det ser ut til å allerede eksistere",
+                journalføring.skjemaid
+            )
             journalføring.state = State.FERDIG
             journalføringRepository.save(journalføring)
             return
