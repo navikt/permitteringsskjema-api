@@ -6,7 +6,7 @@ metadata:
   labels:
     team: permittering-og-nedbemanning
 spec:
-  image: {{image}}
+  image: {{{image}}}
   parallelism: 1
   backoffLimit: 0
   ttlSecondsAfterFinished: 3600
@@ -22,11 +22,11 @@ spec:
       value: "true"
     # Parameters to set when running the job:
     - name: ADMIN_TREKK_SKJEMA_ID
-      value: "<UUID to withdraw>"
+      value: "{{{skjema_id}}}"
     - name: ADMIN_TREKK_PERFORMED_BY
-      value: "system-admin"
+      value: "{{{performed_by}}}"
     - name: ADMIN_TREKK_DRY_RUN
-      value: "false"
+      value: "{{{dry_run}}}"
   gcp:
     sqlInstances:
       - name: permitteringsskjema-api

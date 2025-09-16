@@ -1,0 +1,53 @@
+name: Run admin-trekk job (dev-gcp)
+
+on:
+  workflow_dispatch:
+    inputs:
+      skjema_id:
+        description: "ADMIN_TREKK_SKJEMA_ID (UUID for the form to retract)"
+        required: true
+        type: string
+      performed_by:
+        description: "ADMIN_TREKK_PERFORMED_BY (who performs the action)"
+        required: false
+        default: "${{ github.actor }}"
+        type: string
+      dry_run:
+        description: "ADMIN_TREKK_DRY_RUN (true to simulate only)"
+        required: true
+        default: "true"
+        type: choice
+        options: ["true", "false"]
+      image_tag:
+        description: "Image tag to deploy (defaults to current SHA)"
+        required: false
+        default: "${{ github.sha }}"
+        type: string
+
+jobs:
+  deploy-job:
+    name: Deploy NAIS job (dev-gcp)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: NAIS login
+        id: login
+        uses: nais/login@v0
+        with:
+          team: permittering-og-nedbemanning
+
+      - name: Deploy Naisjob with parameters (dev-gcp)
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          RESOURCE: nais/dev-gcp-admin-trekk-job.yaml
+          CLUSTER: dev-gcp
+          # Multiple template variables (newline-separated)
+          VAR: |
+            image=${{ steps.login.outputs.registry }}/permitteringsskjema-api:${{ inputs.image_tag }}
+            skjema_id=${{ inputs.skjema_id }}
+            performed_by=${{ inputs.performed_by }}
+            dry_run=${{ inputs.dry_run }}
