@@ -29,15 +29,6 @@ fun interface DokarkivClient {
         dokumentPdfAsBytes: ByteArray,
         hendelseType: HendelseType,
     ): String
-
-    fun avsluttSak(
-        administrativEnhet: String,
-        brukerId: String,
-        brukerIdType: String = "ORGNR",
-        tema: String = "PER",
-    ) {
-        error("avsluttSak ikke implementert")
-    }
 }
 
 /**
@@ -109,29 +100,6 @@ class DokarkivClientImpl(
         DokarkivResponse::class.java
     )!!.journalpostId
 
-    override fun avsluttSak(
-        administrativEnhet: String,
-        brukerId: String,
-        brukerIdType: String,
-        tema: String,
-    ) {
-        // PATCH /sak/avsluttSak
-        restTemplate.patchForObject(
-            "/sak/avsluttSak",
-            AvsluttSakRequest(
-                administrativEnhet = administrativEnhet,
-                avsluttetDato = Date(),
-                bruker = AvsluttSakBruker(
-                    id = brukerId,
-                    idType = brukerIdType,
-                ),
-                tema = tema,
-            ),
-            Void::class.java
-        )
-    }
-
-
     @Suppress("unused")
     private data class Journalpost(
         @JsonFormat(pattern = "yyyy-MM-dd")
@@ -193,21 +161,4 @@ class DokarkivClientImpl(
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private data class DokarkivResponse(val journalpostId: String)
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private data class AvsluttSakRequest(
-        val administrativEnhet: String?,
-        val avsluttetDato: Date?,
-        val bruker: AvsluttSakBruker,
-        val fagsakId: String? = null,
-        val fagsaksystem: String? = null,
-        val opprettetDato: Date? = null,
-        val sakAnsvarlig: String? = null,
-        val tema: String,
-    )
-
-    private data class AvsluttSakBruker(
-        val id: String,
-        val idType: String,
-    )
 }

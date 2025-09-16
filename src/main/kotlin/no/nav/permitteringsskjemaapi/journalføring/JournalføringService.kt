@@ -111,18 +111,6 @@ class JournalføringService(
         )
         log.info("Opprettet journalpost med id {} for skjema {}", journalpostid, skjema.id)
 
-        /*
-            if (journalføring.hendelseType == HendelseType.TRUKKET) {
-                log.info("Avslutter sak i Dokarkiv for skjema {} (tema PER, idType ORGNR)", skjema.id)
-                dokarkivClient.avsluttSak(
-                    administrativEnhet = behandlendeEnhet,
-                    brukerId = skjema.bedriftNr,
-                    brukerIdType = "ORGNR",
-                    tema = "PER",
-                )
-            }
-         */
-
         journalføring.journalført = Journalført(
             journalpostId = journalpostid,
             journalfortAt = Instant.now().toString(),
