@@ -10,7 +10,6 @@ on:
       performed_by:
         description: "ADMIN_TREKK_PERFORMED_BY (who performs the action)"
         required: false
-        default: "${{ github.actor }}"
         type: string
       dry_run:
         description: "ADMIN_TREKK_DRY_RUN (true to simulate only)"
@@ -21,7 +20,6 @@ on:
       image_tag:
         description: "Image tag to deploy (defaults to current SHA)"
         required: false
-        default: "${{ github.sha }}"
         type: string
 
 jobs:
@@ -47,7 +45,7 @@ jobs:
           CLUSTER: dev-gcp
           # Multiple template variables (newline-separated)
           VAR: |
-            image=${{ steps.login.outputs.registry }}/permitteringsskjema-api:${{ inputs.image_tag }}
+            image=${{ steps.login.outputs.registry }}/permitteringsskjema-api:${{ inputs.image_tag || github.sha }}
             skjema_id=${{ inputs.skjema_id }}
-            performed_by=${{ inputs.performed_by }}
+            performed_by=${{ inputs.performed_by || github.actor }}
             dry_run=${{ inputs.dry_run }}
