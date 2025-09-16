@@ -98,7 +98,11 @@ class DokarkivClientImpl(
             bruker = Bruker(skjema.bedriftNr),
             datoMottatt = LocalDate.ofInstant(skjema.sendtInnTidspunkt, ZoneId.of("Europe/Oslo")),
             avsenderMottaker = Avsender(skjema.bedriftNr, skjema.bedriftNavn),
-            eksternReferanseId = "PRM-${skjema.id}-${hendelseType.name}",
+            // For INNSENDT, behold historisk eksternReferanseId for å unngå duplikater
+            eksternReferanseId = when (hendelseType) {
+                HendelseType.INNSENDT -> "PRM-${skjema.id}"
+                else -> "PRM-${skjema.id}-${hendelseType.name}"
+            },
             journalfoerendeEnhet = behandlendeEnhet,
             pdf = String(Base64.getEncoder().encode(dokumentPdfAsBytes)),
         ),
