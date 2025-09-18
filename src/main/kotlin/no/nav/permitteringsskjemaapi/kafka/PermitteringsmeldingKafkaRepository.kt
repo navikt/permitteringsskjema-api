@@ -39,4 +39,11 @@ class PermitteringsmeldingKafkaEntry() {
 
     @Column(name = "queue_position", insertable = false, updatable = false)
     var queuePosition: Int? = null
+
+    override fun equals(other: Any?): Boolean =
+        other is PermitteringsmeldingKafkaEntry &&
+            skjemaId == other.skjemaId &&
+            hendelseType == other.hendelseType
+
+    override fun hashCode(): Int = 31 * skjemaId.hashCode() + hendelseType.hashCode()
 }

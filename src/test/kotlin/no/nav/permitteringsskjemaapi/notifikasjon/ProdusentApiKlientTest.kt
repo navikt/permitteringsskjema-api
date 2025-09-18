@@ -133,7 +133,8 @@ internal class ProdusentApiKlientTest {
                 virksomhetsnummer = "1234",
                 tekst = "tittel",
                 lenke = "lenke",
-                null
+                null,
+                "eksernid"
             )
         }
     }
@@ -160,7 +161,8 @@ internal class ProdusentApiKlientTest {
                 virksomhetsnummer = "1234",
                 tekst = "tittel",
                 lenke = "lenke",
-                null
+                null,
+                eksternId = "eksternid"
             )
         }
     }
@@ -195,7 +197,8 @@ internal class ProdusentApiKlientTest {
                     virksomhetsnummer = "1234",
                     tekst = "tittel",
                     lenke = "lenke",
-                    null
+                    null,
+                    eksternId = "eksternid"
                 )
             }
         }

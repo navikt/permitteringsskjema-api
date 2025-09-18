@@ -94,7 +94,7 @@ class ProdusentApiKlient(
         tekst: String,
         lenke: String,
         tidspunkt: ISO8601DateTime? = null,
-        eksternId: String = grupperingsid,
+        eksternId: String
     ) {
         val resultat = client.execute(
             OpprettNyBeskjed(

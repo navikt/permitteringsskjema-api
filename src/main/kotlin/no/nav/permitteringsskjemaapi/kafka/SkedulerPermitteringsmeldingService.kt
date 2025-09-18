@@ -62,7 +62,8 @@ class SkedulerPermitteringsmeldingService(
                             merkelapp = skjema.type.merkelapp,
                             virksomhetsnummer = skjema.bedriftNr,
                             lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
-                            tidspunkt = skjema.sendtInnTidspunkt.toString()
+                            tidspunkt = skjema.sendtInnTidspunkt.toString(),
+                            eksternId = skjema.id.toString(),
                         )
 
                         permitteringsskjemaProdusent.sendTilKafkaTopic(skjema)

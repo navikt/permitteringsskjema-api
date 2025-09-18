@@ -63,6 +63,13 @@ class Journalføring() {
     @field:Convert(converter = InstantAsIsoStringConverter::class)
     var delayedUntil: Instant? = null
 
+    override fun equals(other: Any?): Boolean =
+        other is Journalføring &&
+            skjemaid == other.skjemaid &&
+            hendelseType == other.hendelseType
+
+    override fun hashCode(): Int = 31 * skjemaid.hashCode() + hendelseType.hashCode()
+
     override fun toString() =
         "Journalføring(id=$id, skjemaid=$skjemaid, hendelseType=$hendelseType, state=$state, rowInsertedAt='$rowInsertedAt', delayedUntil='$delayedUntil', journalført=$journalført, oppgave=$oppgave)"
 }
