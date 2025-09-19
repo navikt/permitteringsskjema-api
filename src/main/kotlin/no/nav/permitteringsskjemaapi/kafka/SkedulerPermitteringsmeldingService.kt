@@ -47,7 +47,7 @@ class SkedulerPermitteringsmeldingService(
                         produsentApiKlient.oppdaterSakStatusTrukket(
                             grupperingsid = skjema.id.toString(),
                             merkelapp = skjema.type.merkelapp,
-                            overstyrStatustekstMed = "TRUKKET",
+                            overstyrStatustekstMed = "Trukket",
                         )
                         return@runBlocking
                     }
