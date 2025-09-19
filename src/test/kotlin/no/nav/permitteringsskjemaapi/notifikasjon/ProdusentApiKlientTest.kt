@@ -203,5 +203,62 @@ internal class ProdusentApiKlientTest {
             }
         }
     }
-}
 
+    @Test
+    fun `NyStatusSakVellykket respons fra Produsent api`() = runBlocking {
+        fakeResponseResolver.setResolver { //language=json
+            """{
+                "data": {
+                  "nyStatusSakByGrupperingsid": {
+                    "__typename": "NyStatusSakVellykket",
+                    "id": "42"
+                    }
+                },
+                "errors": []
+                }
+            """.trimIndent()
+        }
+
+        assertDoesNotThrow {
+            produsentApiKlient.oppdaterSakStatusTrukket(
+                grupperingsid = "grupperingsid",
+                merkelapp = "merkelapp",
+                overstyrStatustekstMed = null,
+            )
+        }
+    }
+
+    @Test
+    fun `NyStatusSak Error responser kaster exception`() = runBlocking {
+        val ugyldigeResponsTyper = listOf(
+            "SakFinnesIkke",
+            "Konflikt",
+            "UgyldigMerkelapp",
+            "UkjentProdusent",
+            "EnHeltUkjentResponsType",
+        )
+
+        for (responseType in ugyldigeResponsTyper) {
+            fakeResponseResolver.setResolver { //language=json
+                """{
+                    "data": {
+                      "nyStatusSakByGrupperingsid": {
+                        "__typename": $responseType,
+                        "feilmelding": "Her er en feilmelding"
+                        }
+                    },
+                    "errors": []
+                    }
+                """.trimIndent()
+            }
+
+            assertThrows<Exception> {
+                produsentApiKlient.oppdaterSakStatusTrukket(
+                    grupperingsid = "grupperingsid",
+                    merkelapp = "merkelapp",
+                    overstyrStatustekstMed = null,
+                )
+            }
+        }
+    }
+}

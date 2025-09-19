@@ -7,6 +7,8 @@ import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.ISO8601DateTime
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.OpprettNyBeskjed
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.OpprettNySak
+import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.NyStatusSakByGrupperingsid
+import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.enums.SaksStatus
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.inputs.AltinnRessursMottakerInput
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.inputs.MottakerInput
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.opprettnybeskjed.DefaultNyBeskjedResultatImplementation
@@ -23,6 +25,12 @@ import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.opprettnysak
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.opprettnybeskjed.UgyldigMerkelapp as NyBeskjedUgyldigMerkelapp
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.opprettnybeskjed.UgyldigMottaker as NyBeskjedUgyldigMottaker
 import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.opprettnybeskjed.UkjentProdusent as NyBeskjedUkjentProdusent
+import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.nystatussakbygrupperingsid.DefaultNyStatusSakResultatImplementation
+import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.nystatussakbygrupperingsid.Konflikt
+import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.nystatussakbygrupperingsid.NyStatusSakVellykket
+import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.nystatussakbygrupperingsid.SakFinnesIkke
+import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.nystatussakbygrupperingsid.UgyldigMerkelapp as NyStatusUgyldigMerkelapp
+import no.nav.permitteringsskjemaapi.notifikasjon.graphql.generated.nystatussakbygrupperingsid.UkjentProdusent as NyStatusUkjentProdusent
 import no.nav.permitteringsskjemaapi.util.NaisEnvironment
 import no.nav.permitteringsskjemaapi.util.urlTilNotifikasjonIMiljo
 import org.springframework.http.HttpHeaders
@@ -84,6 +92,38 @@ class ProdusentApiKlient(
             is NySakUkjentRolle -> throw Exception(nySak.feilmelding)
 
             is DefaultNySakResultatImplementation -> throw Exception("Uventet feil: $resultat")
+        }
+    }
+
+    suspend fun oppdaterSakStatusTrukket(
+        grupperingsid: String,
+        merkelapp: String,
+        overstyrStatustekstMed: String? = null,
+    ) {
+        val resultat = client.execute(
+            NyStatusSakByGrupperingsid(
+                variables = NyStatusSakByGrupperingsid.Variables(
+                    grupperingsid = grupperingsid,
+                    merkelapp = merkelapp,
+                    nyStatus = SaksStatus.FERDIG,
+                    overstyrStatustekstMed = overstyrStatustekstMed,
+                )
+            )
+        ) {
+            header(HttpHeaders.AUTHORIZATION, "Bearer ${hentEntraIdToken()}")
+        }
+
+        when (val nyStatus = resultat.data?.nyStatusSakByGrupperingsid) {
+            null -> throw Exception("Uventet feil: Ny status er null, resultat: $resultat")
+
+            is NyStatusSakVellykket -> log.info("Oppdatert sakstatus til TRUKKET for {}", grupperingsid)
+
+            is SakFinnesIkke -> throw Exception(nyStatus.feilmelding)
+            is Konflikt -> throw Exception(nyStatus.feilmelding)
+            is NyStatusUgyldigMerkelapp -> throw Exception(nyStatus.feilmelding)
+            is NyStatusUkjentProdusent -> throw Exception(nyStatus.feilmelding)
+
+            is DefaultNyStatusSakResultatImplementation -> throw Exception("Uventet feil: $resultat")
         }
     }
 

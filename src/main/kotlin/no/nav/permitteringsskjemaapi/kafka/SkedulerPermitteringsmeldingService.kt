@@ -44,6 +44,11 @@ class SkedulerPermitteringsmeldingService(
                             tidspunkt = (skjema.trukketTidspunkt).toString(),
                             eksternId = "${skjema.id}-trukket",
                         )
+                        produsentApiKlient.oppdaterSakStatusTrukket(
+                            grupperingsid = skjema.id.toString(),
+                            merkelapp = skjema.type.merkelapp,
+                            overstyrStatustekstMed = "TRUKKET",
+                        )
                         return@runBlocking
                     }
 

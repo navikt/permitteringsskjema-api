@@ -25,5 +25,6 @@ class SletteServiceTest {
     @Test
     fun smokeTest() {
         sletteService.slettGammelData()
+        sletteService.slettTrukketData()
     }
 }
