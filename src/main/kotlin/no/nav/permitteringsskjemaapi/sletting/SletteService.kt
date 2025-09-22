@@ -46,6 +46,10 @@ class SletteService(
     }
 
     // Slett alle trukne skjema som er eldre enn 1 år, samt tilhørende journalføring
+    @Scheduled(
+        initialDelayString = "PT1M",
+        fixedRateString = "PT1H",
+    )
     fun slettTrukketData() {
         val cutoff = Instant.now().minus(365, ChronoUnit.DAYS)
 
