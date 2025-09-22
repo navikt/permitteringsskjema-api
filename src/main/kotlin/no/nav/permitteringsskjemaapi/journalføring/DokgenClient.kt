@@ -11,6 +11,8 @@ import org.springframework.web.client.HttpServerErrorException
 import java.net.SocketException
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import javax.net.ssl.SSLHandshakeException
 
 interface DokgenClient {
@@ -42,7 +44,7 @@ class DokgenClientImpl(
         val payload = TemplateVariables(
             bedriftsnummer = skjema.bedriftNr,
             bedriftNavn = skjema.bedriftNavn,
-            sendtInnTidspunkt = skjema.sendtInnTidspunkt,
+            sendtInnTidspunkt = skjema.sendtInnTidspunkt.atZone(OSLO_ZONE).format(ISO_OFFSET_FORMAT),
             type = skjema.type,
             kontaktNavn = skjema.kontaktNavn,
             kontaktTlf = skjema.kontaktTlf,
@@ -59,7 +61,7 @@ class DokgenClientImpl(
         val payload = TemplateVariables(
             bedriftsnummer = skjema.bedriftNr,
             bedriftNavn = skjema.bedriftNavn,
-            sendtInnTidspunkt = skjema.sendtInnTidspunkt,
+            sendtInnTidspunkt = skjema.sendtInnTidspunkt.atZone(OSLO_ZONE).format(ISO_OFFSET_FORMAT),
             type = skjema.type,
             kontaktNavn = skjema.kontaktNavn,
             kontaktTlf = skjema.kontaktTlf,
@@ -68,7 +70,9 @@ class DokgenClientImpl(
             sluttDato = skjema.sluttDato,
             fritekst = skjema.fritekst,
             antallBerorte = skjema.antallBerørt,
-            trukketTidspunkt = skjema.trukketTidspunkt ?: Instant.now(),
+            trukketTidspunkt = (skjema.trukketTidspunkt ?: Instant.now())
+                .atZone(OSLO_ZONE)
+                .format(ISO_OFFSET_FORMAT),
             )
         return postPdf("/template/permittering-trukket/create-pdf", payload)
     }
@@ -87,8 +91,7 @@ class DokgenClientImpl(
         val bedriftsnummer: String,
         val bedriftNavn: String,
 
-        @JsonFormat(shape = JsonFormat.Shape.STRING)
-        val sendtInnTidspunkt: Instant,
+        val sendtInnTidspunkt: String,
 
         val type: SkjemaType,
         val kontaktNavn: String,
@@ -103,6 +106,11 @@ class DokgenClientImpl(
 
         val fritekst: String,
         val antallBerorte: Int = 0,
-        val trukketTidspunkt: Instant? = null,
+        val trukketTidspunkt: String? = null,
     )
+
+    private companion object {
+        val OSLO_ZONE: ZoneId = ZoneId.of("Europe/Oslo")
+        val ISO_OFFSET_FORMAT: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+    }
 }
