@@ -48,7 +48,7 @@ class DokgenClientTest {
         ukjentSluttDato = false,
         type = SkjemaType.INNSKRENKNING_I_ARBEIDSTID,
         yrkeskategorier = listOf(Yrkeskategori(1, "hey", "hey")),
-        årsakskode = Årsakskode.MANGEL_PÅ_ARBEID,
+        årsakskode = Årsakskode.MANGEL_PÅ_ARBEID
     )
 
     @Test
@@ -62,6 +62,25 @@ class DokgenClientTest {
 
         val bytes = dokgenClient.genererPdf(skjema)
         assertTrue(bytes.size > 4)
+    }
+
+    @Test
+    fun pdfResultIsAcceptedForTrukketSkjema() {
+        val trukketSkjema = skjema.copy(
+            trukketTidspunkt = Instant.parse("2011-01-01T01:01:01Z")
+        )
+
+        server.expect(requestTo("/template/permittering-trukket/create-pdf"))
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(
+                withSuccess(
+                    pdfExample.contentAsByteArray,
+                    org.springframework.http.MediaType.APPLICATION_PDF
+                )
+            )
+
+        val bytes = dokgenClient.genererTrukketPdf(trukketSkjema)
+        assertTrue(bytes.isNotEmpty(), "Expected non-empty PDF for trukket skjema")
     }
 
     @Test

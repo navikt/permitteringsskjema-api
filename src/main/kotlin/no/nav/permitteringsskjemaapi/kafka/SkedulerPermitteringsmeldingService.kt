@@ -3,8 +3,10 @@ package no.nav.permitteringsskjemaapi.kafka
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.runBlocking
 import no.nav.permitteringsskjemaapi.notifikasjon.ProdusentApiKlient
+import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import no.nav.permitteringsskjemaapi.util.urlTilPermitteringsløsningFrontend
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -29,30 +31,70 @@ class SkedulerPermitteringsmeldingService(
                 val skjema = permitteringsskjemaRepository.findById(queueItem.skjemaId)
                     ?: throw RuntimeException("skjema med id ${queueItem.skjemaId} finnes ikke")
 
-                produsentApiKlient.opprettNySak(
-                    tittel = skjema.type.tittel,
-                    grupperingsid = skjema.id.toString(),
-                    merkelapp = skjema.type.merkelapp,
-                    virksomhetsnummer = skjema.bedriftNr,
-                    lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
-                    tidspunkt = skjema.sendtInnTidspunkt.toString()
-                )
-                produsentApiKlient.opprettNyBeskjed(
-                    tekst = skjema.type.beskjedTekst,
-                    grupperingsid = skjema.id.toString(),
-                    merkelapp = skjema.type.merkelapp,
-                    virksomhetsnummer = skjema.bedriftNr,
-                    lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
-                    tidspunkt = skjema.sendtInnTidspunkt.toString()
-                )
+                when (queueItem.hendelseType) {
+                    HendelseType.TRUKKET -> {
+                        permitteringsskjemaProdusent.sendTilKafkaTopic(skjema)
+                        permitteringsmeldingKafkaRepository.delete(queueItem)
+                        produsentApiKlient.opprettNyBeskjed(
+                            tekst = skjema.type.trukketTekst,
+                            grupperingsid = skjema.id.toString(),
+                            merkelapp = skjema.type.merkelapp,
+                            virksomhetsnummer = skjema.bedriftNr,
+                            lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
+                            tidspunkt = (skjema.trukketTidspunkt).toString(),
+                            eksternId = "${skjema.id}-trukket",
+                        )
+                        produsentApiKlient.oppdaterSakStatusTrukket(
+                            grupperingsid = skjema.id.toString(),
+                            merkelapp = skjema.type.merkelapp,
+                            overstyrStatustekstMed = "Trukket",
+                        )
+                        return@runBlocking
+                    }
 
-                permitteringsskjemaProdusent.sendTilKafkaTopic(skjema)
-                permitteringsmeldingKafkaRepository.delete(queueItem)
+                    HendelseType.INNSENDT -> {
+                        produsentApiKlient.opprettNySak(
+                            tittel = skjema.type.tittel,
+                            grupperingsid = skjema.id.toString(),
+                            merkelapp = skjema.type.merkelapp,
+                            virksomhetsnummer = skjema.bedriftNr,
+                            lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
+                            tidspunkt = skjema.sendtInnTidspunkt.toString()
+                        )
+                        produsentApiKlient.opprettNyBeskjed(
+                            tekst = skjema.type.beskjedTekst,
+                            grupperingsid = skjema.id.toString(),
+                            merkelapp = skjema.type.merkelapp,
+                            virksomhetsnummer = skjema.bedriftNr,
+                            lenke = "$urlTilPermitteringsløsningFrontend${skjema.id}",
+                            tidspunkt = skjema.sendtInnTidspunkt.toString(),
+                            eksternId = skjema.id.toString(),
+                        )
+
+                        permitteringsskjemaProdusent.sendTilKafkaTopic(skjema)
+                        permitteringsmeldingKafkaRepository.delete(queueItem)
+                    }
+                }
             }
         }
     }
 
-    fun scheduleSend(skjemaid: UUID) {
-        permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(skjemaid))
+    fun scheduleSendInnsendt(skjemaId: UUID) {
+        if (permitteringsmeldingKafkaRepository.existsBySkjemaIdAndHendelseType(skjemaId, HendelseType.INNSENDT)) return
+        try {
+            permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(skjemaId, HendelseType.INNSENDT))
+        } catch (_: DataIntegrityViolationException) {
+            // unique constraint race på (skjemaId, INNSENDT)
+        }
+    }
+
+
+    fun scheduleSendTrukket(skjemaId: UUID) {
+        if (permitteringsmeldingKafkaRepository.existsBySkjemaIdAndHendelseType(skjemaId, HendelseType.TRUKKET)) return
+        try {
+            permitteringsmeldingKafkaRepository.save(PermitteringsmeldingKafkaEntry(skjemaId, HendelseType.TRUKKET))
+        } catch (_: DataIntegrityViolationException) {
+            // unique constraint race på (skjemaId, TRUKKET)
+        }
     }
 }

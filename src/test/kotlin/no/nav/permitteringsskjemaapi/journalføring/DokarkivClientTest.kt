@@ -1,6 +1,7 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
 import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
+import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.permittering.SkjemaType
 import no.nav.permitteringsskjemaapi.permittering.Yrkeskategori
@@ -62,7 +63,7 @@ class DokarkivClientTest {
         ukjentSluttDato = false,
         type = SkjemaType.INNSKRENKNING_I_ARBEIDSTID,
         yrkeskategorier = listOf(Yrkeskategori(1, "hey", "hey")),
-        årsakskode = Årsakskode.MANGEL_PÅ_ARBEID,
+        årsakskode = Årsakskode.MANGEL_PÅ_ARBEID
     )
 
     @Test
@@ -93,7 +94,12 @@ class DokarkivClientTest {
                 )
             )
 
-        val journalpostid = dokarkivClient.opprettjournalPost(skjema, behandlendeEnhet, pdfContent.toByteArray())
+        val journalpostid = dokarkivClient.opprettjournalPost(
+            skjema,
+            behandlendeEnhet,
+            pdfContent.toByteArray(),
+            HendelseType.INNSENDT
+        )
         assertEquals("42", journalpostid)
     }
 }

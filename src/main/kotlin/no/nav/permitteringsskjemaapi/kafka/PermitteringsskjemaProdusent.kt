@@ -35,6 +35,7 @@ class PermitteringsskjemaProdusent(
             årsakskode = permitteringsskjema.årsakskode,
             årsakstekst = permitteringsskjema.årsakstekst,
             yrkeskategorier = permitteringsskjema.yrkeskategorier,
+            trukketTidspunkt = permitteringsskjema.trukketTidspunkt
         )
 
         val jsonEvent = mapper.writeValueAsString(rapport)
@@ -53,7 +54,6 @@ class PermitteringsskjemaProdusent(
         ).get(1, TimeUnit.SECONDS)
     }
 
-
     data class PermitteringsskjemaKafkaMelding(
         var id: UUID,
         var bedriftsnummer: String,
@@ -65,6 +65,7 @@ class PermitteringsskjemaProdusent(
         var årsakskode: Årsakskode,
         var årsakstekst: String?,
         var yrkeskategorier: List<Yrkeskategori>,
+        val trukketTidspunkt: Instant? = null
     )
 
     private val jsonSchema = Thread.currentThread().getContextClassLoader()

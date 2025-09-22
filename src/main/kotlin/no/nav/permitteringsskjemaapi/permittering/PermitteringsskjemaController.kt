@@ -5,8 +5,10 @@ import jakarta.validation.Valid
 import no.nav.permitteringsskjemaapi.altinn.AltinnService
 import no.nav.permitteringsskjemaapi.config.INNSYN_ALLE_PERMITTERINGSSKJEMA
 import no.nav.permitteringsskjemaapi.config.logger
+import no.nav.permitteringsskjemaapi.exceptions.AlleredeTrukketException
 import no.nav.permitteringsskjemaapi.exceptions.IkkeFunnetException
 import no.nav.permitteringsskjemaapi.exceptions.IkkeTilgangException
+import no.nav.permitteringsskjemaapi.exceptions.StartdatoPassertException
 import no.nav.permitteringsskjemaapi.journalføring.JournalføringService
 import no.nav.permitteringsskjemaapi.kafka.SkedulerPermitteringsmeldingService
 import no.nav.permitteringsskjemaapi.util.AuthenticatedUserHolder
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.*
 
@@ -46,6 +49,38 @@ class PermitteringsskjemaController(
         throw IkkeFunnetException()
     }
 
+    @Transactional
+    @PostMapping("/skjemaV2/{id}/trekk")
+    fun trekk(@PathVariable id: UUID): PermitteringsskjemaV2DTO {
+        val fnr = fnrExtractor.autentisertBruker()
+
+        val skjema = repository.findById(id) ?: throw IkkeFunnetException()
+
+        val kanTrekke = altinnService.hentAlleOrgnr(INNSYN_ALLE_PERMITTERINGSSKJEMA).any { it == skjema.bedriftNr }
+
+        if (!kanTrekke) {
+            throw IkkeTilgangException()
+        }
+
+        // Bruk Oslo-tid for å avgjøre om startdato er passert.
+        val today = LocalDate.now(ZoneId.of("Europe/Oslo"))
+        // Trekk er kun mulig frem til dagen før startdato (23:59:59)
+        if (skjema.startDato <= today) {
+            throw StartdatoPassertException()
+        }
+
+        if (skjema.trukketTidspunkt != null) {
+            throw AlleredeTrukketException()
+        }
+
+        val oppdatertSkjema = repository.setTrukketTidspunkt(id, fnr) ?: throw IkkeFunnetException()
+
+        return oppdatertSkjema.tilDTO().also {
+            journalføringService.startJournalføring(id, HendelseType.TRUKKET)
+            skedulerPermitteringsmeldingService.scheduleSendTrukket(id)
+        }
+    }
+
     @GetMapping("/skjemaV2")
     fun hentAlle(): List<PermitteringsskjemaV2DTO> {
         val alleOrgnrMedInnsynTilgang = altinnService.hentAlleOrgnr(INNSYN_ALLE_PERMITTERINGSSKJEMA)
@@ -74,8 +109,8 @@ class PermitteringsskjemaController(
          */
         val id = UUID.randomUUID()
         return repository.save(skjema.tilDomene(id, fnr)).tilDTO().also {
-            journalføringService.startJournalføring(id)
-            skedulerPermitteringsmeldingService.scheduleSend(id)
+            journalføringService.startJournalføring(id, HendelseType.INNSENDT)
+            skedulerPermitteringsmeldingService.scheduleSendInnsendt(id)
         }
     }
 }
@@ -105,6 +140,7 @@ data class PermitteringsskjemaV2DTO(
     val ukjentSluttDato: Boolean = false,
 
     val sendtInnTidspunkt: Instant?,
+    val trukketTidspunkt: Instant? = null,
 ) {
 
     fun tilDomene(uuid: UUID, inloggetBruker: String): Permitteringsskjema {
@@ -130,6 +166,7 @@ data class PermitteringsskjemaV2DTO(
             yrkeskategorier = yrkeskategorier,
             opprettetAv = inloggetBruker,
             sendtInnTidspunkt = Instant.now().truncatedTo(ChronoUnit.MICROS),
+            trukketTidspunkt = trukketTidspunkt,
         )
     }
 }
@@ -158,6 +195,7 @@ private fun Permitteringsskjema.tilDTO(): PermitteringsskjemaV2DTO {
         sluttDato = sluttDato,
         ukjentSluttDato = ukjentSluttDato,
 
-        sendtInnTidspunkt = sendtInnTidspunkt
+        sendtInnTidspunkt = sendtInnTidspunkt,
+        trukketTidspunkt = trukketTidspunkt,
     )
 }

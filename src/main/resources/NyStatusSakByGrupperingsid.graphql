@@ -1,0 +1,37 @@
+mutation NyStatusSakByGrupperingsid(
+    $grupperingsid: String!
+    $merkelapp: String!
+    $nyStatus: SaksStatus!
+    $overstyrStatustekstMed: String
+) {
+    nyStatusSakByGrupperingsid(
+        grupperingsid: $grupperingsid
+        merkelapp: $merkelapp
+        nyStatus: $nyStatus
+        overstyrStatustekstMed: $overstyrStatustekstMed
+        hardDelete: {
+            nyTid: {
+                om: "P1Y"
+            }
+            strategi: OVERSKRIV
+        }
+    ) {
+        __typename
+        ... on NyStatusSakVellykket {
+            id
+        }
+        ... on SakFinnesIkke {
+            feilmelding
+        }
+        ... on Konflikt {
+            feilmelding
+        }
+        ... on UgyldigMerkelapp {
+            feilmelding
+        }
+        ... on UkjentProdusent {
+            feilmelding
+        }
+    }
+}
+

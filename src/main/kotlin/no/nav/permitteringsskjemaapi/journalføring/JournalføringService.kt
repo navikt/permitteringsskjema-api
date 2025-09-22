@@ -5,8 +5,10 @@ import no.nav.permitteringsskjemaapi.config.X_CORRELATION_ID
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.journalføring.Journalføring.State
 import no.nav.permitteringsskjemaapi.journalføring.NorgClient.Companion.OSLO_ARBEIDSLIVSENTER_KODE
+import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import org.slf4j.MDC
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
@@ -29,9 +31,21 @@ class JournalføringService(
 
     private val log = logger()
 
-    fun startJournalføring(skjemaid: UUID) {
-        log.info("startJournalføring skjemaid=$skjemaid")
-        journalføringRepository.save(Journalføring(skjemaid = skjemaid))
+    fun startJournalføring(skjemaid: UUID, hendelseType: HendelseType = HendelseType.INNSENDT) {
+        log.info("startJournalføring skjemaid=$skjemaid, hendelseType=$hendelseType")
+        if (journalføringRepository.existsBySkjemaidAndHendelseType(skjemaid, hendelseType)) {
+            log.info("Journalføring jobb finnes allerede for skjema {} og hendelse {}", skjemaid, hendelseType)
+            return
+        }
+        try {
+            journalføringRepository.save(Journalføring(skjemaid = skjemaid, hendelseType = hendelseType))
+        } catch (_: DataIntegrityViolationException) {
+            log.info(
+                "Journalføring jobb ble opprettet i annen tråd for skjema {} og hendelse {}",
+                skjemaid,
+                hendelseType
+            )
+        }
     }
 
     @Transactional
@@ -81,7 +95,11 @@ class JournalføringService(
             skjema.id
         )
 
-        val dokumentPdfAsBytes = dokgenClient.genererPdf(skjema)
+        val dokumentPdfAsBytes = when (journalføring.hendelseType) {
+            HendelseType.TRUKKET -> dokgenClient.genererTrukketPdf(skjema)
+            HendelseType.INNSENDT -> dokgenClient.genererPdf(skjema)
+        }
+
         log.info("Genererte pdf ({} bytes) for skjema {}", dokumentPdfAsBytes.size, skjema.id)
 
         // kall dokarkiv med journalpost og hent id
@@ -89,6 +107,7 @@ class JournalføringService(
             skjema = skjema,
             behandlendeEnhet = behandlendeEnhet,
             dokumentPdfAsBytes = dokumentPdfAsBytes,
+            hendelseType = journalføring.hendelseType,
         )
         log.info("Opprettet journalpost med id {} for skjema {}", journalpostid, skjema.id)
 
@@ -105,7 +124,10 @@ class JournalføringService(
 
     private fun opprettoppgave(journalføring: Journalføring) {
         if (journalføring.oppgave != null) {
-            log.info("Oppretter ikke oppgave for skjema {}, da det ser ut til å allerede eksistere", journalføring.skjemaid)
+            log.info(
+                "Oppretter ikke oppgave for skjema {}, da det ser ut til å allerede eksistere",
+                journalføring.skjemaid
+            )
             journalføring.state = State.FERDIG
             journalføringRepository.save(journalføring)
             return
@@ -118,7 +140,11 @@ class JournalføringService(
         val journalført = journalføring.journalført
             ?: throw RuntimeException("Skjema ${journalføring.skjemaid} må være journalført før oppgave kan opprettes")
 
-        val oppgaveId = oppgaveClient.lagOppgave(skjema, journalført)
+        val beskrivelse = when (journalføring.hendelseType) {
+            HendelseType.TRUKKET -> "Arbeidsgiver har kommet med nye eller utfyllende opplysninger"
+            HendelseType.INNSENDT -> "Varsel om massepermittering"
+        }
+        val oppgaveId = oppgaveClient.lagOppgave(skjema, journalført, beskrivelse)
 
         journalføring.oppgave = Oppgave(
             oppgaveId = oppgaveId,

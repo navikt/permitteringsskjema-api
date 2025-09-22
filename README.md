@@ -33,6 +33,17 @@ kafka-console-consumer --bootstrap-server localhost:9092 --topic permittering-og
  - Stopp container:
 `docker stop <ID>`
 
+## Manuelt trekk av permitterings-, nedbemannings- eller innskrenkingsmelding
+
+- Set parameterene i manifest:
+    - ADMIN_TREKK_SKJEMA_ID: UUID til skjemaet som skal trekkes
+    - ADMIN_TREKK_PERFORMED_BY: aktør (standard: system-admin)
+    - ADMIN_TREKK_DRY_RUN: true for kun logging, false for faktisk kjøring
+
+- Apply i ønsket cluster/namespace:
+    - dev: `kubectl -n permittering-og-nedbemanning apply -f nais/dev-gcp-admin-trekk-job.yaml`
+    - prod: `kubectl -n permittering-og-nedbemanning apply -f nais/prod-gcp-admin-trekk-job.yaml`
+
 ---------
 
 # Henvendelser

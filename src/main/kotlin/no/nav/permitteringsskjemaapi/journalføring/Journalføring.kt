@@ -1,16 +1,19 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
 import jakarta.persistence.*
+import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import java.time.Instant
 import java.util.*
 
 @Entity
 @Table(name = "journalforing")
 class Journalføring() {
-    constructor(skjemaid: UUID) : this() {
+    constructor(skjemaid: UUID, hendelseType: HendelseType) : this() {
         this.skjemaid = skjemaid
         this.rowInsertedAt = Instant.now().toString()
+        // Alle hendelser starter i NY; state machine avgjør videre flyt
         this.state = State.NY
+        this.hendelseType = hendelseType
     }
 
     enum class State {
@@ -21,9 +24,18 @@ class Journalføring() {
     }
 
     @field:Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @field:Column(name = "id")
+    lateinit var id: UUID
+        private set
+
+
     @field:Column(name = "skjema_id")
     lateinit var skjemaid: UUID
-        private set
+
+    @field:Column(name = "hendelse_type")
+    @field:Enumerated(EnumType.STRING)
+    var hendelseType: HendelseType = HendelseType.INNSENDT
 
     @field:Column(name = "state")
     @field:Enumerated(EnumType.STRING)
@@ -51,12 +63,15 @@ class Journalføring() {
     @field:Convert(converter = InstantAsIsoStringConverter::class)
     var delayedUntil: Instant? = null
 
-    override fun equals(other: Any?) =
-        this === other || (other is Journalføring && this.skjemaid == other.skjemaid)
+    override fun equals(other: Any?): Boolean =
+        other is Journalføring &&
+            skjemaid == other.skjemaid &&
+            hendelseType == other.hendelseType
 
-    override fun hashCode() = skjemaid.hashCode()
+    override fun hashCode(): Int = 31 * skjemaid.hashCode() + hendelseType.hashCode()
+
     override fun toString() =
-        "Journalføring(skjemaid=$skjemaid, state=$state, rowInsertedAt='$rowInsertedAt', delayedUntil='$delayedUntil', journalført=$journalført, oppgave=$oppgave)"
+        "Journalføring(id=$id, skjemaid=$skjemaid, hendelseType=$hendelseType, state=$state, rowInsertedAt='$rowInsertedAt', delayedUntil='$delayedUntil', journalført=$journalført, oppgave=$oppgave)"
 }
 
 @Embeddable

@@ -1,6 +1,7 @@
 package no.nav.permitteringsskjemaapi.kafka
 
 import jakarta.persistence.*
+import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
@@ -11,24 +12,38 @@ interface PermitteringsmeldingKafkaRepository : JpaRepository<Permitteringsmeldi
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query(value = "select r from PermitteringsmeldingKafkaEntry r order by r.queuePosition")
     fun fetchQueueItems(pageable: Pageable): List<PermitteringsmeldingKafkaEntry>
+
+    fun existsBySkjemaIdAndHendelseType(skjemaId: UUID, hendelseType: HendelseType): Boolean
 }
 
 @Entity
 @Table(name = "deferred_kafka_queue")
 class PermitteringsmeldingKafkaEntry() {
-    constructor(skjemaId: UUID): this() {
+
+    constructor(skjemaId: UUID, hendelseType: HendelseType) : this() {
         this.skjemaId = skjemaId
+        this.hendelseType = hendelseType
     }
 
-    @field:Id
-    @field:Column(name = "skjema_id")
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
+    var id: UUID? = null  // generated av DB
+
+    @Column(name = "skjema_id", nullable = false)
     lateinit var skjemaId: UUID
 
-    @field:Column(name = "queue_position", insertable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "hendelse_type", nullable = false)
+    lateinit var hendelseType: HendelseType
+
+    @Column(name = "queue_position", insertable = false, updatable = false)
     var queuePosition: Int? = null
 
-    override fun equals(other: Any?) =
-        other is PermitteringsmeldingKafkaEntry && this.skjemaId == other.skjemaId
+    override fun equals(other: Any?): Boolean =
+        other is PermitteringsmeldingKafkaEntry &&
+            skjemaId == other.skjemaId &&
+            hendelseType == other.hendelseType
 
-    override fun hashCode() = skjemaId.hashCode()
+    override fun hashCode(): Int = 31 * skjemaId.hashCode() + hendelseType.hashCode()
 }
