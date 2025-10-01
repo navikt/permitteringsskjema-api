@@ -62,10 +62,6 @@ class DokarkivClientImpl(
             }
         })
         .additionalInterceptors(
-            ClientHttpRequestInterceptor { request, body, execution ->
-                request.headers.setBearerAuth(entraIdKlient.getToken(dokarkivScope))
-                execution.execute(request, body)
-            },
             retryInterceptor(
                 3,
                 250L,
@@ -75,7 +71,11 @@ class DokarkivClientImpl(
                 HttpServerErrorException.BadGateway::class.java,
                 HttpServerErrorException.GatewayTimeout::class.java,
                 HttpServerErrorException.ServiceUnavailable::class.java,
-            )
+            ),
+            ClientHttpRequestInterceptor { request, body, execution ->
+                request.headers.setBearerAuth(entraIdKlient.getToken(dokarkivScope))
+                execution.execute(request, body)
+            },
         )
         .build()
 
