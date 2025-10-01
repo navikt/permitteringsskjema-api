@@ -3,6 +3,7 @@ package no.nav.permitteringsskjemaapi.journalføring
 import jakarta.transaction.Transactional
 import no.nav.permitteringsskjemaapi.config.X_CORRELATION_ID
 import no.nav.permitteringsskjemaapi.config.logger
+import no.nav.permitteringsskjemaapi.exceptions.isCausedBy
 import no.nav.permitteringsskjemaapi.journalføring.Journalføring.State
 import no.nav.permitteringsskjemaapi.journalføring.NorgClient.Companion.OSLO_ARBEIDSLIVSENTER_KODE
 import no.nav.permitteringsskjemaapi.permittering.HendelseType
@@ -70,8 +71,9 @@ class JournalføringService(
             journalføringRepository.save(journalføring)
         } catch (e: Exception) {
             log.atLevel(
-                when (e) {
-                    is PrematureCloseException -> Level.WARN
+                when {
+                    e.isCausedBy<PrematureCloseException>() -> Level.WARN
+
                     else -> Level.ERROR
                 }
             ).log("Exception ved journalføring: {}", e.message, e)
