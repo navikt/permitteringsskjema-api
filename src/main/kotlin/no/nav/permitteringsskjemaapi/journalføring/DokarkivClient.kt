@@ -2,7 +2,6 @@ package no.nav.permitteringsskjemaapi.journalføring
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
 import no.nav.permitteringsskjemaapi.permittering.HendelseType
@@ -16,7 +15,9 @@ import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.client.ResourceAccessException
 import java.net.SocketException
+import java.time.Duration
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
@@ -50,6 +51,8 @@ class DokarkivClientImpl(
 
     private val restTemplate = restTemplateBuilder
         .rootUri(dokarkivBaseUrl)
+        .connectTimeout(Duration.ofSeconds(2))
+        .readTimeout(Duration.ofSeconds(30))
         .errorHandler(object: DefaultResponseErrorHandler() {
             override fun hasError(response: ClientHttpResponse): Boolean {
                 val statusCode = response.statusCode
@@ -68,6 +71,7 @@ class DokarkivClientImpl(
                 250L,
                 SocketException::class.java,
                 SSLHandshakeException::class.java,
+                ResourceAccessException::class.java,
                 HttpServerErrorException.BadGateway::class.java,
                 HttpServerErrorException.GatewayTimeout::class.java,
                 HttpServerErrorException.ServiceUnavailable::class.java,
