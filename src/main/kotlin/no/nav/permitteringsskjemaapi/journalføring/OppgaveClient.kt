@@ -41,10 +41,6 @@ class OppgaveClientImpl(
         .connectTimeout(Duration.ofSeconds(2))
         .readTimeout(Duration.ofSeconds(30))
         .additionalInterceptors(
-            { request, body, execution ->
-                request.headers.setBearerAuth(entraIdKlient.getToken(oppgaveScope))
-                execution.execute(request, body)
-            },
             retryInterceptor(
                 3,
                 250L,
@@ -54,7 +50,11 @@ class OppgaveClientImpl(
                 HttpServerErrorException.BadGateway::class.java,
                 HttpServerErrorException.GatewayTimeout::class.java,
                 HttpServerErrorException.ServiceUnavailable::class.java,
-            )
+            ),
+            { request, body, execution ->
+                request.headers.setBearerAuth(entraIdKlient.getToken(oppgaveScope))
+                execution.execute(request, body)
+            },
         )
         .build()
 
