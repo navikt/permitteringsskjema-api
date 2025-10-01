@@ -8,10 +8,12 @@ import no.nav.permitteringsskjemaapi.journalføring.NorgClient.Companion.OSLO_AR
 import no.nav.permitteringsskjemaapi.permittering.HendelseType
 import no.nav.permitteringsskjemaapi.permittering.PermitteringsskjemaRepository
 import org.slf4j.MDC
+import org.slf4j.event.Level
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
+import reactor.netty.http.client.PrematureCloseException
 import java.time.Instant
 import java.time.temporal.ChronoUnit.HOURS
 import java.time.temporal.ChronoUnit.MINUTES
@@ -67,7 +69,12 @@ class JournalføringService(
             journalføring.delayedUntil = now.plus(1, HOURS)
             journalføringRepository.save(journalføring)
         } catch (e: Exception) {
-            log.error("Exception ved journalføring: {}", e.message, e)
+            log.atLevel(
+                when (e) {
+                    is PrematureCloseException -> Level.WARN
+                    else -> Level.ERROR
+                }
+            ).log("Exception ved journalføring: {}", e.message, e)
             journalføring.delayedUntil = now.plus(1, MINUTES)
             journalføringRepository.save(journalføring)
         } finally {

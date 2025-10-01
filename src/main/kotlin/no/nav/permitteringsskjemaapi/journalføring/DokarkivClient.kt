@@ -72,7 +72,7 @@ class DokarkivClientImpl(
                 HttpServerErrorException.GatewayTimeout::class.java,
                 HttpServerErrorException.ServiceUnavailable::class.java,
             ),
-            ClientHttpRequestInterceptor { request, body, execution ->
+            { request, body, execution ->
                 request.headers.setBearerAuth(entraIdKlient.getToken(dokarkivScope))
                 execution.execute(request, body)
             },
