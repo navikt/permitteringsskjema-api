@@ -17,6 +17,7 @@ import org.springframework.web.client.DefaultResponseErrorHandler
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.ResourceAccessException
 import java.net.SocketException
+import java.time.Duration
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
@@ -50,6 +51,8 @@ class DokarkivClientImpl(
 
     private val restTemplate = restTemplateBuilder
         .rootUri(dokarkivBaseUrl)
+        .connectTimeout(Duration.ofSeconds(2))
+        .readTimeout(Duration.ofSeconds(30))
         .errorHandler(object: DefaultResponseErrorHandler() {
             override fun hasError(response: ClientHttpResponse): Boolean {
                 val statusCode = response.statusCode

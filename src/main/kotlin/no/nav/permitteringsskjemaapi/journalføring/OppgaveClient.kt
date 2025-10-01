@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.ResourceAccessException
 import java.net.SocketException
+import java.time.Duration
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.net.ssl.SSLHandshakeException
@@ -37,6 +38,8 @@ class OppgaveClientImpl(
 ) : OppgaveClient {
     private val restTemplate = restTemplateBuilder
         .rootUri(oppgaveBaseUrl)
+        .connectTimeout(Duration.ofSeconds(2))
+        .readTimeout(Duration.ofSeconds(30))
         .additionalInterceptors(
             { request, body, execution ->
                 request.headers.setBearerAuth(entraIdKlient.getToken(oppgaveScope))
