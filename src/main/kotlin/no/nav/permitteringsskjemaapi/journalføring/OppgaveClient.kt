@@ -39,7 +39,7 @@ class OppgaveClientImpl(
     private val restTemplate = restTemplateBuilder
         .rootUri(oppgaveBaseUrl)
         .connectTimeout(Duration.ofSeconds(2))
-        .readTimeout(Duration.ofSeconds(30))
+        .readTimeout(Duration.ofSeconds(60))
         .additionalInterceptors(
             retryInterceptor(
                 3,
