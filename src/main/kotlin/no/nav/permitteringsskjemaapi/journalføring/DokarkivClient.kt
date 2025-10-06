@@ -14,6 +14,7 @@ import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.ResourceAccessException
 import java.net.SocketException
@@ -68,6 +69,7 @@ class DokarkivClientImpl(
                 SocketException::class.java,
                 SSLHandshakeException::class.java,
                 ResourceAccessException::class.java,
+                HttpClientErrorException.Unauthorized::class.java,
                 HttpServerErrorException.BadGateway::class.java,
                 HttpServerErrorException.GatewayTimeout::class.java,
                 HttpServerErrorException.ServiceUnavailable::class.java,
