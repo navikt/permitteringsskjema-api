@@ -1,5 +1,6 @@
 package no.nav.permitteringsskjemaapi.journalføring
 
+import io.netty.handler.timeout.ReadTimeoutException
 import jakarta.transaction.Transactional
 import no.nav.permitteringsskjemaapi.config.X_CORRELATION_ID
 import no.nav.permitteringsskjemaapi.config.logger
@@ -73,6 +74,7 @@ class JournalføringService(
             log.atLevel(
                 when {
                     e.isCausedBy<PrematureCloseException>() -> Level.WARN
+                    e.isCausedBy<ReadTimeoutException>() -> Level.WARN
 
                     else -> Level.ERROR
                 }
