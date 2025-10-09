@@ -42,7 +42,7 @@ class EntraIdKlient(
     }.tokenResponse.access_token
 
     @Scheduled(
-        initialDelayString = "PT10S",
+        initialDelayString = "PT60S",
         fixedRateString = "PT10S",
     )
     fun evictionLoop() {
@@ -90,7 +90,7 @@ internal data class TokenResponse(
     val expires_in: Int,
 )
 
-internal const val token_expiry_buffer_seconds = 60 /*sec*/
+internal const val token_expiry_buffer_seconds = 120
 
 internal data class AccessTokenHolder(
     val tokenResponse: TokenResponse,
