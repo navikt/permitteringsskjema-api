@@ -13,9 +13,11 @@ spec:
     limits:
       memory: 1024Mi
   liveness:
-    path: /permitteringsskjema-api/internal/actuator/info
+    path: /permitteringsskjema-api/internal/actuator/health
+    initialDelay: 30
   readiness:
-    path: /permitteringsskjema-api/internal/actuator/info
+    path: /permitteringsskjema-api/internal/actuator/health
+    initialDelay: 30
   prometheus:
     enabled: true
     path: /permitteringsskjema-api/internal/actuator/prometheus

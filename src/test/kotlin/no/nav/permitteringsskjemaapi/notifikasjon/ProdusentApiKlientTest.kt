@@ -1,14 +1,17 @@
 package no.nav.permitteringsskjemaapi.notifikasjon
 
 import kotlinx.coroutines.runBlocking
+import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
 import no.nav.permitteringsskjemaapi.fakes.FakeControllerContext
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = ["server.port=54058"])
 @Import(FakeControllerContext::class)
@@ -19,6 +22,9 @@ internal class ProdusentApiKlientTest {
 
     @Autowired
     lateinit var fakeResponseResolver: FakeControllerContext.FakeResponseResolver
+
+    @MockitoBean
+    lateinit var entraIdKlient: EntraIdKlient // stub nais m2m token så den ikke feiler
 
     @Test
     fun `NySakVellykket fra Produsent api`() = runBlocking {

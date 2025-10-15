@@ -41,7 +41,7 @@ class OppgaveClientTest {
     private val skjema = testSkjema(bedriftNr = "201", sendtInnTidspunkt = Instant.parse("2020-02-01T12:00:00.00Z"))
     private val journalført =
         Journalført(journalpostId = "101", journalfortAt = "102", kommunenummer = "103", behandlendeEnhet = "104")
-    private val mockAzureToken = "lol42"
+    private val mockM2MToken = "lol42"
 
     @Autowired
     lateinit var server: MockRestServiceServer
@@ -51,11 +51,11 @@ class OppgaveClientTest {
 
     @Test
     fun oppgaveOpprettetTest() {
-        Mockito.`when`(entraIdKlient.getToken(OPPGAVESCOPE)).thenReturn(mockAzureToken)
+        Mockito.`when`(entraIdKlient.getToken(OPPGAVESCOPE)).thenReturn(mockM2MToken)
 
         server.expect(requestTo("/api/v1/oppgaver"))
             .andExpect(method(HttpMethod.POST))
-            .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer $mockAzureToken"))
+            .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer $mockM2MToken"))
             .andExpect(header("X-Correlation-ID", IsAnything()))
             .andExpect(jsonPath("$.journalpostId").value(journalført.journalpostId))
             .andExpect(jsonPath("$.orgnr").value(skjema.bedriftNr))

@@ -1,24 +1,19 @@
 package no.nav.permitteringsskjemaapi.entraID
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import no.nav.permitteringsskjemaapi.config.logger
-import no.nav.permitteringsskjemaapi.util.multiValueMapOf
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
-import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.context.annotation.Configuration
-import org.springframework.http.*
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpServerErrorException
 import java.net.SocketException
-import java.time.Instant
-import java.util.concurrent.ConcurrentHashMap
 import javax.net.ssl.SSLHandshakeException
 
 
 @Component
 class EntraIdKlient(
-    private val entraIdConfig: EntraIdConfig,
+    @Value("\${nais.token.endpoint}") private val tokenEndpoint: String,
     restTemplateBuilder: RestTemplateBuilder
 ) {
     private val log = logger()
@@ -35,70 +30,26 @@ class EntraIdKlient(
         )
     ).build()
 
-    private val tokens = ConcurrentHashMap<String, AccessTokenHolder>()
-
-    fun getToken(scope: String) = tokens.computeIfAbsent(scope) {
-        hentAccessToken(it)
-    }.tokenResponse.access_token
-
-    @Scheduled(
-        initialDelayString = "PT60S",
-        fixedRateString = "PT10S",
-    )
-    fun evictionLoop() {
-        tokens.filter {
-            it.value.hasExpired(Instant.now())
-        }.forEach {
-            tokens.remove(it.key)
-        }
-    }
-
-    private fun hentAccessToken(scope: String): AccessTokenHolder {
-        try {
-            val response: ResponseEntity<TokenResponse> = restTemplate.postForEntity(
-                entraIdConfig.aadAccessTokenURL,
-                HttpEntity(
-                    multiValueMapOf(
-                        "grant_type" to "client_credentials",
-                        "client_id" to entraIdConfig.clientid,
-                        "client_secret" to entraIdConfig.azureClientSecret,
-                        "scope" to scope,
-                    ),
-                    HttpHeaders().apply { contentType = MediaType.APPLICATION_FORM_URLENCODED }
+    fun getToken(scope: String): String {
+        return try {
+            restTemplate.postForEntity(
+                tokenEndpoint,
+                mapOf(
+                    "identity_provider" to "azuread",
+                    "target" to scope
                 ),
                 TokenResponse::class.java
-            )
-            return AccessTokenHolder(response.body!!)
+            ).body!!.accessToken
         } catch (e: Exception) {
-            log.error("feil ved henting av Azure AD maskin-maskin access token", e)
+            log.error("feil ved henting av m2m access token", e)
             throw e
         }
     }
 }
 
-@Configuration
-@ConfigurationProperties("azuread")
-class EntraIdConfig(
-    var aadAccessTokenURL: String = "",
-    var clientid: String = "",
-    var azureClientSecret: String = "",
+data class TokenResponse(
+    @JsonProperty("access_token")
+    val accessToken: String,
+    @JsonProperty("expires_in")
+    val expiresInSeconds: Int,
 )
-
-internal data class TokenResponse(
-    val access_token: String,
-    val token_type: String,
-    val expires_in: Int,
-)
-
-internal const val token_expiry_buffer_seconds = 120
-
-internal data class AccessTokenHolder(
-    val tokenResponse: TokenResponse,
-    val createdAt: Instant = Instant.now()
-) {
-    fun hasExpired(
-        now: Instant = Instant.now(),
-    ): Boolean {
-        return now > createdAt.plusSeconds((tokenResponse.expires_in - token_expiry_buffer_seconds).toLong())
-    }
-}
