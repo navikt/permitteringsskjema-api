@@ -47,6 +47,9 @@ permittering:
 
 permittering-dokgen.baseUrl: "http://permittering-dokgen"
 
+nais:
+  token.endpoint: ${NAIS_TOKEN_ENDPOINT}
+
 azuread:
     aadAccessTokenURL: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
     clientid: ${AZURE_APP_CLIENT_ID}

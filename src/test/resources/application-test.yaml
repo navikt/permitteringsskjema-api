@@ -26,10 +26,7 @@ no.nav.security.jwt:
       discovery-url: http://localhost:9100/tokenx/.well-known/openid-configuration
       accepted_audience: permitteringsskjema-test
 
-azuread:
-  aadAccessTokenURL: http://localhost:9100/azuread/token
-  clientid: azureadid
-  azureClientSecret: azureadsecret
+nais.token.endpoint: http://notconfigured
 
 ereg-services.baseUrl: "https://ereg-services.example.com"
 norg2.baseUrl: "https://norg2.example.com"
