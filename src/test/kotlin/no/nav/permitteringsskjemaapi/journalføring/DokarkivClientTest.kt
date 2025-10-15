@@ -45,7 +45,7 @@ class DokarkivClientTest {
     @Autowired
     lateinit var server: MockRestServiceServer
 
-    val mockAzureToken = "lol42"
+    val mockM2MToken = "lol42"
     val behandlendeEnhet = "OSL42"
     val pdfContent = "hello pdf"
     val skjema = Permitteringsskjema(
@@ -67,12 +67,12 @@ class DokarkivClientTest {
     )
 
     @Test
-    fun oppretterJournalpostMedAzureToken() {
-        Mockito.`when`(entraIdKlient.getToken(dokarkivScope)).thenReturn(mockAzureToken)
+    fun oppretterJournalpostMedM2MToken() {
+        Mockito.`when`(entraIdKlient.getToken(dokarkivScope)).thenReturn(mockM2MToken)
 
         server.expect(requestTo("/journalpost?forsoekFerdigstill=true"))
             .andExpect(method(HttpMethod.POST))
-            .andExpect(header(AUTHORIZATION, "Bearer $mockAzureToken"))
+            .andExpect(header(AUTHORIZATION, "Bearer $mockM2MToken"))
             .andExpect(jsonPath("$.datoMottatt").value(LocalDate.ofInstant(skjema.sendtInnTidspunkt!!, systemDefault()).toString()))
             .andExpect(jsonPath("$.bruker.id").value(skjema.bedriftNr!!))
             .andExpect(jsonPath("$.bruker.idType").value("ORGNR"))

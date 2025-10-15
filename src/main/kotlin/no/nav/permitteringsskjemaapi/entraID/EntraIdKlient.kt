@@ -41,7 +41,7 @@ class EntraIdKlient(
                 TokenResponse::class.java
             ).body!!.accessToken
         } catch (e: Exception) {
-            log.error("feil ved henting av Azure AD maskin-maskin access token", e)
+            log.error("feil ved henting av m2m access token", e)
             throw e
         }
     }

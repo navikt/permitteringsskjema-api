@@ -15,7 +15,7 @@ import org.springframework.test.web.client.response.MockRestResponseCreators
         EntraIdKlient::class,
     ],
     properties = [
-        "nais.token.endpoint=/some-azure-ad-endpoint",
+        "nais.token.endpoint=/tokenendpoint",
     ]
 )
 class EntraIdKlientTest {
@@ -38,7 +38,7 @@ class EntraIdKlientTest {
             }
         """.trimIndent()
 
-        server.expect(MockRestRequestMatchers.requestTo("/some-azure-ad-endpoint"))
+        server.expect(MockRestRequestMatchers.requestTo("/tokenendpoint"))
             .andExpect(
                 MockRestRequestMatchers.content().json("""
                     {
