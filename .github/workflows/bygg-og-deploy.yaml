@@ -51,7 +51,6 @@ jobs:
         with:
           team: permittering-og-nedbemanning
           tag: ${{ github.sha }}
-          byosbom: target/classes/META-INF/sbom/application.cdx.json
 
   deploy-to-dev-gcp:
     name: Deploy to dev-gcp
