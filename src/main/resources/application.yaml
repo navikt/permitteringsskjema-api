@@ -48,7 +48,7 @@ permittering:
 permittering-dokgen.baseUrl: "http://permittering-dokgen"
 
 nais:
-  token.endpoint: ${NAIS_TOKEN_ENDPOINT}
+  token.endpoint: ${NAIS_TOKEN_ENDPOINT:http://notconfigured}
 
 token.x:
   privateJwk: ${TOKEN_X_PRIVATE_JWK:}
@@ -98,4 +98,3 @@ dokarkiv:
 oppgave:
   baseUrl: "https://oppgave.prod-fss-pub.nais.io"
   scope: "api://prod-fss.oppgavehandtering.oppgave/.default"
-

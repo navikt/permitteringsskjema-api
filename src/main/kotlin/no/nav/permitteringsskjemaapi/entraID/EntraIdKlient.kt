@@ -50,6 +50,8 @@ class EntraIdKlient(
 data class TokenResponse(
     @JsonProperty("access_token")
     val accessToken: String,
+    @JsonProperty("token_type")
+    val tokenType: String? = null,
     @JsonProperty("expires_in")
     val expiresInSeconds: Int,
 )

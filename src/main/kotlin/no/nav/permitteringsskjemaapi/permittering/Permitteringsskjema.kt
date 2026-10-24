@@ -39,29 +39,83 @@ data class Permitteringsskjema(
     val årsakstekst = årsakskode.navn
 }
 
+data class PermitteringJournalpost(
+    val tittel: String,
+    val dokument: PermitteringJournalpostDokument
+)
+
+data class PermitteringJournalpostDokument(
+    val tittel: String,
+    val brevkode: String,
+)
+
 enum class SkjemaType(
     val merkelapp: String,
     val tittel: String,
     val beskjedTekst: String,
-    val trukketTekst: String
+    val trukketTekst: String,
+    val innsendtPermitteringJournalpost: PermitteringJournalpost,
+    val trukketPermitteringJournalpost: PermitteringJournalpost,
 ) {
     MASSEOPPSIGELSE(
         "Nedbemanning",
         "Melding om oppsigelse",
         "Nav har mottatt deres melding om oppsigelse. Vi tar kontakt snart.",
-        "Meldingen om oppsigelse er trukket tilbake. Nav har registrert dette."
+        "Meldingen om oppsigelse er trukket tilbake. Nav har registrert dette.",
+        PermitteringJournalpost(
+            "Arbeidsgivers meldeplikt til NAV ved masseoppsigelser",
+            PermitteringJournalpostDokument(
+                "Arbeidsgivers meldeplikt til NAV ved masseoppsigelser",
+                "NAV 76-08.03"
+            )
+        ),
+        PermitteringJournalpost(
+            "Arbeidsgiver har trukket melding om masseoppsigelser til Nav",
+            PermitteringJournalpostDokument(
+                "Arbeidsgiver har trukket melding om masseoppsigelser til Nav",
+                "NAV 76-08.03"
+            )
+        )
     ),
     PERMITTERING_UTEN_LØNN(
         "Permittering",
         "Melding om permittering",
         "Nav har mottatt deres melding om permittering. Vi tar kontakt snart.",
-        "Meldingen om permittering er trukket tilbake. Nav har registrert dette."
+        "Meldingen om permittering er trukket tilbake. Nav har registrert dette.",
+        PermitteringJournalpost(
+            "Arbeidsgivers meldeplikt til Nav ved permitteringer uten lønn",
+            PermitteringJournalpostDokument(
+                "Arbeidsgivers meldeplikt til Nav ved permitteringer uten lønn",
+                "NAV 76-08.03"
+            )
+        ),
+        PermitteringJournalpost(
+            "Arbeidsgiver har trukket melding om permitteringer uten lønn til Nav",
+            PermitteringJournalpostDokument(
+                "Arbeidsgiver har trukket melding om permitteringer uten lønn til Nav",
+                "NAV 76-08.03"
+            )
+        )
     ),
     INNSKRENKNING_I_ARBEIDSTID(
         "Innskrenking av arbeidstid",
         "Melding om innskrenking av arbeidstid",
         "Nav har mottatt deres melding om innskrenking av arbeidstid.",
-        "Meldingen om innskrenking av arbeidstid er trukket tilbake. Nav har registrert dette."
+        "Meldingen om innskrenking av arbeidstid er trukket tilbake. Nav har registrert dette.",
+        PermitteringJournalpost(
+            "Arbeidsgivers meldeplikt til Nav ved innskrenking i arbeidstiden",
+            PermitteringJournalpostDokument(
+                "Arbeidsgivers meldeplikt til Nav ved innskrenking i arbeidstiden",
+                "NAV 76-08.03"
+            )
+        ),
+        PermitteringJournalpost(
+            "Arbeidsgiver har trukket melding om innskrenking i arbeidstiden til Nav",
+            PermitteringJournalpostDokument(
+                "Arbeidsgiver har trukket melding om innskrenking i arbeidstiden til Nav",
+                "NAV 76-08.03"
+            )
+        )
     )
 }
 

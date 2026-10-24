@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import no.nav.permitteringsskjemaapi.config.logger
 import no.nav.permitteringsskjemaapi.entraID.EntraIdKlient
 import no.nav.permitteringsskjemaapi.permittering.HendelseType
+import no.nav.permitteringsskjemaapi.permittering.PermitteringJournalpost
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.util.retryInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpStatusCode
-import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.stereotype.Component
 import org.springframework.web.client.DefaultResponseErrorHandler
@@ -54,7 +54,7 @@ class DokarkivClientImpl(
         .rootUri(dokarkivBaseUrl)
         .connectTimeout(Duration.ofSeconds(2))
         .readTimeout(Duration.ofSeconds(30))
-        .errorHandler(object: DefaultResponseErrorHandler() {
+        .errorHandler(object : DefaultResponseErrorHandler() {
             override fun hasError(response: ClientHttpResponse): Boolean {
                 val statusCode = response.statusCode
                 val isValidStatusCode = statusCode.is2xxSuccessful
@@ -100,8 +100,12 @@ class DokarkivClientImpl(
                 HendelseType.INNSENDT -> "PRM-${skjema.id}"
                 else -> "PRM-${skjema.id}-${hendelseType.name}"
             },
-            journalfoerendeEnhet = behandlendeEnhet,
+            behandlendeEnhet = behandlendeEnhet,
             pdf = String(Base64.getEncoder().encode(dokumentPdfAsBytes)),
+            journalpostMetadata = when (hendelseType) {
+                HendelseType.INNSENDT -> skjema.type.innsendtPermitteringJournalpost
+                HendelseType.TRUKKET -> skjema.type.trukketPermitteringJournalpost
+            },
         ),
         DokarkivResponse::class.java
     )!!.journalpostId
@@ -113,17 +117,24 @@ class DokarkivClientImpl(
         val bruker: Bruker,
         val avsenderMottaker: Avsender,
         val eksternReferanseId: String,
-        val journalfoerendeEnhet: String,
-        val pdf : String,
+        val behandlendeEnhet: String,
+        val pdf: String,
+        val journalpostMetadata: PermitteringJournalpost,
     ) {
         val journalposttype = "INNGAAENDE"
+        val tittel = journalpostMetadata.tittel
         val kanal = "NAV_NO"
         val tema = "PER"
-        val tittel =
-            "Arbeidsgivers meldeplikt til NAV ved masseoppsigelser, permitteringer uten lønn og innskrenking i arbeidstiden"
-        val sak: Sak = Sak()
-        val dokumenter: List<Dokument> = listOf(Dokument(pdf))
+        val journalfoerendeEnhet = "9999" // Automatisk journalføring
 
+        val sak: Sak = Sak()
+        val dokumenter: List<Dokument> = listOf(
+            Dokument(
+                journalpostMetadata.dokument.tittel,
+                journalpostMetadata.dokument.brevkode,
+                pdf
+            )
+        )
     }
 
 
@@ -142,10 +153,11 @@ class DokarkivClientImpl(
 
 
     @Suppress("unused")
-    private class Dokument(fysiskDokument: String) {
-        val brevkode = "NAV 76-08.03"
-        val tittel =
-            "Arbeidsgivers meldeplikt til NAV ved masseoppsigelser, permitteringer uten lønn og innskrenking i arbeidstiden"
+    private class Dokument(
+        val tittel: String,
+        val brevkode: String,
+        fysiskDokument: String,
+    ) {
         val dokumentVarianter: List<DokumentVariant> = listOf(DokumentVariant(fysiskDokument))
     }
 
