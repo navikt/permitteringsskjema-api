@@ -2,6 +2,7 @@ package no.nav.permitteringsskjemaapi.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.networknt.schema.JsonSchemaFactory
+import com.networknt.schema.SchemaValidatorsConfig
 import com.networknt.schema.SpecVersion
 import no.nav.permitteringsskjemaapi.permittering.Permitteringsskjema
 import no.nav.permitteringsskjemaapi.permittering.SkjemaType
@@ -71,7 +72,10 @@ class PermitteringsskjemaProdusent(
     private val jsonSchema = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("kafka-schema.json")
         .use {
-            JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012).getSchema(it)
+            JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012).getSchema(
+                it,
+                SchemaValidatorsConfig.builder().formatAssertionsEnabled(true).build()
+            )
                 .apply {
                     initializeValidators()
                 }
