@@ -30,7 +30,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: NAIS login
         id: login
@@ -39,7 +39,7 @@ jobs:
           team: permittering-og-nedbemanning
 
       - name: Deploy Naisjob with parameters (dev-gcp)
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@v3
         env:
           RESOURCE: nais/dev-gcp-admin-trekk-job.yaml
           CLUSTER: dev-gcp
