@@ -36,12 +36,12 @@ class KafkaSchemaTests {
 
     @Test
     fun godtarIkkeHvaSomHelst() {
-        assertNotValid("$", "[]")
+        assertNotValid("", "[]")
     }
 
     @Test
     fun godtarIkkeFeilDatoFormat() {
-        assertNotValid("\$.startDato", eksempelFeilDatoFormat)
+        assertNotValid("/startDato", eksempelFeilDatoFormat)
     }
 
     private fun assertValid(json: String) {
@@ -55,8 +55,8 @@ class KafkaSchemaTests {
         val errors = kafkaProdusent.validateAgainstSchema(json)
         if (errors.isEmpty()) {
             fail("schema validation succeeded, but expected it to fail")
-        } else if (errors.all { it.path != path}) {
-            fail("expected schema to fail on path $path, but only errors for ${errors.joinToString { it.path }}")
+        } else if (errors.all { it.instanceLocation.toString() != path }) {
+            fail("expected schema to fail on path $path, but only errors for ${errors.joinToString { it.instanceLocation.toString() }}")
         } else {
             println("got expected validation errors for path $path: ${errors.joinToString()}")
         }
